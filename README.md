@@ -1,6 +1,12 @@
 # Teacher Student Dynamics
 
-This repository contains code related to variations of the teacher-student framework. It can be used to investigate continual learning, transfer learning, critical learning periods among other learning regimes.
+This repository contains code related to variations of the teacher-student framework. It can be used to investigate continual learning, transfer learning, critical learning periods among other learning regimes. Results from papers such as
+
+- Gold et. al (2019) [https://proceedings.neurips.cc/paper/2019/hash/cab070d53bd0d200746fb852a922064a-Abstract.html]
+- Lee et. al (2020) [https://proceedings.mlr.press/v139/lee21e.html?ref=https://githubhelp.com]
+- Lee et. al (2021) [https://arxiv.org/abs/2205.09029]
+
+should all be reproducible from this code.
 
 ## Getting Started
 
@@ -20,6 +26,10 @@ Some parts, specifically the ODEs are implemented in C++ (C++17). I plan to add 
 
 ## Basic Usage
 
+The main interface of the code is the ```config.yaml``` file found in the experiments folder. In this file you can specify the parameters of an experiment, which can then be run using ```python run.py```.
+
+A single run will produce a number of output files. By default these will be located in ```experiments/results/``` under a folder named by the timestamp of the experiment. The files will include scalar data (e.g. generalisation errors and order parameters) for the network simulations and/or the ODE solutions, and plots of this data (under a subfolder named _plots_).
+
 ## Coverage
 
 ### Implemented
@@ -34,8 +44,8 @@ Some parts, specifically the ODEs are implemented in C++ (C++17). I plan to add 
 - 
 ### TODOs
 
-#### Major TODOs
-#### Minor TODOs
+#### _Major_
+#### _Minor_
 
 - Standardize naming convention from some base reference for ODE and network runner.
 - Log overlap / confoguring frequency of logging 
