@@ -1,4 +1,5 @@
-from typing import List, Optional
+import os
+from typing import Dict, List
 
 import numpy as np
 
@@ -23,6 +24,74 @@ class NetworkConfiguration:
         self._teacher_self_overlaps = teacher_self_overlaps
         self._teacher_cross_overlaps = teacher_cross_overlaps
         self._student_teacher_overlaps = student_teacher_overlaps
+
+        self._num_teachers = len(self._teacher_head_weights)
+
+    def save(self, path: str) -> Dict[str, str]:
+
+        save_path_map = {}
+
+        np.savetxt(
+            os.path.join(path, f"{constants.STUDENT_SELF_OVERLAP}.csv"),
+            self._student_self_overlap,
+            delimiter=",",
+        )
+        save_path_map[constants.STUDENT_SELF_OVERLAP] = os.path.join(
+            path, f"{constants.STUDENT_SELF_OVERLAP}.csv"
+        )
+        for i, student_teacher_overlap in enumerate(self._student_teacher_overlaps):
+            op_name = f"{constants.STUDENT_TEACHER_OVERLAPS}_{i}"
+            save_path = os.path.join(path, f"{op_name}.csv")
+            np.savetxt(
+                save_path,
+                student_teacher_overlap,
+                delimiter=",",
+            )
+            save_path_map[op_name] = save_path
+        for i, student_head in enumerate(self._student_head_weights):
+            op_name = f"{constants.STUDENT_HEAD_WEIGHTS}_{i}"
+            save_path = os.path.join(path, f"{op_name}.csv")
+            np.savetxt(
+                save_path,
+                student_head,
+                delimiter=",",
+            )
+            save_path_map[op_name] = save_path
+        for i in range(self._num_teachers):
+            op_name = f"{constants.TEACHER_HEAD_WEIGHTS}_{i}"
+            save_path = os.path.join(path, f"{op_name}.csv")
+            np.savetxt(
+                os.path.join(path, f"{constants.TEACHER_HEAD_WEIGHTS}_{i}.csv"),
+                self._teacher_head_weights[i],
+                delimiter=",",
+            )
+            save_path_map[op_name] = save_path
+            op_name = f"{constants.TEACHER_SELF_OVERLAPS}_{i}"
+            save_path = os.path.join(path, f"{op_name}.csv")
+            np.savetxt(
+                os.path.join(path, f"{constants.TEACHER_SELF_OVERLAPS}_{i}.csv"),
+                self._teacher_self_overlaps[i],
+                delimiter=",",
+            )
+            save_path_map[op_name] = save_path
+
+        access_index = 0
+        for i in range(self._num_teachers):
+            for j in range(i, self._num_teachers):
+                if i != j:
+                    op_name = f"{constants.TEACHER_CROSS_OVERLAPS}_{i}_{j}"
+                    save_path = os.path.join(path, f"{op_name}.csv")
+                    np.savetxt(
+                        os.path.join(
+                            path, f"{constants.TEACHER_CROSS_OVERLAPS}_{i}_{j}.csv"
+                        ),
+                        self._teacher_cross_overlaps[access_index],
+                        delimiter=",",
+                    )
+                    save_path_map[op_name] = save_path
+                    access_index += 1
+
+        return save_path_map
 
     @property
     def student_head_weights(self) -> List[np.ndarray]:
@@ -49,19 +118,18 @@ class NetworkConfiguration:
         return self._student_teacher_overlaps
 
     @property
-    def old_student_self_overlap(self):
-        return self._old_student_self_overlap
+    def configuration_dictionary(self):
+        return {
+            constants.STUDENT_SELF_OVERLAP: self._student_self_overlap,
+            constants.STUDENT_TEACHER_OVERLAPS: self._student_teacher_overlaps,
+            constants.STUDENT_HEAD_WEIGHTS: self._student_head_weights,
+            constants.TEACHER_HEAD_WEIGHTS: self._teacher_head_weights,
+            constants.TEACHER_CROSS_OVERLAPS: self._teacher_cross_overlaps,
+            constants.TEACHER_SELF_OVERLAPS: self._teacher_self_overlaps,
+        }
 
     @property
-    def student_old_student_overlap(self):
-        return self._student_old_student_overlap
-
-    @property
-    def teacher_old_student_overlaps(self):
-        return self._teacher_old_student_overlaps
-
-    @property
-    def dictionary(self):
+    def sub_dictionary(self):
         network_configuration_dictionary = {}
 
         for i, head in enumerate(self._student_head_weights):
