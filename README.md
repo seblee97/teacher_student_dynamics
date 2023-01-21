@@ -32,50 +32,48 @@ A single run will produce a number of output files. By default these will be loc
 
 ## Coverage
 
+Below is a summary of the models / experiment configurations that have been implemented, and those that are planned. For features not yet implemented, the asterisk * denotes that it has been completed but note yet integrated/pushed.
+
 ### Implemented
 
-- Vanilla Teacher Student
-  - Rotating teachers
-  - Identical teachers
-  - Shared node teachers
-- Interleaved Replay
-- Output noise to teachers
-- Input noise to students [Networks only]
-- 
+- Standard teacher-student framework with IID Gaussian inputs.
+- Multi teacher-student framework with IID Gaussian inputs.
+    - Teachers rotated in feature and/or readout space.
+- Interleaved replay of previous teacher during training of second (networks only).
+- Output noise to teachers.
 ### TODOs
 
 #### _Major_
+
+- Data with input correlations (hidden manifold model); network simulations as well as ODEs.
+- *Classification (currently only regression is implemented).
+- *Input noise to student only; network simulations.
+- Input noise to student only; derive ODEs.
 #### _Minor_
 
+- *Elastic weight consolidation (EWC); network simulations as well as ODEs.
+- *Python implementation of ODEs.
 - Standardize naming convention from some base reference for ODE and network runner.
-- Log overlap / confoguring frequency of logging 
-- Consolidate cpp outputs using data logging module from ode runner class
-- Logging in network using new numpy array system
-- Noise outputs for teacher on runner side
-- Plotting
-- Interleaving for ODEs
-- Frozen units 
-- All the config checks on ODE/Network compatibility
-- Switch steps in ODEs
-- Meta/
-
-Next Implementations
-
-- Classification (previously implemented)
-- ODEs for HMM multi-teacher
-- Networks for HMM multi-teacher
-- EWC for networks (previously implemented)
-- EWC ODEs (previously derived but mistake somewhere)
-- Equivalent python implementation of ODEs for python-only use-case (implemented previously)
+- Consolidate C++ outputs using data logging module from ODE runner class.
+- Logging in network using new numpy array system.
+- Noise outputs for teacher on runner side.
+- Construct summary plots in addition to separate plots.
+- Interleaving for ODEs.
+- Frozen units (for critical learning experiments).
+- Add config checks on ODE/Network compatibility.
+- *Option for single head student (in addition to multi-head already implemented).
 
 ### Not Planned
-Not planned but possible
 
-- More than 2 teachers (previously implemented)
-- More than 2 layers (previously implemented)
-- Mean field scaling (previously implemented)
-- MNIST or other arbitrary datasets (previously implemented)
-- Symmetric initialisation for students
-- Other teacher configurations (drifting)
-- Copying head at switch
-- Path integral consolidation (Zenke, Poole)
+The following features are not planned but are certainly possible:
+
+- *More than 2 teachers.
+- *More than 2 layers.
+- *Mean field scaling.
+- *MNIST or other arbitrary datasets.
+- *Symmetric initialisation for students.
+- *Other teacher configurations (e.g. drifting).
+- *Copying head at switch.
+- *Path integral consolidation (Zenke, Poole).
+
+ Code for most exist already but have not been pushed to this repository in an attempt to minimise complexity. 
