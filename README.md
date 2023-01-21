@@ -2,9 +2,9 @@
 
 This repository contains code related to variations of the teacher-student framework. It can be used to investigate continual learning, transfer learning, critical learning periods among other learning regimes. Results from papers such as
 
-- Gold et. al (2019) [https://proceedings.neurips.cc/paper/2019/hash/cab070d53bd0d200746fb852a922064a-Abstract.html]
-- Lee et. al (2020) [https://proceedings.mlr.press/v139/lee21e.html?ref=https://githubhelp.com]
-- Lee et. al (2021) [https://arxiv.org/abs/2205.09029]
+- [Gold et. al (2019)](https://proceedings.neurips.cc/paper/2019/hash/cab070d53bd0d200746fb852a922064a-Abstract.html)
+- [Lee et. al (2020)](https://proceedings.mlr.press/v139/lee21e.html?ref=https://githubhelp.com)
+- [Lee et. al (2021)](https://arxiv.org/abs/2205.09029)
 
 should all be reproducible from this code.
 
