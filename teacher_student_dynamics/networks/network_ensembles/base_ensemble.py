@@ -81,6 +81,7 @@ class BaseEnsemble(abc.ABC):
             initialisation_std=self._initialisation_std,
             normalise_weights=self._normalise_weights,
             unit_norm_head=self._unit_norm_head,
+            freeze=True,
         )
 
     def save_all_network_weights(self, save_path: str) -> None:
