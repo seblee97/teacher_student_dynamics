@@ -26,6 +26,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     """
 
     def __init__(self, config: experiments.config.Config, unique_id: str = "") -> None:
+        self._overlap_frequency = config.overlap_frequency or np.inf
         super().__init__(config, unique_id)
 
     def get_network_configuration(self):
@@ -66,6 +67,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         for i in range(self._num_teachers):
             columns.append(f"{constants.GENERALISATION_ERROR}_{i}")
             columns.append(f"{constants.LOG_GENERALISATION_ERROR}_{i}")
+        if self._overlap_frequency < np.inf:
+            sample_network_config = self.get_network_configuration()
+            columns.extend(list(sample_network_config.sub_dictionary.keys()))
         return columns
 
     def _setup_teachers(self, config: experiments.config.Config):
@@ -254,6 +258,10 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             generalisation_errors = self._compute_generalisation_errors()
             step_logging_dict = {**step_logging_dict, **generalisation_errors}
 
+        if self._total_step_count % self._overlap_frequency == 0:
+            network_config = self.get_network_configuration()
+            step_logging_dict = {**step_logging_dict, **network_config.sub_dictionary}
+
         step_logging_dict[constants.TEACHER_INDEX] = teacher_index
 
         return step_logging_dict
@@ -309,12 +317,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         with torch.no_grad():
             student_outputs = self._student.forward_all(self._test_data_inputs)
-
-            # meta student will only have one set of outputs from forward_all call
-            if len(student_outputs) == 1:
-                student_outputs = [
-                    student_outputs[0] for _ in range(len(self._test_teacher_outputs))
-                ]
 
             for i, (student_output, teacher_output) in enumerate(
                 zip(student_outputs, self._test_teacher_outputs)
