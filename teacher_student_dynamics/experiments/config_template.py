@@ -31,6 +31,9 @@ class ConfigTemplate:
                 types=[int],
                 requirements=[lambda x: x > 0],
             ),
+            config_field.Field(
+                name=constants.OVERLAP_FREQUENCY, types=[int, type(None)]
+            ),
         ],
         level=[constants.LOGGING],
     )
