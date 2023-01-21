@@ -199,7 +199,7 @@ int main(int argc, char **argv)
     file.open(output_path / "error_1.csv");
     for (int i = 0; i < num_deltas; i++)
     {
-        file << error_0_log[i];
+        file << error_1_log[i];
         if (i < num_deltas - 1)
         {
             file << "\n";
