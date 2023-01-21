@@ -144,7 +144,7 @@ class NetworkConfiguration:
                 ] = weight
         for (i, j), overlap_value in np.ndenumerate(self._student_self_overlap):
             network_configuration_dictionary[
-                f"{constants.STUDENT_SELF}_{constants.OVERLAP}_{i}_{j}"
+                f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
             ] = overlap_value
         for t, student_teacher_overlap in enumerate(self._student_teacher_overlaps):
             for (i, j), overlap_value in np.ndenumerate(student_teacher_overlap):
