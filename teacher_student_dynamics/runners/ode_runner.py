@@ -122,26 +122,26 @@ class ODERunner(base_runner.BaseRunner):
         for i in range(self._student_hidden):
             for j in range(self._student_hidden):
                 qij = np.genfromtxt(os.path.join(self._ode_file_path, f"q_{i}{j}.csv"))
-                df[f"q_{i}{j}"] = qij
+                df[f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"] = qij
 
         for i in range(self._student_hidden):
             for j in range(self._teacher_hidden):
                 rij = np.genfromtxt(os.path.join(self._ode_file_path, f"r_{i}{j}.csv"))
                 uij = np.genfromtxt(os.path.join(self._ode_file_path, f"u_{i}{j}.csv"))
-                df[f"r_{i}{j}"] = rij
-                df[f"u_{i}{j}"] = uij
+                df[f"{constants.STUDENT_TEACHER}_{0}_{constants.OVERLAP}_{i}_{j}"] = rij
+                df[f"{constants.STUDENT_TEACHER}_{1}_{constants.OVERLAP}_{i}_{j}"] = uij
 
         for i in range(self._num_teachers):
 
             ei = np.genfromtxt(os.path.join(self._ode_file_path, f"error_{i}.csv"))
-            df[f"generalisation_error_{i}"] = ei
+            df[f"{constants.GENERALISATION_ERROR}_{i}"] = ei
 
             log_ei = np.log10(ei)
-            df[f"log_generalisation_error_{i}"] = log_ei
+            df[f"{constants.LOG_GENERALISATION_ERROR}_{i}"] = log_ei
 
             for j in range(self._student_hidden):
                 hij = np.genfromtxt(os.path.join(self._ode_file_path, f"h_{i}{j}.csv"))
-                df[f"h_{i}{j}"] = hij
+                df[f"{constants.STUDENT_HEAD}_{i}_{constants.WEIGHT}_{j}"] = hij
 
         df.to_csv(
             os.path.join(self._checkpoint_path, "data_logger_ode.csv"), index=False
