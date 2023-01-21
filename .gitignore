@@ -2,3 +2,4 @@
 *__pycache__*
 *.vscode
 *.egg-info
+teacher_student_dynamics/experiments/results/
