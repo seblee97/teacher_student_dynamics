@@ -16,9 +16,13 @@ Finally, the package itself should be installed by running
 from the root of the repository.
 
 ### C++
-Some parts, specifically the ODEs are implemented in C++ (C++17). I plan to add a python implementation to forgo these additional requirements (see [TODOs](#todos) below). In addition to standard C++17 compiler requirements, the [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) package is also needed for the linear algebra computations. Saving the Eigen header files in the root of the repository should be sufficient. See the [Eigen documentation](https://eigen.tuxfamily.org/dox/GettingStarted.html) for more details.
+Some parts, specifically the ODEs are implemented in C++ (C++17). I plan to add a python implementation to forgo these additional requirements (see [TODOs](#todos) below). In addition to standard C++17 compiler requirements, the [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) package is also needed for the linear algebra computations. Saving the Eigen header files in the root of the repository should be sufficient. See the Eigen [documentation](https://eigen.tuxfamily.org/dox/GettingStarted.html) for more details.
 
-Implemented
+## Basic Usage
+
+## Coverage
+
+### Implemented
 
 - Vanilla Teacher Student
   - Rotating teachers
@@ -28,7 +32,10 @@ Implemented
 - Output noise to teachers
 - Input noise to students [Networks only]
 - 
-## TODOs
+### TODOs
+
+#### Major TODOs
+#### Minor TODOs
 
 - Standardize naming convention from some base reference for ODE and network runner.
 - Log overlap / confoguring frequency of logging 
@@ -51,6 +58,7 @@ Next Implementations
 - EWC ODEs (previously derived but mistake somewhere)
 - Equivalent python implementation of ODEs for python-only use-case (implemented previously)
 
+### Not Planned
 Not planned but possible
 
 - More than 2 teachers (previously implemented)
