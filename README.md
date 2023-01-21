@@ -51,6 +51,8 @@ Below is a summary of the models / experiment configurations that have been impl
 - Input noise to student only; derive ODEs.
 #### _Minor_
 
+[Some of these are low level and probably not understandable, but I know what I mean!]
+
 - *Elastic weight consolidation (EWC); network simulations as well as ODEs.
 - *Python implementation of ODEs.
 - Standardize naming convention from some base reference for ODE and network runner.
