@@ -25,6 +25,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         unit_norm_head: Optional[bool] = False,
         train_hidden_layer: Optional[bool] = False,
         train_head_layer: Optional[bool] = False,
+        freeze: Optional[bool] = False,
     ) -> None:
         super().__init__()
 
@@ -47,6 +48,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
 
         self._nonlinear_function = self._get_nonlinear_function()
         self._construct_layers()
+
+        if freeze:
+            self._freeze()
 
     @property
     def layers(self) -> nn.ModuleList:
@@ -187,6 +191,11 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._unfreeze_head(new_head)
 
         self._current_head = new_head
+
+    def _freeze(self) -> None:
+        for layer in self._layers:
+            for param in layer.parameters():
+                param.requires_grad = False
 
     def _freeze_head(self, head_index: int) -> None:
         """Freeze weights of head for task with index head index."""
