@@ -1,0 +1,70 @@
+runner:
+    run_ode: True
+    run_network: True
+
+logging:
+    checkpoint_frequency: 1000
+    stdout_frequency: 1000
+
+ode:
+    implementation: cpp
+    timestep: 0.001
+
+data:
+    input_source: iid_gaussian # iid_gaussian
+
+    iid_gaussian:
+        mean: 0
+        variance: 1
+        dataset_size: inf
+
+testing:
+    test_batch_size: 10000
+    test_frequency: 100
+
+training:
+    train_batch_size: 1
+    total_training_steps: 500000
+    optimiser: sgd
+    learning_rate: 0.1
+    loss_function: mse
+    train_hidden_layer: True
+    train_head_layer: True
+    copy_head_at_switch: False
+    noise_stds: [0., 0.]
+
+networks:
+    input_dimension: 1000 
+    output_dimension: 1
+    nonlinearity: scaled_erf
+    # student
+    student_hidden: 2
+    student_bias: False
+    student_initialisation_std: 0.001
+    # teacher(s)
+    num_teachers: 2
+    teacher_hidden: 1
+    teacher_bias: False
+    unit_norm_teacher_head: True
+    normalise_teachers: True
+    teacher_initialisation_std: 1.
+    teacher_output_noises: [0.0, 0.0]
+    teacher_configuration: rotation
+
+    rotation_teachers:
+        feature_rotation_alpha: 0.
+        readout_rotation_alpha: 0.
+
+curriculum:
+    # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
+    stopping_condition: switch_steps              
+  
+    switch_steps: [250000]
+    fixed_period: 1
+    # loss threshold under which teacher is changed
+    loss_thresholds: [0.0001]            
+
+    # how often to interleave previous examples (None for no interleaving)
+    interleave_period:
+    # number of examples from previous task to show in each interleaving                                      
+    interleave_duration: 1
