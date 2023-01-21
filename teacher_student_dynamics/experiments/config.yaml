@@ -6,6 +6,8 @@ logging:
     checkpoint_frequency: 1000
     stdout_frequency: 1000
 
+    overlap_frequency: 100
+
 ode:
     implementation: cpp
     timestep: 0.001
@@ -24,7 +26,7 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 500000
+    total_training_steps: 5000000
     optimiser: sgd
     learning_rate: 0.1
     loss_function: mse
@@ -59,7 +61,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [250000]
+    switch_steps: [2500000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]            
