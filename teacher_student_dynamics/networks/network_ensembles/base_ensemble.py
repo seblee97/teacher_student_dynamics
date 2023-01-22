@@ -23,7 +23,6 @@ class BaseEnsemble(abc.ABC):
         initialisation_std: float,
         unit_norm_head: bool,
         normalise_weights: bool,
-        noise_stds: List[Union[int, float]],
     ) -> None:
         self._input_dimension = input_dimension
         self._hidden_dimension = hidden_dimension
@@ -34,7 +33,6 @@ class BaseEnsemble(abc.ABC):
         self._initialisation_std = initialisation_std
         self._normalise_weights = normalise_weights
         self._unit_norm_head = unit_norm_head
-        self._noise_stds = noise_stds
 
         self._networks = self._setup_networks()
 

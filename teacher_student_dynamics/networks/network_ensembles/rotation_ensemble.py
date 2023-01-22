@@ -22,7 +22,6 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
         initialisation_std: float,
         normalise_weights: bool,
         unit_norm_head: bool,
-        noise_stds: Union[int, float],
         feature_rotation_alpha: float,
         readout_rotation_alpha: float,
     ):
@@ -38,7 +37,6 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
             initialisation_std=initialisation_std,
             normalise_weights=normalise_weights,
             unit_norm_head=unit_norm_head,
-            noise_stds=noise_stds,
         )
 
     def _setup_networks(self) -> None:
