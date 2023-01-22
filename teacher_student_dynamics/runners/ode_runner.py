@@ -81,6 +81,13 @@ class ODERunner(base_runner.BaseRunner):
                 param_name = k.split(".")[0]
                 txt_file.write(f"{param_name},{op_csv_path}\n")
 
+        assert all(
+            [not len(n) or (n[0] == 0) for n in config.noise_to_teacher_output]
+        ), "ODEs only hold for 0-centred Gaussian noise."
+        teacher_output_noises = [
+            n[1] if len(n) else 0.0 for n in config.noise_to_teacher_output
+        ]
+
         ode_config = {
             constants.NUM_STEPS: config.total_training_steps,
             constants.SWITCH_STEP: config.switch_steps[0],
@@ -92,7 +99,7 @@ class ODERunner(base_runner.BaseRunner):
             constants.TIMESTEP: config.timestep,
             constants.TRAIN_HEAD_LAYER: config.train_head_layer,
             constants.TRAIN_HIDDEN_LAYER: config.train_hidden_layer,
-            constants.NOISE_STDS: config.teacher_output_noises,
+            constants.NOISE_STDS: teacher_output_noises,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
             constants.OUTPUT_PATH: self._ode_file_path,
         }
