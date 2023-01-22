@@ -88,6 +88,48 @@ class ConfigTemplate:
                     ]
                 ],
             ),
+            config_field.Field(
+                name=constants.NOISE_TO_STUDENT_INPUT,
+                types=[list],
+                requirements=[
+                    lambda x: all(
+                        [
+                            isinstance(y, list)
+                            and (
+                                not bool(y)  # empty list
+                                or all(
+                                    [
+                                        isinstance(z, float) or isinstance(z, int)
+                                        for z in y
+                                    ]
+                                )
+                            )
+                            for y in x
+                        ]
+                    )
+                ],
+            ),
+            config_field.Field(
+                name=constants.NOISE_TO_TEACHER_OUTPUT,
+                types=[list],
+                requirements=[
+                    lambda x: all(
+                        [
+                            isinstance(y, list)
+                            and (
+                                not bool(y)  # empty list
+                                or all(
+                                    [
+                                        isinstance(z, float) or isinstance(z, int)
+                                        for z in y
+                                    ]
+                                )
+                            )
+                            for y in x
+                        ]
+                    )
+                ],
+            ),
         ],
         nested_templates=[_iid_gaussian_template],
         level=[constants.DATA],
@@ -175,6 +217,24 @@ class ConfigTemplate:
         dependent_variables_required_values=[[constants.ROTATION]],
     )
 
+    _node_sharing_teachers_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.NUM_SHARED_NODES,
+                types=[int],
+                requirements=[lambda x: x >= 1],
+            ),
+            config_field.Field(
+                name=constants.FEATURE_ROTATION_ALPHA,
+                types=[float],
+                requirements=[lambda x: x <= 0.0 and x >= 0],
+            ),
+        ],
+        level=[constants.NETWORKS, constants.NODE_SHARING_TEACHERS],
+        dependent_variables=[constants.TEACHER_CONFIGURATION],
+        dependent_variables_required_values=[[constants.NODE_SHARING]],
+    )
+
     _network_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -223,13 +283,6 @@ class ConfigTemplate:
                 requirements=[lambda x: x >= 0],
             ),
             config_field.Field(
-                name=constants.TEACHER_OUTPUT_NOISES,
-                types=[list],
-                requirements=[
-                    lambda x: all([isinstance(y, float) and y >= 0 for y in x])
-                ],
-            ),
-            config_field.Field(
                 name=constants.TEACHER_CONFIGURATION,
                 types=[str],
                 requirements=[
@@ -243,7 +296,7 @@ class ConfigTemplate:
             ),
         ],
         level=[constants.NETWORKS],
-        nested_templates=[_rotation_teachers_template],
+        nested_templates=[_rotation_teachers_template, _node_sharing_teachers_template],
     )
 
     _curriculum_template = config_template.Template(
