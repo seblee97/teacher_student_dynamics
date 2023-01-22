@@ -50,12 +50,15 @@ networks:
     unit_norm_teacher_head: True
     normalise_teachers: True
     teacher_initialisation_std: 1.
-    teacher_output_noises: [0.0, 0.0]
-    teacher_configuration: rotation
+    teacher_configuration: node_sharing # rotation, identical, node_sharing
 
     rotation_teachers:
         feature_rotation_alpha: 0.
         readout_rotation_alpha: 0.
+
+    node_sharing_teachers:
+        num_shared_nodes: 1
+        feature_rotation_alpha: 0.
 
 curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
