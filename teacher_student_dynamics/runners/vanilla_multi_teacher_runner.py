@@ -84,7 +84,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             constants.INITIALISATION_STD: config.teacher_initialisation_std,
             constants.NORMALISE_WEIGHTS: config.normalise_teachers,
             constants.UNIT_NORM_HEAD: config.unit_norm_teacher_head,
-            constants.NOISE_STDS: config.teacher_output_noises,
         }
         if config.teacher_configuration == constants.ROTATION:
             teachers_class = rotation_ensemble.RotationEnsemble
@@ -96,7 +95,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             teachers_class = node_sharing_ensemble.NodeSharingEnsemble
             additional_arguments = {
                 constants.NUM_SHARED_NODES: config.num_shared_nodes,
-                constants.FEATURE_ROTATION_MAGNITUDE: config.feature_rotation_magnitude,
+                constants.FEATURE_ROTATION_ALPHA: config.feature_rotation_alpha,
             }
         elif config.teacher_configuration == constants.IDENTICAL:
             teachers_class = identical_ensemble.IdenticalEnsemble
@@ -179,8 +178,38 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         test_teacher_outputs = self._teachers.forward_all(test_data_inputs)
 
         # noise for outputs on teachers, noise for inputs to students.
-        label_noise_modules = [None, None]
-        input_noise_modules = [None, None]
+        label_noise_modules = []
+        input_noise_modules = []
+
+        for noise_spec in config.noise_to_student_input:
+            if not noise_spec:
+                input_noise_modules.append(None)
+            else:
+                mean, variance = noise_spec
+                noise_module = iid_gaussian.IIDGaussian(
+                    train_batch_size=config.train_batch_size,
+                    test_batch_size=config.test_batch_size,
+                    input_dimension=config.input_dimension,
+                    mean=mean,
+                    variance=variance,
+                    dataset_size=config.dataset_size,
+                )
+                input_noise_modules.append(noise_module)
+
+        for noise_spec in config.noise_to_teacher_output:
+            if not noise_spec:
+                label_noise_modules.append(None)
+            else:
+                mean, variance = noise_spec
+                noise_module = iid_gaussian.IIDGaussian(
+                    train_batch_size=config.train_batch_size,
+                    test_batch_size=config.test_batch_size,
+                    input_dimension=config.output_dimension,
+                    mean=mean,
+                    variance=variance,
+                    dataset_size=config.dataset_size,
+                )
+                label_noise_modules.append(noise_module)
 
         return (
             data_module,
