@@ -266,6 +266,7 @@ class ConfigTemplate:
                 types=[float],
                 requirements=[lambda x: x >= 0],
             ),
+            config_field.Field(name=constants.MULTI_HEAD, types=[bool]),
             config_field.Field(
                 name=constants.NUM_TEACHERS, types=[int], requirements=[lambda x: x > 0]
             ),
