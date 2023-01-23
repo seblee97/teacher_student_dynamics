@@ -27,6 +27,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
     def __init__(self, config: experiments.config.Config, unique_id: str = "") -> None:
         self._overlap_frequency = config.overlap_frequency or np.inf
+        self._multi_head = config.multi_head
         super().__init__(config, unique_id)
 
     def get_network_configuration(self):
@@ -116,12 +117,16 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
     def _setup_student(self, config: experiments.config.Config):
         """Initialise object containing student network."""
+        if self._multi_head:
+            num_heads = self._num_teachers
+        else:
+            num_heads = 1
         return multi_head_network.MultiHeadNetwork(
             input_dimension=config.input_dimension,
             hidden_dimension=config.student_hidden,
             output_dimension=config.output_dimension,
             bias=config.student_bias,
-            num_heads=self._num_teachers,
+            num_heads=num_heads,
             nonlinearity=config.nonlinearity,
             initialisation_std=config.student_initialisation_std,
             train_hidden_layer=config.train_hidden_layer,
@@ -227,7 +232,8 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
     def _train_on_teacher(self, teacher_index: int):
         """One phase of training (wrt one teacher)."""
-        self._student.signal_boundary(new_head=teacher_index)
+        if self._multi_head:
+            self._student.signal_boundary(new_head=teacher_index)
 
         task_step_count = 0
         latest_generalisation_errors = [np.inf for _ in range(self._num_teachers)]
@@ -346,6 +352,11 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         with torch.no_grad():
             student_outputs = self._student.forward_all(self._test_data_inputs)
+
+            if not self._multi_head:
+                student_outputs = [
+                    student_outputs[0] for _ in range(len(self._test_teacher_outputs))
+                ]
 
             for i, (student_output, teacher_output) in enumerate(
                 zip(student_outputs, self._test_teacher_outputs)
