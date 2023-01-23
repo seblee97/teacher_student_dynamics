@@ -14,9 +14,7 @@ RUN_METHODS = ["run", "post_process"]
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument(
-    "--mode", metavar="-M", required=True, help="run experiment.", default="single"
-)
+parser.add_argument("--mode", metavar="-M", help="run experiment.", default="single")
 parser.add_argument(
     "--config_path",
     metavar="-C",
