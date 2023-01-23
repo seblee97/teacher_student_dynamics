@@ -39,6 +39,8 @@ Below is a summary of the models / experiment configurations that have been impl
 - Standard teacher-student framework with IID Gaussian inputs.
 - Multi teacher-student framework with IID Gaussian inputs.
     - Teachers rotated in feature and/or readout space.
+    - Identical teachers.
+    - Teachers with fraction of nodes shared and fraction rotated.
 - Interleaved replay of previous teacher during training of second (networks only).
 - Output noise to teachers.
 ### TODOs
@@ -62,8 +64,7 @@ Below is a summary of the models / experiment configurations that have been impl
 - Construct summary plots in addition to separate plots.
 - Interleaving for ODEs.
 - Frozen units (for critical learning experiments).
-- Add config checks on ODE/Network compatibility.
-- *Option for single head student (in addition to multi-head already implemented).
+- *Option for single head student; ODEs.
 
 ### Not Planned
 
