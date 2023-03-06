@@ -237,7 +237,7 @@ public:
                 {
                     std::vector<int> indices{i, teacher_2_offset + p, offset + m};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    ip_derivative += teacher_head(p) * sigmoid_i3(cov);
+                    ip_derivative += teacher_head(m) * sigmoid_i3(cov);
                 }
                 for (int k = 0; k < student_hidden; k++)
                 {
