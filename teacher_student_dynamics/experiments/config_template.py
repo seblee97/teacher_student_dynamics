@@ -174,11 +174,6 @@ class ConfigTemplate:
                 name=constants.COPY_HEAD_AT_SWITCH,
                 types=[bool],
             ),
-            config_field.Field(
-                name=constants.NOISE_STDS,
-                types=[list],
-                requirements=[lambda x: all([isinstance(y, float) for y in x])],
-            ),
         ],
         level=[constants.TRAINING],
     )
