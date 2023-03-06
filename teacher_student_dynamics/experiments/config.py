@@ -21,9 +21,6 @@ class Config(base_configuration.BaseConfiguration):
         """
         if self.run_ode:
             assert (
-                self.multi_head
-            ), "ODEs currently implemented for multi-head student only."
-            assert (
                 self.implementation == constants.CPP
             ), "ODEs currently implemented in C++ only."
             assert (
