@@ -36,7 +36,7 @@ class Config(base_configuration.BaseConfiguration):
                 [not len(i) for i in self.noise_to_student_input]
             ), "ODEs implemented for noiseless inputs only."
             assert [
-                i[0] == 0.0 for i in self.noise_to_teacher_output
+                len(i) == 0 or i[0] == 0.0 for i in self.noise_to_teacher_output
             ], "ODEs implemented for 0-centered noise on teachers only."
             assert (
                 self.train_batch_size == 1
