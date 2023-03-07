@@ -104,6 +104,7 @@ class ODERunner(base_runner.BaseRunner):
             constants.TRAIN_HEAD_LAYER: config.train_head_layer,
             constants.TRAIN_HIDDEN_LAYER: config.train_hidden_layer,
             constants.NOISE_STDS: teacher_output_noises,
+            constants.FREEZE_UNITS: config.freeze_units,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
             constants.OUTPUT_PATH: self._ode_file_path,
         }
