@@ -17,6 +17,7 @@ class ODEState
 private:
     int teacher_hidden;
     int student_hidden;
+    bool multi_head;
 
     Matrix<double, Dynamic, Dynamic> Q;
     Matrix<double, Dynamic, Dynamic> R;
@@ -39,7 +40,7 @@ public:
     // initialise state, map between order parameter name and values
     std::map<std::string, Matrix<double, Dynamic, Dynamic>> state;
 
-    ODEState(int t_hidden, int s_hidden, std::string order_parameter_paths) : teacher_hidden(t_hidden), student_hidden(s_hidden)
+    ODEState(int t_hidden, int s_hidden, bool multi_h, std::string order_parameter_paths) : teacher_hidden(t_hidden), student_hidden(s_hidden), multi_head(multi_h)
     {
         resize_matrices();
         populate_state_map();
@@ -59,7 +60,10 @@ public:
         this->T.resize(teacher_hidden, teacher_hidden);
         this->V.resize(teacher_hidden, teacher_hidden);
         this->h1.resize(student_hidden, 1);
-        this->h2.resize(student_hidden, 1);
+        if (multi_head)
+        {
+            this->h2.resize(student_hidden, 1);
+        }
         this->th1.resize(teacher_hidden, 1);
         this->th2.resize(teacher_hidden, 1);
 
@@ -79,7 +83,10 @@ public:
         this->state.insert({"T", this->T});
         this->state.insert({"V", this->V});
         this->state.insert({"h1", this->h1});
-        this->state.insert({"h2", this->h2});
+        if (multi_head)
+        {
+            this->state.insert({"h2", this->h2});
+        }
         this->state.insert({"th1", this->th1});
         this->state.insert({"th2", this->th2});
     }
