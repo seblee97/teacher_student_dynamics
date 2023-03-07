@@ -57,6 +57,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._optimiser = self._setup_optimiser(config=config)
         self._curriculum = self._setup_curriculum(config=config)
 
+        self._freeze_units = config.freeze_units
+        self._unit_masks = self._setup_unit_masks(config=config)
+
         self._manage_network_devices()
 
         abc.ABC.__init__(self)
@@ -97,6 +100,15 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     def _setup_data(self, config: experiments.config.Config):
         """Prepare aspects related to the data e.g. train/test data."""
         pass
+
+    @decorators.timer
+    def _setup_unit_masks(self, config: experiments.config.Config) -> None:
+        """setup masks for specific hidden units."""
+        unit_masks = []
+        for num_units in config.freeze_units:
+            mask = torch.zeros(num_units, config.input_dimension)
+            unit_masks.append(mask)
+        return unit_masks
 
     @decorators.timer
     def _setup_loss(self, config: experiments.config.Config) -> Callable:
