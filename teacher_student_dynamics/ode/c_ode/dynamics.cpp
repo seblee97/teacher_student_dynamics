@@ -201,8 +201,15 @@ public:
         else
         {
             teacher_head << this->state.state["th2"];
-            student_head << this->state.state["h2"];
             offset = teacher_2_offset;
+            if (multi_head)
+            {
+                student_head << this->state.state["h2"];
+            }
+            else
+            {
+                student_head << this->state.state["h1"];
+            }
         }
 
         MatrixXd derivative = MatrixXd::Constant(this->state.state["R"].rows(), this->state.state["R"].cols(), 0.0);
@@ -235,6 +242,7 @@ public:
         MatrixXd teacher_head(teacher_hidden, 1);
         MatrixXd student_head(student_hidden, 1);
         int offset;
+
         if (active_teacher == 0)
         {
             teacher_head << this->state.state["th1"];
@@ -244,8 +252,15 @@ public:
         else
         {
             teacher_head << this->state.state["th2"];
-            student_head << this->state.state["h2"];
             offset = teacher_2_offset;
+            if (multi_head)
+            {
+                student_head << this->state.state["h2"];
+            }
+            else
+            {
+                student_head << this->state.state["h1"];
+            }
         }
 
         MatrixXd derivative = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
@@ -287,8 +302,15 @@ public:
         else
         {
             teacher_head << this->state.state["th2"];
-            student_head << this->state.state["h2"];
             offset = teacher_2_offset;
+            if (multi_head)
+            {
+                student_head << this->state.state["h2"];
+            }
+            else
+            {
+                student_head << this->state.state["h1"];
+            }
         }
 
         // MatrixXd derivative(this->state.state["Q"].rows(), this->state.state["Q"].cols());
