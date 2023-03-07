@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 
 from teacher_student_dynamics import constants, experiments
@@ -28,6 +29,8 @@ class CoreRunner:
         self._run_ode = config.run_ode
 
         self._checkpoint_path = config.checkpoint_path
+
+        self._ode_x_scaling = config.input_dimension / (1 / config.timestep)
 
         self._setup_runners(config=config, unique_id=unique_id)
 
@@ -72,6 +75,7 @@ class CoreRunner:
             plotting_functions.plot_all_scalars(
                 df=ode_df, path=plot_path, prefix=constants.ODE
             )
+            ode_df.index = self._ode_x_scaling * np.array(ode_df.index)
         if self._run_network and self._run_ode:
             plotting_functions.plot_all_common_scalars(
                 dfs=[network_df, ode_df],
@@ -80,6 +84,9 @@ class CoreRunner:
                 sub_prefixes=[constants.NETWORK, constants.ODE],
                 styles=[
                     {constants.COLOR: "blue", constants.LINESTYLE: constants.DASHED},
-                    {constants.COLOR: "blue", constants.LINESTYLE: constants.SOLID},
+                    {
+                        constants.COLOR: "blue",
+                        constants.LINESTYLE: constants.SOLID,
+                    },
                 ],
             )
