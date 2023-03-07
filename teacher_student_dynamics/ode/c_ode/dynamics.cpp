@@ -20,6 +20,7 @@ public:
     bool train_h_layer;
     // bool copy_head_at_switch;
     std::vector<float> noise_stds;
+    std::vector<int> freeze_units;
 
     int num_switches = 0;
     int active_teacher = 0;
@@ -38,17 +39,19 @@ public:
         bool train_w,
         bool train_h,
         // bool copy_h,
-        std::vector<float> noises) : state(ode_state),
-                                     teacher_hidden(t_hidden),
-                                     student_hidden(s_hidden),
-                                     multi_head(multi_h),
-                                     h_learning_rate(h_lr),
-                                     w_learning_rate(w_lr),
-                                     timestep(tstep),
-                                     train_w_layer(train_w),
-                                     train_h_layer(train_h),
-                                     //  copy_head_at_switch(copy_h),
-                                     noise_stds(noises)
+        std::vector<float> noises,
+        std::vector<int> freeze) : state(ode_state),
+                                   teacher_hidden(t_hidden),
+                                   student_hidden(s_hidden),
+                                   multi_head(multi_h),
+                                   h_learning_rate(h_lr),
+                                   w_learning_rate(w_lr),
+                                   timestep(tstep),
+                                   train_w_layer(train_w),
+                                   train_h_layer(train_h),
+                                   //  copy_head_at_switch(copy_h),
+                                   noise_stds(noises),
+                                   freeze_units(freeze)
     {
         teacher_1_offset = student_hidden;
         teacher_2_offset = student_hidden + teacher_hidden;
