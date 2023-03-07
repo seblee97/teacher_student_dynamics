@@ -143,6 +143,17 @@ public:
 
     float error_2()
     {
+        Matrix<double, Dynamic, Dynamic> head;
+        head.resize(student_hidden, 1);
+        if (multi_head)
+        {
+            head = this->state.state["h2"];
+        }
+        else
+        {
+            head = this->state.state["h1"];
+        }
+
         float error = 0;
         for (int i = 0; i < student_hidden; i++)
         {
@@ -150,9 +161,10 @@ public:
             {
                 std::vector<int> indices{i, j};
                 MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error += 0.5 * this->state.state["h2"](i) * this->state.state["h2"](j) * sigmoid_i2(cov);
+                error += 0.5 * head(i) * head(j) * sigmoid_i2(cov);
             }
         }
+
         for (int p = 0; p < teacher_hidden; p++)
         {
             for (int q = 0; q < teacher_hidden; q++)
@@ -168,7 +180,7 @@ public:
             {
                 std::vector<int> indices{i, teacher_2_offset + p};
                 MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error -= this->state.state["h2"](i) * this->state.state["th2"](p) * sigmoid_i2(cov);
+                error -= head(i) * this->state.state["th2"](p) * sigmoid_i2(cov);
             }
         }
         return error;
