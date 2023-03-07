@@ -86,14 +86,21 @@ public:
         if (train_h_layer)
         {
             h1_delta += dh1_dt();
-            h2_delta += dh2_dt();
+            if (multi_head)
+            {
+                h2_delta += dh2_dt();
+            }
         }
 
         this->state.step_order_parameter("Q", q_delta);
         this->state.step_order_parameter("R", r_delta);
         this->state.step_order_parameter("U", u_delta);
         this->state.step_order_parameter("h1", h1_delta);
-        this->state.step_order_parameter("h2", h2_delta);
+
+        if (multi_head)
+        {
+            this->state.step_order_parameter("h2", h2_delta);
+        }
 
         std::tuple<float, float> step_errors;
         step_errors = std::make_tuple(e1, e2);
