@@ -28,6 +28,7 @@ class ODERunner(base_runner.BaseRunner):
         self._teacher_hidden = config.teacher_hidden
 
         self._num_teachers = config.num_teachers
+        self._multi_head = config.multi_head
 
         if config.implementation == constants.CPP:
 
@@ -67,10 +68,12 @@ class ODERunner(base_runner.BaseRunner):
             "S.csv": network_configuration.teacher_self_overlaps[1],
             "V.csv": network_configuration.teacher_cross_overlaps[0],
             "h1.csv": network_configuration.student_head_weights[0],
-            "h2.csv": network_configuration.student_head_weights[1],
             "th1.csv": network_configuration.teacher_head_weights[0],
             "th2.csv": network_configuration.teacher_head_weights[1],
         }
+
+        if config.multi_head:
+            order_params["h2.csv"] = network_configuration.student_head_weights[1]
 
         order_param_path = os.path.join(self._ode_file_path, "order_parameter.txt")
 
@@ -96,6 +99,7 @@ class ODERunner(base_runner.BaseRunner):
             constants.INPUT_DIMENSION: config.input_dimension,
             constants.STUDENT_HIDDEN: config.student_hidden,
             constants.TEACHER_HIDDEN: config.teacher_hidden,
+            constants.MULTI_HEAD: config.multi_head,
             constants.TIMESTEP: config.timestep,
             constants.TRAIN_HEAD_LAYER: config.train_head_layer,
             constants.TRAIN_HIDDEN_LAYER: config.train_hidden_layer,
@@ -146,9 +150,17 @@ class ODERunner(base_runner.BaseRunner):
             log_ei = np.log10(ei)
             df[f"{constants.LOG_GENERALISATION_ERROR}_{i}"] = log_ei
 
+        if self._multi_head:
+            for i in range(self._num_teachers):
+                for j in range(self._student_hidden):
+                    hij = np.genfromtxt(
+                        os.path.join(self._ode_file_path, f"h_{i}{j}.csv")
+                    )
+                    df[f"{constants.STUDENT_HEAD}_{i}_{constants.WEIGHT}_{j}"] = hij
+        else:
             for j in range(self._student_hidden):
-                hij = np.genfromtxt(os.path.join(self._ode_file_path, f"h_{i}{j}.csv"))
-                df[f"{constants.STUDENT_HEAD}_{i}_{constants.WEIGHT}_{j}"] = hij
+                h0j = np.genfromtxt(os.path.join(self._ode_file_path, f"h_0{j}.csv"))
+                df[f"{constants.STUDENT_HEAD}_0_{constants.WEIGHT}_{j}"] = h0j
 
         df.to_csv(
             os.path.join(self._checkpoint_path, "data_logger_ode.csv"), index=False
