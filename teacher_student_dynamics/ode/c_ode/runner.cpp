@@ -164,7 +164,10 @@ int main(int argc, char **argv)
         for (int s = 0; s < student_hidden; s++)
         {
             h_0_log_map["h_0" + std::to_string(s)][log_i] = state.state["h1"](s);
-            h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
+            if (multi_head)
+            {
+                h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
+            }
         }
 
         // q_00_log[log_i] = state.state["Q"](0, 0);
