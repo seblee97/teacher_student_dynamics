@@ -174,6 +174,11 @@ class ConfigTemplate:
                 name=constants.COPY_HEAD_AT_SWITCH,
                 types=[bool],
             ),
+            config_field.Field(
+                name=constants.FREEZE_UNITS,
+                types=[list],
+                requirements=[lambda x: all(isinstance(y, int) for y in x)],
+            ),
         ],
         level=[constants.TRAINING],
     )
