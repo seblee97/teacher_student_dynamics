@@ -387,10 +387,22 @@ public:
     }
     MatrixXd dh1_dt()
     {
+        MatrixXd teacher_head(teacher_hidden, 1);
+        int offset;
+        if (active_teacher == 0)
+        {
+            teacher_head << this->state.state["th1"];
+            offset = teacher_1_offset;
+        }
+        else
+        {
+            teacher_head << this->state.state["th2"];
+            offset = teacher_2_offset;
+        }
         // std::cout << "dh1/dt" << std::endl;
         // MatrixXd derivative(this->state.state["h1"].rows(), this->state.state["h1"].cols());
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        if (train_h_layer and active_teacher == 0)
+        if (train_h_layer and (active_teacher == 0) or (not multi_head))
         {
             for (int i = 0; i < student_hidden; i++)
             {
@@ -399,7 +411,7 @@ public:
                 {
                     std::vector<int> indices{i, teacher_1_offset + m};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    i_derivative += this->state.state["th1"](m) * sigmoid_i2(cov);
+                    i_derivative += teacher_head(m) * sigmoid_i2(cov);
                 }
                 for (int k = 0; k < student_hidden; k++)
                 {
