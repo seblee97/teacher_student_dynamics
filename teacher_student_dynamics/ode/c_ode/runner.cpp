@@ -8,7 +8,7 @@
 int main(int argc, char **argv)
 {
     std::string input_file_path = argv[1];
-    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>>> config;
+    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>>> config;
     config = parse_input(input_file_path);
 
     // config element "order_parameter_paths" is path to txt file
@@ -36,6 +36,7 @@ int main(int argc, char **argv)
     bool train_w_layer = std::get<bool>(config["train_hidden_layer"]);
     bool train_h_layer = std::get<bool>(config["train_head_layer"]);
     std::vector<float> noise_stds = std::get<std::vector<float>>(config["noise_stds"]);
+    std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
 
@@ -70,7 +71,8 @@ int main(int argc, char **argv)
         timestep,
         train_w_layer,
         train_h_layer,
-        noise_stds);
+        noise_stds,
+        freeze_units);
 
     std::vector<double> error_0_log(num_deltas);
     std::vector<double> error_1_log(num_deltas);
@@ -108,22 +110,6 @@ int main(int argc, char **argv)
         h_0_log_map["h_0" + std::to_string(i)] = h_0i_log;
         h_1_log_map["h_1" + std::to_string(i)] = h_1i_log;
     }
-
-    // std::vector<double> q_00_log(num_deltas / 10);
-    // std::vector<double> q_01_log(num_deltas / 10);
-    // std::vector<double> q_10_log(num_deltas / 10);
-    // std::vector<double> q_11_log(num_deltas / 10);
-
-    // std::vector<double> r_00_log(num_deltas / 10);
-    // std::vector<double> r_01_log(num_deltas / 10);
-    // std::vector<double> u_00_log(num_deltas / 10);
-    // std::vector<double> u_01_log(num_deltas / 10);
-
-    // std::vector<double> h_0_00_log(num_deltas / 10);
-    // std::vector<double> h_0_01_log(num_deltas / 10);
-
-    // std::vector<double> h_1_00_log(num_deltas / 10);
-    // std::vector<double> h_1_01_log(num_deltas / 10);
 
     std::tuple<float, float> step_errors;
 
