@@ -278,7 +278,7 @@ public:
                 }
                 for (int k = 0; k < student_hidden; k++)
                 {
-                    std::vector<int> indices{i, teacher_2_offset, k};
+                    std::vector<int> indices{i, teacher_2_offset + p, k};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     ip_derivative -= student_head(k) * sigmoid_i3(cov);
                 }
