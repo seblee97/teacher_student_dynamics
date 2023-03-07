@@ -342,6 +342,14 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         loss.backward()
 
+        # mask units in first layer
+        if self._freeze_units[teacher_index] > 0:
+            for params in self._student.layers[0].parameters():
+                for unit_index, unit in enumerate(
+                    range(self._freeze_units[teacher_index])
+                ):
+                    params.grad[unit, :] = self._unit_masks[teacher_index][unit_index]
+
         self._optimiser.step()
 
         return training_step_dict
