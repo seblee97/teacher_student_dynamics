@@ -12,6 +12,7 @@ public:
 
     int teacher_hidden;
     int student_hidden;
+    bool multi_head;
     float h_learning_rate;
     float w_learning_rate;
     float timestep;
@@ -30,6 +31,7 @@ public:
         ODEState &ode_state,
         int t_hidden,
         int s_hidden,
+        bool multi_h,
         float h_lr,
         float w_lr,
         float tstep,
@@ -39,6 +41,7 @@ public:
         std::vector<float> noises) : state(ode_state),
                                      teacher_hidden(t_hidden),
                                      student_hidden(s_hidden),
+                                     multi_head(multi_h),
                                      h_learning_rate(h_lr),
                                      w_learning_rate(w_lr),
                                      timestep(tstep),
