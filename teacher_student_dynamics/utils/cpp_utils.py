@@ -37,6 +37,9 @@ def params_to_txt(params: Dict[str, Any], output_path: str) -> None:
                 if all([isinstance(vi, float) for vi in v]):
                     value_type = "it_float"
                     v = ",".join([str(vi) for vi in v])
+                elif all([isinstance(vi, int) for vi in v]):
+                    value_type = "it_int"
+                    v = ",".join([str(vi) for vi in v])
                 else:
                     raise ValueError(
                         f"lists with this datatype not yet handled in params_to_txt."
