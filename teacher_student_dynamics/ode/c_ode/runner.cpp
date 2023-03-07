@@ -281,16 +281,19 @@ int main(int argc, char **argv)
             }
         }
         file.close();
-        csv_name = "h_1" + std::to_string(i) + ".csv";
-        file.open(output_path / csv_name);
-        for (int n = 0; n < num_deltas; n++)
+        if (multi_head)
         {
-            file << h_1_log_map["h_1" + std::to_string(i)][n];
-            if (n < num_deltas - 1)
+            csv_name = "h_1" + std::to_string(i) + ".csv";
+            file.open(output_path / csv_name);
+            for (int n = 0; n < num_deltas; n++)
             {
-                file << "\n";
+                file << h_1_log_map["h_1" + std::to_string(i)][n];
+                if (n < num_deltas - 1)
+                {
+                    file << "\n";
+                }
             }
+            file.close();
         }
-        file.close();
     }
 }
