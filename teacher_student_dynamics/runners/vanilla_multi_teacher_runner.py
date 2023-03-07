@@ -234,6 +234,8 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         """One phase of training (wrt one teacher)."""
         if self._multi_head:
             self._student.signal_boundary(new_head=teacher_index)
+        else:
+            self._student.signal_boundary(new_head=0)
 
         task_step_count = 0
         latest_generalisation_errors = [np.inf for _ in range(self._num_teachers)]
