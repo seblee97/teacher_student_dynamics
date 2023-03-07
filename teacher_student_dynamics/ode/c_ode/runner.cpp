@@ -133,6 +133,7 @@ int main(int argc, char **argv)
     {
         if (i == switch_delta)
         {
+            std::cout << "Switching Teacher..." << std::endl;
             ODE.set_active_teacher(1);
         }
         if (i % 100 == 0)
@@ -185,6 +186,8 @@ int main(int argc, char **argv)
 
         log_i++;
     }
+
+    std::cout << "Solve complete, saving data..." << std::endl;
 
     std::ofstream file;
     file.open(output_path / "error_0.csv");
