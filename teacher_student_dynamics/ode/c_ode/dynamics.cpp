@@ -19,6 +19,7 @@ public:
     bool train_w_layer;
     bool train_h_layer;
     // bool copy_head_at_switch;
+    std::vector<float> input_noise_stds;
     std::vector<float> noise_stds;
     std::vector<int> freeze_units;
 
@@ -27,6 +28,7 @@ public:
 
     int teacher_1_offset;
     int teacher_2_offset;
+    int input_noise_offset;
 
     StudentTeacherODE(
         ODEState &ode_state,
@@ -39,6 +41,7 @@ public:
         bool train_w,
         bool train_h,
         // bool copy_h,
+        std::vector<float> input_noises,
         std::vector<float> noises,
         std::vector<int> freeze) : state(ode_state),
                                    teacher_hidden(t_hidden),
@@ -50,11 +53,13 @@ public:
                                    train_w_layer(train_w),
                                    train_h_layer(train_h),
                                    //  copy_head_at_switch(copy_h),
+                                   input_noise_stds(input_noises),
                                    noise_stds(noises),
                                    freeze_units(freeze)
     {
         teacher_1_offset = student_hidden;
         teacher_2_offset = student_hidden + teacher_hidden;
+        input_noise_offset = student_hidden + 2 * teacher_hidden;
     }
 
     void set_active_teacher(int teacher_index)
