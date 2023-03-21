@@ -29,9 +29,9 @@ class Config(base_configuration.BaseConfiguration):
             assert (
                 self.dataset_size == constants.INF
             ), "ODEs implemented for online learning (infinite dataset size) only."
-            assert all(
-                [not len(i) for i in self.noise_to_student_input]
-            ), "ODEs implemented for noiseless inputs only."
+            assert [
+                len(i) == 0 or i[0] == 0.0 for i in self.noise_to_student_input
+            ], "ODEs implemented for 0-centered noise on student inputs only."
             assert [
                 len(i) == 0 or i[0] == 0.0 for i in self.noise_to_teacher_output
             ], "ODEs implemented for 0-centered noise on teachers only."
