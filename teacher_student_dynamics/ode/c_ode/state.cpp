@@ -33,6 +33,9 @@ private:
     Matrix<double, Dynamic, Dynamic> block_1;
     Matrix<double, Dynamic, Dynamic> block_2;
     Matrix<double, Dynamic, Dynamic> block_3;
+    Matrix<double, Dynamic, Dynamic> block_4;
+    Matrix<double, Dynamic, Dynamic> block_5;
+    Matrix<double, Dynamic, Dynamic> block_6;
 
     Matrix<double, Dynamic, Dynamic> covariance_matrix;
 
@@ -67,11 +70,14 @@ public:
         this->th1.resize(teacher_hidden, 1);
         this->th2.resize(teacher_hidden, 1);
 
-        this->block_1.resize(student_hidden, student_hidden + 2 * teacher_hidden);
-        this->block_2.resize(teacher_hidden, student_hidden + 2 * teacher_hidden);
-        this->block_3.resize(teacher_hidden, student_hidden + 2 * teacher_hidden);
+        this->block_1.resize(student_hidden, 2 * (student_hidden + 2 * teacher_hidden));
+        this->block_2.resize(teacher_hidden, 2 * (student_hidden + 2 * teacher_hidden));
+        this->block_3.resize(teacher_hidden, 2 * (student_hidden + 2 * teacher_hidden));
+        this->block_4.resize(student_hidden, 2 * (student_hidden + 2 * teacher_hidden));
+        this->block_5.resize(teacher_hidden, 2 * (student_hidden + 2 * teacher_hidden));
+        this->block_6.resize(teacher_hidden, 2 * (student_hidden + 2 * teacher_hidden));
 
-        this->covariance_matrix.resize(student_hidden + 2 * teacher_hidden, student_hidden + 2 * teacher_hidden);
+        this->covariance_matrix.resize(2 * (student_hidden + 2 * teacher_hidden), 2 * (student_hidden + 2 * teacher_hidden));
     }
 
     void populate_state_map()
@@ -110,13 +116,18 @@ public:
         return matrix;
     }
 
-    void step_covariance_matrix()
+    void step_covariance_matrix(float input_noise = 0.0)
     {
-        this->block_1 << this->state["Q"], this->state["R"], this->state["U"];
-        this->block_2 << this->state["R"].transpose(), this->state["T"], this->state["V"];
-        this->block_3 << this->state["U"].transpose(), this->state["V"].transpose(), this->state["S"];
+        // std::cout << "Stepping Covariance Matrix" << std::endl;
+        this->block_1 << this->state["Q"], this->state["R"], this->state["U"], this->state["Q"], this->state["R"], this->state["U"];
+        this->block_2 << this->state["R"].transpose(), this->state["T"], this->state["V"], this->state["R"].transpose(), this->state["T"], this->state["V"];
+        this->block_3 << this->state["U"].transpose(), this->state["V"].transpose(), this->state["S"], this->state["U"].transpose(), this->state["V"].transpose(), this->state["S"];
+        this->block_4 << this->state["Q"], this->state["R"], this->state["U"], (1 + pow(input_noise, 2)) * this->state["Q"], (1 + pow(input_noise, 2)) * this->state["R"], (1 + pow(input_noise, 2)) * this->state["U"];
+        this->block_5 << this->state["R"].transpose(), this->state["T"], this->state["V"].transpose(), (1 + pow(input_noise, 2)) * this->state["R"].transpose(), (1 + pow(input_noise, 2)) * this->state["T"], (1 + pow(input_noise, 2)) * this->state["V"].transpose();
+        this->block_6 << this->state["U"].transpose(), this->state["V"], this->state["S"], (1 + pow(input_noise, 2)) * this->state["U"].transpose(), (1 + pow(input_noise, 2)) * this->state["V"], (1 + pow(input_noise, 2)) * this->state["S"];
+        // std::cout << "Stepped Covariance Matrix" << std::endl;
 
-        this->covariance_matrix << this->block_1, this->block_2, this->block_3;
+        this->covariance_matrix << this->block_1, this->block_2, this->block_3, this->block_4, this->block_5, this->block_6;
     }
 
     void step_order_parameter(std::string order_parameter, MatrixXd delta)
