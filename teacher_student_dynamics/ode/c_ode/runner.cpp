@@ -36,6 +36,7 @@ int main(int argc, char **argv)
     bool train_w_layer = std::get<bool>(config["train_hidden_layer"]);
     bool train_h_layer = std::get<bool>(config["train_head_layer"]);
     std::vector<float> noise_stds = std::get<std::vector<float>>(config["noise_stds"]);
+    std::vector<float> input_noise_stds = std::get<std::vector<float>>(config["input_noise_stds"]);
     std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
@@ -71,6 +72,7 @@ int main(int argc, char **argv)
         timestep,
         train_w_layer,
         train_h_layer,
+        input_noise_stds,
         noise_stds,
         freeze_units);
 
