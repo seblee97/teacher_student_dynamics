@@ -70,7 +70,7 @@ public:
     std::tuple<float, float> step()
     {
         // std::cout << "Taking ODE Step" << std::endl;
-        this->state.step_covariance_matrix();
+        this->state.step_covariance_matrix(input_noise_stds[active_teacher]);
         // std::cout << "Stepped Cov Matrix" << std::endl;
 
         float e1 = error_1();
