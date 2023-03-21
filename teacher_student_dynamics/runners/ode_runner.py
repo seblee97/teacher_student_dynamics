@@ -91,6 +91,13 @@ class ODERunner(base_runner.BaseRunner):
             n[1] if len(n) else 0.0 for n in config.noise_to_teacher_output
         ]
 
+        assert all(
+            [not len(n) or (n[0] == 0) for n in config.noise_to_student_input]
+        ), "ODEs only hold for 0-centred Gaussian noise in student input."
+        student_input_noises = [
+            n[1] if len(n) else 0.0 for n in config.noise_to_student_input
+        ]
+
         ode_config = {
             constants.NUM_STEPS: config.total_training_steps,
             constants.SWITCH_STEP: config.switch_steps[0],
@@ -103,6 +110,7 @@ class ODERunner(base_runner.BaseRunner):
             constants.TIMESTEP: config.timestep,
             constants.TRAIN_HEAD_LAYER: config.train_head_layer,
             constants.TRAIN_HIDDEN_LAYER: config.train_hidden_layer,
+            constants.INPUT_NOISE_STDS: student_input_noises,
             constants.NOISE_STDS: teacher_output_noises,
             constants.FREEZE_UNITS: config.freeze_units,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
