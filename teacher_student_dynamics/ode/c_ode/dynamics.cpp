@@ -229,13 +229,13 @@ public:
                 float in_derivative = 0.0;
                 for (int m = 0; m < teacher_hidden; m++)
                 {
-                    std::vector<int> indices{i, teacher_1_offset + n, offset + m};
+                    std::vector<int> indices{i + input_noise_offset, teacher_1_offset + n + input_noise_offset, offset + m};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     in_derivative += teacher_head(m) * sigmoid_i3(cov);
                 }
                 for (int j = 0; j < student_hidden; j++)
                 {
-                    std::vector<int> indices{i, teacher_1_offset + n, j};
+                    std::vector<int> indices{i + input_noise_offset, teacher_1_offset + n + input_noise_offset, j + input_noise_offset};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     in_derivative -= student_head(j) * sigmoid_i3(cov);
                 }
@@ -280,13 +280,13 @@ public:
                 float ip_derivative = 0.0;
                 for (int m = 0; m < teacher_hidden; m++)
                 {
-                    std::vector<int> indices{i, teacher_2_offset + p, offset + m};
+                    std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p + input_noise_offset, offset + m};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     ip_derivative += teacher_head(m) * sigmoid_i3(cov);
                 }
                 for (int k = 0; k < student_hidden; k++)
                 {
-                    std::vector<int> indices{i, teacher_2_offset + p, k};
+                    std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p + input_noise_offset, k + input_noise_offset};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     ip_derivative -= student_head(k) * sigmoid_i3(cov);
                 }
@@ -335,14 +335,14 @@ public:
                     // if i not a frozen unit
                     if (i >= freeze_units[active_teacher])
                     {
-                        std::vector<int> ikm_indices{i, k, offset + m};
+                        std::vector<int> ikm_indices{i + input_noise_offset, k + input_noise_offset, offset + m};
                         MatrixXd ikm_cov = this->state.generate_sub_covariance_matrix(ikm_indices);
                         sum_1 += teacher_head(m) * student_head(i) * sigmoid_i3(ikm_cov);
                     }
                     // if k not a frozen unit
                     if (k >= freeze_units[active_teacher])
                     {
-                        std::vector<int> kim_indices{k, i, offset + m};
+                        std::vector<int> kim_indices{k + input_noise_offset, i + input_noise_offset, offset + m};
                         MatrixXd kim_cov = this->state.generate_sub_covariance_matrix(kim_indices);
                         sum_1 += teacher_head(m) * student_head(k) * sigmoid_i3(kim_cov);
                     }
@@ -352,14 +352,14 @@ public:
                     // if i not a frozen unit
                     if (i >= freeze_units[active_teacher])
                     {
-                        std::vector<int> ikj_indices{i, k, j};
+                        std::vector<int> ikj_indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset};
                         MatrixXd ikj_cov = this->state.generate_sub_covariance_matrix(ikj_indices);
                         sum_1 -= student_head(j) * student_head(i) * sigmoid_i3(ikj_cov);
                     }
                     // if k not a frozen unit
                     if (k >= freeze_units[active_teacher])
                     {
-                        std::vector<int> kij_indices{k, i, j};
+                        std::vector<int> kij_indices{k + input_noise_offset, i + input_noise_offset, j + input_noise_offset};
                         MatrixXd kij_cov = this->state.generate_sub_covariance_matrix(kij_indices);
                         sum_1 -= student_head(j) * student_head(k) * sigmoid_i3(kij_cov);
                     }
@@ -374,7 +374,7 @@ public:
                     {
                         for (int l = 0; l < student_hidden; l++)
                         {
-                            std::vector<int> indices{i, k, j, l};
+                            std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset, l + input_noise_offset};
                             MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                             sum_2 += student_head(j) * student_head(l) * sigmoid_i4(cov);
                         }
@@ -383,7 +383,7 @@ public:
                     {
                         for (int n = 0; n < teacher_hidden; n++)
                         {
-                            std::vector<int> indices{i, k, offset + m, offset + n};
+                            std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, offset + m, offset + n};
                             MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                             sum_2 += teacher_head(m) * teacher_head(n) * sigmoid_i4(cov);
                         }
@@ -392,13 +392,13 @@ public:
                     {
                         for (int j = 0; j < student_hidden; j++)
                         {
-                            std::vector<int> indices{i, k, j, offset + m};
+                            std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset, offset + m};
                             MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                             sum_2 -= 2 * teacher_head(m) * student_head(j) * sigmoid_i4(cov);
                         }
                     }
                     // noise term
-                    std::vector<int> indices{i, k};
+                    std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     sum_2 += pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov);
 
@@ -437,13 +437,13 @@ public:
                 float i_derivative = 0.0;
                 for (int m = 0; m < teacher_hidden; m++)
                 {
-                    std::vector<int> indices{i, teacher_1_offset + m};
+                    std::vector<int> indices{i + input_noise_offset, teacher_1_offset + m};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     i_derivative += teacher_head(m) * sigmoid_i2(cov);
                 }
                 for (int k = 0; k < student_hidden; k++)
                 {
-                    std::vector<int> indices{i, k};
+                    std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     i_derivative -= this->state.state["h1"](k) * sigmoid_i2(cov);
                 }
@@ -464,13 +464,13 @@ public:
                 float i_derivative = 0.0;
                 for (int p = 0; p < teacher_hidden; p++)
                 {
-                    std::vector<int> indices{i, teacher_2_offset + p};
+                    std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     i_derivative += this->state.state["th2"](p) * sigmoid_i2(cov);
                 }
                 for (int k = 0; k < student_hidden; k++)
                 {
-                    std::vector<int> indices{i, k};
+                    std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     i_derivative -= this->state.state["h2"](k) * sigmoid_i2(cov);
                 }
