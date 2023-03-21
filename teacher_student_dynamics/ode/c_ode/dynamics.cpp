@@ -402,7 +402,7 @@ public:
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                     sum_2 += pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov);
 
-                    ik_derivative += timestep * pow(w_learning_rate, 2) * student_head(i) * student_head(k) * sum_2;
+                    ik_derivative += timestep * pow(w_learning_rate, 2) * (1 + pow(input_noise_stds[active_teacher], 2)) * student_head(i) * student_head(k) * sum_2;
                     derivative(i, k) = ik_derivative;
                 }
             }
