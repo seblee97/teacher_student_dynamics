@@ -31,8 +31,8 @@ data:
     # list of lists dim 2 (one per teacher)
     # each specifies mean, variance
     # empty for no noise
-    - [0.0, 0.1]
-    - [0.0, 0.1]
+    - []
+    - []
 
 testing:
     test_batch_size: 10000
@@ -40,9 +40,9 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 500000
+    total_training_steps: 3000000
     optimiser: sgd
-    learning_rate: 0.1
+    learning_rate: 1.
     loss_function: mse
     train_hidden_layer: True
     train_head_layer: True
@@ -50,10 +50,10 @@ training:
     
     # list of dim num_teachers. 
     # Each item is number of units to freeze for each teacher.
-    freeze_units: [4, 0]
+    freeze_units: [0, 0]
 
 networks:
-    input_dimension: 1000 
+    input_dimension: 10000 
     output_dimension: 1
     nonlinearity: scaled_erf
     # student
@@ -68,7 +68,7 @@ networks:
     unit_norm_teacher_head: True
     normalise_teachers: True
     teacher_initialisation_std: 1.
-    teacher_configuration: node_sharing # rotation, identical, node_sharing
+    teacher_configuration: identical # rotation, identical, node_sharing
 
     rotation_teachers:
         feature_rotation_alpha: 0.
@@ -82,7 +82,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [250000]
+    switch_steps: [30000000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]            
