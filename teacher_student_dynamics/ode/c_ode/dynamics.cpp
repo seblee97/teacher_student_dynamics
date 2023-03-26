@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include "integrals.cpp"
 #include <tuple>
+#include <omp.h>
 
 using Eigen::MatrixXd;
 
@@ -118,6 +119,9 @@ public:
     float error_1()
     {
         float error = 0;
+
+#pragma omp parallel for reduction(+ \
+                                   : error)
         for (int i = 0; i < student_hidden; i++)
         {
             for (int j = 0; j < student_hidden; j++)
@@ -163,6 +167,8 @@ public:
         }
 
         float error = 0;
+#pragma omp parallel for reduction(+ \
+                                   : error)
         for (int i = 0; i < student_hidden; i++)
         {
             for (int j = 0; j < student_hidden; j++)
@@ -222,22 +228,29 @@ public:
 
         MatrixXd derivative = MatrixXd::Constant(this->state.state["R"].rows(), this->state.state["R"].cols(), 0.0);
 
+#pragma omp parallel for collapse(2)
         for (int i = std::max(0, freeze_units[active_teacher]); i < derivative.rows(); i++)
         {
             for (int n = 0; n < derivative.cols(); n++)
             {
                 float in_derivative = 0.0;
-                for (int m = 0; m < teacher_hidden; m++)
+#pragma omp parallel sections reduction(+ \
+                                        : in_derivative)
                 {
-                    std::vector<int> indices{i + input_noise_offset, teacher_1_offset + n + input_noise_offset, offset + m};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    in_derivative += teacher_head(m) * sigmoid_i3(cov);
-                }
-                for (int j = 0; j < student_hidden; j++)
-                {
-                    std::vector<int> indices{i + input_noise_offset, teacher_1_offset + n + input_noise_offset, j + input_noise_offset};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    in_derivative -= student_head(j) * sigmoid_i3(cov);
+#pragma omp section
+                    for (int m = 0; m < teacher_hidden; m++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, teacher_1_offset + n + input_noise_offset, offset + m};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        in_derivative += teacher_head(m) * sigmoid_i3(cov);
+                    }
+#pragma omp section
+                    for (int j = 0; j < student_hidden; j++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, teacher_1_offset + n + input_noise_offset, j + input_noise_offset};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        in_derivative += -(student_head(j) * sigmoid_i3(cov));
+                    }
                 }
                 derivative(i, n) = timestep * w_learning_rate * student_head(i) * in_derivative;
             }
@@ -273,22 +286,29 @@ public:
 
         MatrixXd derivative = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
 
+#pragma omp parallel for collapse(2)
         for (int i = std::max(0, freeze_units[active_teacher]); i < derivative.rows(); i++)
         {
             for (int p = 0; p < derivative.cols(); p++)
             {
                 float ip_derivative = 0.0;
-                for (int m = 0; m < teacher_hidden; m++)
+#pragma omp parallel sections reduction(+ \
+                                        : ip_derivative)
                 {
-                    std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p + input_noise_offset, offset + m};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    ip_derivative += teacher_head(m) * sigmoid_i3(cov);
-                }
-                for (int k = 0; k < student_hidden; k++)
-                {
-                    std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p + input_noise_offset, k + input_noise_offset};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    ip_derivative -= student_head(k) * sigmoid_i3(cov);
+#pragma omp section
+                    for (int m = 0; m < teacher_hidden; m++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p + input_noise_offset, offset + m};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        ip_derivative += teacher_head(m) * sigmoid_i3(cov);
+                    }
+#pragma omp section
+                    for (int k = 0; k < student_hidden; k++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p + input_noise_offset, k + input_noise_offset};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        ip_derivative += -student_head(k) * sigmoid_i3(cov);
+                    }
                 }
                 derivative(i, p) = timestep * w_learning_rate * student_head(i) * ip_derivative;
             }
@@ -432,20 +452,27 @@ public:
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
         if (train_h_layer and (active_teacher == 0) or (not multi_head))
         {
+#pragma omp parallel for
             for (int i = 0; i < student_hidden; i++)
             {
                 float i_derivative = 0.0;
-                for (int m = 0; m < teacher_hidden; m++)
+#pragma omp parallel sections reduction(+ \
+                                        : i_derivative)
                 {
-                    std::vector<int> indices{i + input_noise_offset, teacher_1_offset + m};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    i_derivative += teacher_head(m) * sigmoid_i2(cov);
-                }
-                for (int k = 0; k < student_hidden; k++)
-                {
-                    std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    i_derivative -= this->state.state["h1"](k) * sigmoid_i2(cov);
+#pragma omp section
+                    for (int m = 0; m < teacher_hidden; m++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, teacher_1_offset + m};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        i_derivative += teacher_head(m) * sigmoid_i2(cov);
+                    }
+#pragma omp section
+                    for (int k = 0; k < student_hidden; k++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        i_derivative += -this->state.state["h1"](k) * sigmoid_i2(cov);
+                    }
                 }
                 derivative(i) = timestep * h_learning_rate * i_derivative;
             }
@@ -459,20 +486,27 @@ public:
 
         if (train_h_layer and active_teacher == 1)
         {
+#pragma omp parallel for
             for (int i = 0; i < student_hidden; i++)
             {
                 float i_derivative = 0.0;
-                for (int p = 0; p < teacher_hidden; p++)
+#pragma omp parallel sections reduction(+ \
+                                        : i_derivative)
                 {
-                    std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    i_derivative += this->state.state["th2"](p) * sigmoid_i2(cov);
-                }
-                for (int k = 0; k < student_hidden; k++)
-                {
-                    std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    i_derivative -= this->state.state["h2"](k) * sigmoid_i2(cov);
+#pragma omp section
+                    for (int p = 0; p < teacher_hidden; p++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, teacher_2_offset + p};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        i_derivative += this->state.state["th2"](p) * sigmoid_i2(cov);
+                    }
+#pragma omp section
+                    for (int k = 0; k < student_hidden; k++)
+                    {
+                        std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        i_derivative -= this->state.state["h2"](k) * sigmoid_i2(cov);
+                    }
                 }
                 derivative(i) = timestep * h_learning_rate * i_derivative;
             }
