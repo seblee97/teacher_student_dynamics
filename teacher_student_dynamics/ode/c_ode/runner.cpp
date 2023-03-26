@@ -3,7 +3,7 @@
 #include "utils.cpp"
 #include <fstream>
 #include <filesystem>
-#include <format>
+// #include <format>
 
 int main(int argc, char **argv)
 {
@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     float switch_time = switch_step / input_dimension;
     int num_deltas = static_cast<int>(time / timestep);
     int switch_delta = static_cast<int>(switch_time / timestep);
+    float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
     std::cout << "time: " << time << std::endl;
@@ -126,7 +127,7 @@ int main(int argc, char **argv)
         }
         if (i % 100 == 0)
         {
-            std::cout << "Step: " << i << std::endl;
+            std::cout << "Step: " << step_scaling * i << std::endl;
         }
         step_errors = ODE.step();
         error_0_log[i] = std::get<0>(step_errors);
