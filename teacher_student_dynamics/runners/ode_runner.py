@@ -129,6 +129,7 @@ class ODERunner(base_runner.BaseRunner):
                 self._ode_runner_path,
                 "-o",
                 self._cpp_out_path,
+                "-fopenmp",
             ],
             shell=False,
         )
