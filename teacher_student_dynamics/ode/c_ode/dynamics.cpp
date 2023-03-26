@@ -74,8 +74,11 @@ public:
         this->state.step_covariance_matrix(input_noise_stds[active_teacher]);
         // std::cout << "Stepped Cov Matrix" << std::endl;
 
-        float e1 = error_1();
-        float e2 = error_2();
+        float e1 = 0;
+        float e2 = 0;
+
+        e1 += error_1();
+        e2 += error_2();
 
         // std::cout << "error 1: " << e1 << std::endl;
         // std::cout << "error 2: " << e2 << std::endl;
@@ -119,35 +122,42 @@ public:
     float error_1()
     {
         float error = 0;
-
-#pragma omp parallel for reduction(+ \
-                                   : error)
-        for (int i = 0; i < student_hidden; i++)
+#pragma omp parallel sections reduction(+ \
+                                        : error)
         {
-            for (int j = 0; j < student_hidden; j++)
+#pragma omp section
+#pragma omp parallel for collapse(2)
+            for (int i = 0; i < student_hidden; i++)
             {
-                std::vector<int> indices{i, j};
-                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error += 0.5 * this->state.state["h1"](i) * this->state.state["h1"](j) * sigmoid_i2(cov);
+                for (int j = 0; j < student_hidden; j++)
+                {
+                    std::vector<int> indices{i, j};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    error += 0.5 * this->state.state["h1"](i) * this->state.state["h1"](j) * sigmoid_i2(cov);
+                }
             }
-        }
 
-        for (int n = 0; n < teacher_hidden; n++)
-        {
-            for (int m = 0; m < teacher_hidden; m++)
-            {
-                std::vector<int> indices{teacher_1_offset + n, teacher_1_offset + m};
-                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error += 0.5 * this->state.state["th1"](n) * this->state.state["th1"](m) * sigmoid_i2(cov);
-            }
-        }
-        for (int i = 0; i < student_hidden; i++)
-        {
+#pragma omp section
+#pragma omp parallel for collapse(2)
             for (int n = 0; n < teacher_hidden; n++)
             {
-                std::vector<int> indices{i, teacher_1_offset + n};
-                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error -= this->state.state["h1"](i) * this->state.state["th1"](n) * sigmoid_i2(cov);
+                for (int m = 0; m < teacher_hidden; m++)
+                {
+                    std::vector<int> indices{teacher_1_offset + n, teacher_1_offset + m};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    error += 0.5 * this->state.state["th1"](n) * this->state.state["th1"](m) * sigmoid_i2(cov);
+                }
+            }
+#pragma omp section
+#pragma omp parallel for collapse(2)
+            for (int i = 0; i < student_hidden; i++)
+            {
+                for (int n = 0; n < teacher_hidden; n++)
+                {
+                    std::vector<int> indices{i, teacher_1_offset + n};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    error -= this->state.state["h1"](i) * this->state.state["th1"](n) * sigmoid_i2(cov);
+                }
             }
         }
         return error;
@@ -167,34 +177,41 @@ public:
         }
 
         float error = 0;
-#pragma omp parallel for reduction(+ \
-                                   : error)
-        for (int i = 0; i < student_hidden; i++)
+#pragma omp parallel sections reduction(+ \
+                                        : error)
         {
-            for (int j = 0; j < student_hidden; j++)
+#pragma omp section
+#pragma omp parallel for collapse(2)
+            for (int i = 0; i < student_hidden; i++)
             {
-                std::vector<int> indices{i, j};
-                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error += 0.5 * head(i) * head(j) * sigmoid_i2(cov);
+                for (int j = 0; j < student_hidden; j++)
+                {
+                    std::vector<int> indices{i, j};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    error += 0.5 * head(i) * head(j) * sigmoid_i2(cov);
+                }
             }
-        }
-
-        for (int p = 0; p < teacher_hidden; p++)
-        {
-            for (int q = 0; q < teacher_hidden; q++)
-            {
-                std::vector<int> indices{teacher_2_offset + p, teacher_2_offset + q};
-                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error += 0.5 * this->state.state["th2"](p) * this->state.state["th2"](q) * sigmoid_i2(cov);
-            }
-        }
-        for (int i = 0; i < student_hidden; i++)
-        {
+#pragma omp section
+#pragma omp parallel for collapse(2)
             for (int p = 0; p < teacher_hidden; p++)
             {
-                std::vector<int> indices{i, teacher_2_offset + p};
-                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                error -= head(i) * this->state.state["th2"](p) * sigmoid_i2(cov);
+                for (int q = 0; q < teacher_hidden; q++)
+                {
+                    std::vector<int> indices{teacher_2_offset + p, teacher_2_offset + q};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    error += 0.5 * this->state.state["th2"](p) * this->state.state["th2"](q) * sigmoid_i2(cov);
+                }
+            }
+#pragma omp section
+#pragma omp parallel for collapse(2)
+            for (int i = 0; i < student_hidden; i++)
+            {
+                for (int p = 0; p < teacher_hidden; p++)
+                {
+                    std::vector<int> indices{i, teacher_2_offset + p};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    error -= head(i) * this->state.state["th2"](p) * sigmoid_i2(cov);
+                }
             }
         }
         return error;
@@ -396,6 +413,7 @@ public:
                     // if i and k both unfrozen
                     if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
                     {
+#pragma omp parallel for collapse(2)
                         for (int j = 0; j < student_hidden; j++)
                         {
                             for (int l = 0; l < student_hidden; l++)
@@ -410,6 +428,7 @@ public:
                     // if i and k both unfrozen
                     if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
                     {
+#pragma omp parallel for collapse(2)
                         for (int m = 0; m < teacher_hidden; m++)
                         {
                             for (int n = 0; n < teacher_hidden; n++)
@@ -424,6 +443,7 @@ public:
                     // if i and k both unfrozen
                     if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
                     {
+#pragma omp parallel for collapse(2)
                         for (int m = 0; m < teacher_hidden; m++)
                         {
                             for (int j = 0; j < student_hidden; j++)
