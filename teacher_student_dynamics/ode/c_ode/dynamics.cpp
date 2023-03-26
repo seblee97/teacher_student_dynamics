@@ -344,87 +344,107 @@ public:
         // MatrixXd derivative(this->state.state["Q"].rows(), this->state.state["Q"].cols());
         MatrixXd derivative = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
 
+#pragma omp parallel for collapse(2)
         for (int i = 0; i < student_hidden; i++)
         {
             for (int k = i; k < student_hidden; k++)
             {
                 float ik_derivative = 0.0;
-                float sum_1 = 0.0;
-                for (int m = 0; m < teacher_hidden; m++)
+                float sum_1_factor = timestep * w_learning_rate;
+                float sum_2_factor = timestep * pow(w_learning_rate, 2) * (1 + pow(input_noise_stds[active_teacher], 2)) * student_head(i) * student_head(k);
+#pragma omp parallel sections reduction(+ \
+                                        : ik_derivative)
                 {
-                    // if i not a frozen unit
-                    if (i >= freeze_units[active_teacher])
+#pragma omp section
+                    for (int m = 0; m < teacher_hidden; m++)
                     {
-                        std::vector<int> ikm_indices{i + input_noise_offset, k + input_noise_offset, offset + m};
-                        MatrixXd ikm_cov = this->state.generate_sub_covariance_matrix(ikm_indices);
-                        sum_1 += teacher_head(m) * student_head(i) * sigmoid_i3(ikm_cov);
+                        // if i not a frozen unit
+                        if (i >= freeze_units[active_teacher])
+                        {
+                            std::vector<int> ikm_indices{i + input_noise_offset, k + input_noise_offset, offset + m};
+                            MatrixXd ikm_cov = this->state.generate_sub_covariance_matrix(ikm_indices);
+                            ik_derivative += sum_1_factor * teacher_head(m) * student_head(i) * sigmoid_i3(ikm_cov);
+                        }
+                        // if k not a frozen unit
+                        if (k >= freeze_units[active_teacher])
+                        {
+                            std::vector<int> kim_indices{k + input_noise_offset, i + input_noise_offset, offset + m};
+                            MatrixXd kim_cov = this->state.generate_sub_covariance_matrix(kim_indices);
+                            ik_derivative += sum_1_factor * teacher_head(m) * student_head(k) * sigmoid_i3(kim_cov);
+                        }
                     }
-                    // if k not a frozen unit
-                    if (k >= freeze_units[active_teacher])
-                    {
-                        std::vector<int> kim_indices{k + input_noise_offset, i + input_noise_offset, offset + m};
-                        MatrixXd kim_cov = this->state.generate_sub_covariance_matrix(kim_indices);
-                        sum_1 += teacher_head(m) * student_head(k) * sigmoid_i3(kim_cov);
-                    }
-                }
-                for (int j = 0; j < student_hidden; j++)
-                {
-                    // if i not a frozen unit
-                    if (i >= freeze_units[active_teacher])
-                    {
-                        std::vector<int> ikj_indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset};
-                        MatrixXd ikj_cov = this->state.generate_sub_covariance_matrix(ikj_indices);
-                        sum_1 -= student_head(j) * student_head(i) * sigmoid_i3(ikj_cov);
-                    }
-                    // if k not a frozen unit
-                    if (k >= freeze_units[active_teacher])
-                    {
-                        std::vector<int> kij_indices{k + input_noise_offset, i + input_noise_offset, j + input_noise_offset};
-                        MatrixXd kij_cov = this->state.generate_sub_covariance_matrix(kij_indices);
-                        sum_1 -= student_head(j) * student_head(k) * sigmoid_i3(kij_cov);
-                    }
-                }
-                ik_derivative += timestep * w_learning_rate * sum_1;
-
-                // if i and k both unfrozen
-                if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
-                {
-                    float sum_2 = 0.0;
+#pragma omp section
                     for (int j = 0; j < student_hidden; j++)
                     {
-                        for (int l = 0; l < student_hidden; l++)
+                        // if i not a frozen unit
+                        if (i >= freeze_units[active_teacher])
                         {
-                            std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset, l + input_noise_offset};
-                            MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                            sum_2 += student_head(j) * student_head(l) * sigmoid_i4(cov);
+                            std::vector<int> ikj_indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset};
+                            MatrixXd ikj_cov = this->state.generate_sub_covariance_matrix(ikj_indices);
+                            ik_derivative += -sum_1_factor * student_head(j) * student_head(i) * sigmoid_i3(ikj_cov);
+                        }
+                        // if k not a frozen unit
+                        if (k >= freeze_units[active_teacher])
+                        {
+                            std::vector<int> kij_indices{k + input_noise_offset, i + input_noise_offset, j + input_noise_offset};
+                            MatrixXd kij_cov = this->state.generate_sub_covariance_matrix(kij_indices);
+                            ik_derivative += -sum_1_factor * student_head(j) * student_head(k) * sigmoid_i3(kij_cov);
                         }
                     }
-                    for (int m = 0; m < teacher_hidden; m++)
-                    {
-                        for (int n = 0; n < teacher_hidden; n++)
-                        {
-                            std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, offset + m, offset + n};
-                            MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                            sum_2 += teacher_head(m) * teacher_head(n) * sigmoid_i4(cov);
-                        }
-                    }
-                    for (int m = 0; m < teacher_hidden; m++)
+
+#pragma omp section
+                    // if i and k both unfrozen
+                    if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
                     {
                         for (int j = 0; j < student_hidden; j++)
                         {
-                            std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset, offset + m};
-                            MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                            sum_2 -= 2 * teacher_head(m) * student_head(j) * sigmoid_i4(cov);
+                            for (int l = 0; l < student_hidden; l++)
+                            {
+                                std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset, l + input_noise_offset};
+                                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                                ik_derivative += sum_2_factor * student_head(j) * student_head(l) * sigmoid_i4(cov);
+                            }
                         }
                     }
-                    // noise term
-                    std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
-                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    sum_2 += pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov);
-
-                    ik_derivative += timestep * pow(w_learning_rate, 2) * (1 + pow(input_noise_stds[active_teacher], 2)) * student_head(i) * student_head(k) * sum_2;
-                    derivative(i, k) = ik_derivative;
+#pragma omp section
+                    // if i and k both unfrozen
+                    if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
+                    {
+                        for (int m = 0; m < teacher_hidden; m++)
+                        {
+                            for (int n = 0; n < teacher_hidden; n++)
+                            {
+                                std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, offset + m, offset + n};
+                                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                                ik_derivative += sum_2_factor * teacher_head(m) * teacher_head(n) * sigmoid_i4(cov);
+                            }
+                        }
+                    }
+#pragma omp section
+                    // if i and k both unfrozen
+                    if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
+                    {
+                        for (int m = 0; m < teacher_hidden; m++)
+                        {
+                            for (int j = 0; j < student_hidden; j++)
+                            {
+                                std::vector<int> indices{i + input_noise_offset, k + input_noise_offset, j + input_noise_offset, offset + m};
+                                MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                                ik_derivative += -sum_2_factor * 2 * teacher_head(m) * student_head(j) * sigmoid_i4(cov);
+                            }
+                        }
+                    }
+#pragma omp section
+                    // if i and k both unfrozen
+                    if (i >= freeze_units[active_teacher] and k >= freeze_units[active_teacher])
+                    {
+                        // noise term
+                        std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
+                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        ik_derivative += sum_2_factor * pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov);
+                    }
                 }
+                derivative(i, k) = ik_derivative;
             }
         }
 
