@@ -45,6 +45,7 @@ class ConfigTemplate:
                 types=[str],
                 requirements=[lambda x: x in [constants.CPP, constants.PYTHON]],
             ),
+            config_field.Field(name=constants.OMP, types=[bool]),
             config_field.Field(
                 name=constants.TIMESTEP, types=[float], requirements=[lambda x: x > 0.0]
             ),
