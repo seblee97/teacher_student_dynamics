@@ -13,6 +13,7 @@ logging:
 ode:
     implementation: cpp
     omp: True
+    eigen_path:
     timestep: 0.001
 
 data:
