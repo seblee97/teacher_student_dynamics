@@ -361,7 +361,7 @@ public:
         // MatrixXd derivative(this->state.state["Q"].rows(), this->state.state["Q"].cols());
         MatrixXd derivative = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
         for (int i = 0; i < student_hidden; i++)
         {
             for (int k = i; k < student_hidden; k++)
