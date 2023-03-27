@@ -33,6 +33,7 @@ class ODERunner(base_runner.BaseRunner):
         if config.implementation == constants.CPP:
 
             self._omp = config.omp
+            self._eigen_path = config.eigen_path
 
             self._ode_file_path = os.path.join(
                 self._checkpoint_path, constants.ODE_FILES
@@ -131,6 +132,9 @@ class ODERunner(base_runner.BaseRunner):
             "-o",
             self._cpp_out_path,
         ]
+
+        if self._eigen_path is not None:
+            call_list.insert(1, f"-I {self._eigen_path}")
 
         if self._omp:
             call_list.append("-fopenmp")
