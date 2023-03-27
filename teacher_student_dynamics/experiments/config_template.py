@@ -346,7 +346,7 @@ class ConfigTemplate:
     )
 
     base_config_template = config_template.Template(
-        fields=[],
+        fields=[config_field.Field(name=constants.SEED, types=[int])],
         nested_templates=[
             _runner_template,
             _logging_template,
