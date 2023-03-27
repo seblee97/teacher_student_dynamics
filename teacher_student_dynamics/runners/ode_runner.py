@@ -134,7 +134,8 @@ class ODERunner(base_runner.BaseRunner):
         ]
 
         if self._eigen_path is not None:
-            call_list.insert(1, f"-I {self._eigen_path}")
+            call_list.insert(3, "-I")
+            call_list.insert(4, self._eigen_path)
 
         if self._omp:
             call_list.append("-fopenmp")
