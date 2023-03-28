@@ -13,6 +13,7 @@ logging:
 ode:
     implementation: cpp
     omp: True
+    omp_num_threads: 8
     eigen_path:
     timestep: 0.001
 
