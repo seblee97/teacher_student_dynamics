@@ -24,6 +24,8 @@ class ODERunner(base_runner.BaseRunner):
     ) -> None:
         super().__init__(config=config, unique_id=unique_id)
 
+        self._logger.info("Setting up ODE runner...")
+
         self._student_hidden = config.student_hidden
         self._teacher_hidden = config.teacher_hidden
 
@@ -46,12 +48,16 @@ class ODERunner(base_runner.BaseRunner):
                 os.path.dirname(c_ode.__file__), "runner.cpp"
             )
 
+            self._logger.info("Constructing ODE configuration...")
             self._construct_ode_config(
                 config=config, network_configuration=network_configuration
             )
+            self._logger.info("ODE configuration constucted.")
 
         else:
             raise NotImplementedError()
+
+        self._logger.info("ODE runner setup.")
 
     def _get_data_columns(self):
         return []
@@ -141,10 +147,12 @@ class ODERunner(base_runner.BaseRunner):
         if self._omp:
             call_list.append("-fopenmp")
 
+        self._logger.info("Compiling C++ ODE implementation...")
         subprocess.call(
             call_list,
             shell=False,
         )
+        self._logger.info("C++ ODE implementation compiled.")
 
         subprocess.call([self._cpp_out_path, self._txt_config_path])
 
