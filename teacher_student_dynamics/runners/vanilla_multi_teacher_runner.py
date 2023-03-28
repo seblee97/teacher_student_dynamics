@@ -5,6 +5,8 @@ from typing import Any, Dict, List
 import numpy as np
 import torch
 
+torch.set_num_threads(torch.get_num_threads())
+
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.data_modules import base_data_module, iid_gaussian
 from teacher_student_dynamics.networks import multi_head_network
