@@ -31,8 +31,10 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._overlap_frequency = config.overlap_frequency or np.inf
         self._multi_head = config.multi_head
         super().__init__(config, unique_id)
+        self._logger.info("Setting up network runner...")
 
     def get_network_configuration(self):
+        self._logger.info("Obtaining network configuration...")
         with torch.no_grad():
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
@@ -55,6 +57,8 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 / self._input_dimension
                 for teacher in self._teachers.networks
             ]
+
+        self._logger.info("Network configuration obtained.")
 
         return network_configuration.NetworkConfiguration(
             student_head_weights=student_head_weights,
