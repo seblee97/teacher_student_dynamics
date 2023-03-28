@@ -29,6 +29,8 @@ parser.add_argument("--config_changes", metavar="-CC", default="config_changes.p
 parser.add_argument(
     "--results_folder", default=constants.RESULTS, type=str, help="path to all results."
 )
+parser.add_argument("--cluster_debug", action="store_true")
+parser.add_argument("--cluster_debug_run", action="store_true")
 
 # cluster config
 parser.add_argument("--scheduler", type=str, help="univa or slurm", default="univa")
@@ -72,7 +74,25 @@ if __name__ == "__main__":
             stochastic_packages=STOCHASTIC_PACKAGES,
         )
 
-    elif args.mode in [constants.PARALLEL, constants.SERIAL, constants.CLUSTER]:
+    elif args.mode in [
+        constants.SINGLE_CLUSTER,
+        constants.PARALLEL,
+        constants.SERIAL,
+        constants.CLUSTER,
+    ]:
+
+        if constants.SINGLE in args.mode:
+            config_changes_path = None
+        else:
+            config_changes_path = args.config_changes
+
+        try:
+            if args.seeds is not None:
+                seeds_arg = int(args.seeds)
+            else:
+                seeds_arg = args.seeds
+        except ValueError:
+            seeds_arg = args.seeds
 
         seeds = utils.process_seed_arguments(args.seeds)
 
@@ -106,7 +126,7 @@ if __name__ == "__main__":
                 stochastic_packages=STOCHASTIC_PACKAGES,
             )
 
-        elif args.mode == constants.CLUSTER:
+        elif constants.CLUSTER in args.mode:
 
             cluster_run.cluster_run(
                 runner_class_name=runner_class_name,
@@ -125,6 +145,8 @@ if __name__ == "__main__":
                 num_gpus=args.num_gpus,
                 memory=args.mem,
                 walltime=args.timeout,
+                cluster_debug=args.cluster_debug,
+                cluster_debug_run=args.cluster_debug_run,
             )
 
     else:
