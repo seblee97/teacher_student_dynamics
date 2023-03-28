@@ -22,6 +22,15 @@ int main(int argc, char **argv)
     order_parameter_paths = std::get<std::string>(config["order_parameter_paths"]);
     output_path_str = std::get<std::string>(config["output_path"]);
 
+    int omp_num_threads;
+    omp_num_threads = std::get<int>(config["omp_num_threads"]);
+
+    if (omp_num_threads > 0)
+    {
+        omp_set_num_threads(omp_num_threads);
+        std::cout << "OMP Threads: " << omp_num_threads << std::endl;
+    }
+
     std::filesystem::path output_path(output_path_str);
 
     int num_steps = std::get<int>(config["num_steps"]);
