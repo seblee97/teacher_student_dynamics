@@ -118,6 +118,7 @@ class ODERunner(base_runner.BaseRunner):
             constants.FREEZE_UNITS: config.freeze_units,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
             constants.OUTPUT_PATH: self._ode_file_path,
+            constants.OMP_NUM_THREADS: config.omp_num_threads,
         }
 
         cpp_utils.params_to_txt(params=ode_config, output_path=self._txt_config_path)
