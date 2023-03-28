@@ -100,7 +100,7 @@ if __name__ == "__main__":
             mode="multi",
             results_folder=results_folder,
             config_path=args.config_path,
-            config_changes_path=args.config_changes,
+            config_changes_path=config_changes_path,
             seeds=seeds,
         )
 
