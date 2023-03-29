@@ -20,21 +20,26 @@ int main(int argc, char **argv)
     //  etc.
     std::string order_parameter_paths;
     std::string output_path_str;
+    std::string experiment_log_path;
     int stdout_frequency;
     order_parameter_paths = std::get<std::string>(config["order_parameter_paths"]);
     output_path_str = std::get<std::string>(config["output_path"]);
+    experiment_log_path = std::get<std::string>(config["stdout_path"]);
     stdout_frequency = std::get<int>(config["stdout_frequency"]);
 
+    // set output path variable and pipe cout to file.
+    std::filesystem::path output_path(output_path_str);
+    std::ofstream out(experiment_log_path);
+    std::cout.rdbuf(out.rdbuf());
+
+    // set number of threads for use in parallelisation
     int omp_num_threads;
     omp_num_threads = std::get<int>(config["omp_num_threads"]);
-
     if (omp_num_threads > 0)
     {
         omp_set_num_threads(omp_num_threads);
         std::cout << "OMP Threads: " << omp_num_threads << std::endl;
     }
-
-    std::filesystem::path output_path(output_path_str);
 
     int num_steps = std::get<int>(config["num_steps"]);
     int switch_step = std::get<int>(config["switch_step"]);
@@ -52,8 +57,6 @@ int main(int argc, char **argv)
     std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
-
-    std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
     ODEState state(teacher_hidden, student_hidden, multi_head, order_parameter_paths);
 
@@ -132,6 +135,8 @@ int main(int argc, char **argv)
 
     int log_i = 0;
 
+    std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
+
     for (int i = 0; i < num_deltas; i++)
     {
         if (i == switch_delta)
@@ -142,6 +147,7 @@ int main(int argc, char **argv)
         if (i % stdout_frequency == 0)
         {
             std::cout << "Step: " << step_scaling * i << "; Elapsed (s): " << since(start_time).count() << std::endl;
+            std::cerr << "Step: " << step_scaling * i << "; Elapsed (s): " << since(start_time).count() << std::endl;
             start_time = std::chrono::steady_clock::now();
         }
         step_errors = ODE.step();
