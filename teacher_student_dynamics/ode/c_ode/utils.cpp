@@ -8,6 +8,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <variant>
+#include <chrono>
 
 template <typename Out>
 void split(const std::string &s, char delim, Out result)
@@ -100,4 +101,12 @@ parse_input(std::string input_file_path)
         std::cout << "Unable to open file";
     }
     return config;
+}
+
+template <
+    class clock_t = std::chrono::steady_clock,
+    class duration_t = std::chrono::milliseconds>
+auto since(std::chrono::time_point<clock_t, duration_t> const &start)
+{
+    return (clock_t::now() - start) / (float)1e9;
 }
