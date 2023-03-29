@@ -196,6 +196,4 @@ class ODERunner(base_runner.BaseRunner):
                 h0j = np.genfromtxt(os.path.join(self._ode_file_path, f"h_0{j}.csv"))
                 df[f"{constants.STUDENT_HEAD}_0_{constants.WEIGHT}_{j}"] = h0j
 
-        df.to_csv(
-            os.path.join(self._checkpoint_path, "data_logger_ode.csv"), index=False
-        )
+        df.to_csv(self._logfile_path, index=False)
