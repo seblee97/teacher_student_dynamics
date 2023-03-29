@@ -3,6 +3,7 @@
 #include "utils.cpp"
 #include <fstream>
 #include <filesystem>
+#include <chrono>
 // #include <format>
 
 int main(int argc, char **argv)
@@ -19,8 +20,10 @@ int main(int argc, char **argv)
     //  etc.
     std::string order_parameter_paths;
     std::string output_path_str;
+    int stdout_frequency;
     order_parameter_paths = std::get<std::string>(config["order_parameter_paths"]);
     output_path_str = std::get<std::string>(config["output_path"]);
+    stdout_frequency = std::get<int>(config["stdout_frequency"]);
 
     int omp_num_threads;
     omp_num_threads = std::get<int>(config["omp_num_threads"]);
@@ -49,6 +52,8 @@ int main(int argc, char **argv)
     std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
+
+    std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
     ODEState state(teacher_hidden, student_hidden, multi_head, order_parameter_paths);
 
@@ -134,9 +139,10 @@ int main(int argc, char **argv)
             std::cout << "Switching Teacher..." << std::endl;
             ODE.set_active_teacher(1);
         }
-        if (i % 100 == 0)
+        if (i % stdout_frequency == 0)
         {
-            std::cout << "Step: " << step_scaling * i << std::endl;
+            std::cout << "Step: " << step_scaling * i << "; Elapsed (s): " << since(start_time).count() << std::endl;
+            start_time = std::chrono::steady_clock::now();
         }
         step_errors = ODE.step();
         error_0_log[i] = std::get<0>(step_errors);
