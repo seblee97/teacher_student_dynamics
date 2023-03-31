@@ -34,7 +34,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._logger.info("Setting up network runner...")
 
     def get_network_configuration(self):
-        self._logger.info("Obtaining network configuration...")
+        # self._logger.info("Obtaining network configuration...")
         with torch.no_grad():
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
@@ -58,7 +58,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 for teacher in self._teachers.networks
             ]
 
-        self._logger.info("Network configuration obtained.")
+        # self._logger.info("Network configuration obtained.")
 
         return network_configuration.NetworkConfiguration(
             student_head_weights=student_head_weights,
