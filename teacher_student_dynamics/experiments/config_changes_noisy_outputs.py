@@ -1,7 +1,7 @@
 import itertools
 
 param_config_changes = {
-    f"param_{h}": [
+    f"param_{h}_{n}_{s}": [
         {"networks": {"student_hidden": h, "teacher_hidden": h}},
         {"data": {"noise_to_teacher_output": [[0.0, n], []]}},
         {"curriculum": {"switch_steps": [s]}},
@@ -11,7 +11,7 @@ param_config_changes = {
     )
 }
 oparam_config_changes = {
-    f"oparam_{h}": [
+    f"oparam_{h}_{n}_{s}": [
         {"networks": {"student_hidden": 2 * h, "teacher_hidden": h}},
         {"data": {"noise_to_teacher_output": [[0.0, n], []]}},
         {"curriculum": {"switch_steps": [s]}},
