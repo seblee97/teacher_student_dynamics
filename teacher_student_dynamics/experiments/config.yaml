@@ -2,11 +2,11 @@ seed: 0
 
 runner:
     run_ode: True
-    run_network: True
+    run_network: False
 
 logging:
     checkpoint_frequency: 1000
-    stdout_frequency: 1000
+    stdout_frequency: 100000
 
     overlap_frequency: 100
 
@@ -45,7 +45,7 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 3000000
+    total_training_steps: 30000000
     optimiser: sgd
     learning_rate: 1.
     loss_function: mse
@@ -87,7 +87,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [3000000]
+    switch_steps: [30000000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]            
