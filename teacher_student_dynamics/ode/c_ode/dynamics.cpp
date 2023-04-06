@@ -24,8 +24,7 @@ public:
     std::vector<float> noise_stds;
     std::vector<int> freeze_units;
 
-    int num_switches = 0;
-    int active_teacher = 0;
+    int active_teacher;
 
     int teacher_1_offset;
     int teacher_2_offset;
@@ -61,11 +60,18 @@ public:
         teacher_1_offset = student_hidden;
         teacher_2_offset = student_hidden + teacher_hidden;
         input_noise_offset = student_hidden + 2 * teacher_hidden;
+        set_active_teacher(0);
     }
 
     void set_active_teacher(int teacher_index)
     {
         this->active_teacher = teacher_index;
+        std::cout << "Teacher Index: " << active_teacher << std::endl;
+        std::cerr << "Teacher Index: " << active_teacher << std::endl;
+        std::cout << "Input Noise: " << input_noise_stds[active_teacher] << std::endl;
+        std::cout << "Output Noise: " << noise_stds[active_teacher] << std::endl;
+        std::cerr << "Input Noise: " << input_noise_stds[active_teacher] << std::endl;
+        std::cerr << "Output Noise: " << noise_stds[active_teacher] << std::endl;
     }
 
     std::tuple<float, float> step()
@@ -461,6 +467,7 @@ public:
                         // noise term
                         std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
                         MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                        std::cerr << "noisy " << sum_2_factor * pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov) << std::endl;
                         ik_derivative += sum_2_factor * pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov);
                     }
                 }
