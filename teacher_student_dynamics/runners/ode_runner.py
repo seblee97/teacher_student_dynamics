@@ -1,5 +1,6 @@
 import os
 import subprocess
+import time
 
 import numpy as np
 import pandas as pd
@@ -151,12 +152,15 @@ class ODERunner(base_runner.BaseRunner):
         if self._omp:
             call_list.append("-fopenmp")
 
+        pre_compile = time.time()
         self._logger.info("Compiling C++ ODE implementation...")
         subprocess.call(
             call_list,
             shell=False,
         )
-        self._logger.info("C++ ODE implementation compiled.")
+        self._logger.info(
+            f"C++ ODE implementation compiled in {round(time.time() - pre_compile, 3)}s."
+        )
 
         subprocess.call([self._cpp_out_path, self._txt_config_path])
 
