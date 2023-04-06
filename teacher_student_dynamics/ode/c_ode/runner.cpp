@@ -142,6 +142,7 @@ int main(int argc, char **argv)
         if (i == switch_delta)
         {
             std::cout << "Switching Teacher..." << std::endl;
+            std::cerr << "Switching Teacher..." << std::endl;
             ODE.set_active_teacher(1);
         }
         if (i % stdout_frequency == 0)
