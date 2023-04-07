@@ -7,7 +7,7 @@ param_config_changes = {
         {"curriculum": {"switch_steps": [s]}},
     ]
     for h, n, s in itertools.product(
-        [1, 2, 4], [1.0, 0.1, 0.01, 0.001], [1000, 10000, 100000, 1000000, 10000000]
+        [1, 2, 4], [10.0, 5.0, 1.0, 0.1, 0.01], [100000, 1000000, 5000000, 10000000, 15000000]
     )
 }
 oparam_config_changes = {
@@ -17,7 +17,7 @@ oparam_config_changes = {
         {"curriculum": {"switch_steps": [s]}},
     ]
     for h, n, s in itertools.product(
-        [1, 2, 4], [1.0, 0.1, 0.01, 0.001], [1000, 10000, 100000, 1000000, 10000000]
+        [1, 2], [10.0, 5.0, 1.0, 0.1, 0.01], [100000, 1000000, 5000000, 10000000, 15000000]
     )
 }
 CONFIG_CHANGES = {**param_config_changes, **oparam_config_changes}
