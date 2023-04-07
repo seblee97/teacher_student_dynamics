@@ -47,7 +47,7 @@ training:
     train_batch_size: 1
     total_training_steps: 30000000
     optimiser: sgd
-    learning_rate: 1.
+    learning_rate: 0.1
     loss_function: mse
     train_hidden_layer: True
     train_head_layer: True
