@@ -467,7 +467,6 @@ public:
                         // noise term
                         std::vector<int> indices{i + input_noise_offset, k + input_noise_offset};
                         MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                        std::cerr << "noisy " << sum_2_factor * pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov) << std::endl;
                         ik_derivative += sum_2_factor * pow(noise_stds[active_teacher], 2) * sigmoid_j2(cov);
                     }
                 }
