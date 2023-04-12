@@ -110,6 +110,7 @@ class ODERunner(base_runner.BaseRunner):
 
         ode_config = {
             constants.NUM_STEPS: config.total_training_steps,
+            constants.ODE_LOG_FREQUENCY: config.ode_log_frequency,
             constants.SWITCH_STEP: config.switch_steps[0],
             constants.HIDDEN_LEARNING_RATE: config.learning_rate,
             constants.HEAD_LEARNING_RATE: config.learning_rate,
