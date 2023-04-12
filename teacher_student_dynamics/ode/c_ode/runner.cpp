@@ -42,6 +42,7 @@ int main(int argc, char **argv)
     }
 
     int num_steps = std::get<int>(config["num_steps"]);
+    int log_frequency = std::get<int>(config["ode_log_frequency"]);
     int switch_step = std::get<int>(config["switch_step"]);
     int input_dimension = std::get<int>(config["input_dimension"]);
     int teacher_hidden = std::get<int>(config["teacher_hidden"]);
@@ -72,12 +73,14 @@ int main(int argc, char **argv)
     float time = num_steps / input_dimension;
     float switch_time = switch_step / input_dimension;
     int num_deltas = static_cast<int>(time / timestep);
+    int num_logs = static_cast<int>(num_deltas / log_frequency);
     int switch_delta = static_cast<int>(switch_time / timestep);
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
     std::cout << "time: " << time << std::endl;
     std::cout << "num deltas: " << num_deltas << std::endl;
+    std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
 
     StudentTeacherODE ODE(
@@ -94,8 +97,8 @@ int main(int argc, char **argv)
         noise_stds,
         freeze_units);
 
-    std::vector<double> error_0_log(num_deltas);
-    std::vector<double> error_1_log(num_deltas);
+    std::vector<double> error_0_log(num_logs);
+    std::vector<double> error_1_log(num_logs);
 
     std::map<std::string, std::vector<double>> q_log_map;
     std::map<std::string, std::vector<double>> r_log_map;
@@ -107,7 +110,7 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < student_hidden; j++)
         {
-            std::vector<double> q_ij_log(num_deltas);
+            std::vector<double> q_ij_log(num_logs);
             q_log_map["q_" + std::to_string(i) + std::to_string(j)] = q_ij_log;
         }
     }
@@ -116,8 +119,8 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < teacher_hidden; j++)
         {
-            std::vector<double> r_ij_log(num_deltas);
-            std::vector<double> u_ij_log(num_deltas);
+            std::vector<double> r_ij_log(num_logs);
+            std::vector<double> u_ij_log(num_logs);
             r_log_map["r_" + std::to_string(i) + std::to_string(j)] = r_ij_log;
             u_log_map["u_" + std::to_string(i) + std::to_string(j)] = u_ij_log;
         }
@@ -125,8 +128,8 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < student_hidden; i++)
     {
-        std::vector<double> h_0i_log(num_deltas);
-        std::vector<double> h_1i_log(num_deltas);
+        std::vector<double> h_0i_log(num_logs);
+        std::vector<double> h_1i_log(num_logs);
         h_0_log_map["h_0" + std::to_string(i)] = h_0i_log;
         h_1_log_map["h_1" + std::to_string(i)] = h_1i_log;
     }
@@ -152,33 +155,38 @@ int main(int argc, char **argv)
             start_time = std::chrono::steady_clock::now();
         }
         step_errors = ODE.step();
-        error_0_log[i] = std::get<0>(step_errors);
-        error_1_log[i] = std::get<1>(step_errors);
 
-        for (int s = 0; s < student_hidden; s++)
+        if (i % log_frequency == 0)
         {
-            for (int s_ = 0; s_ < student_hidden; s_++)
-            {
-                q_log_map["q_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["Q"](s, s_);
-            }
-        }
+            error_0_log[log_i] = std::get<0>(step_errors);
+            error_1_log[log_i] = std::get<1>(step_errors);
 
-        for (int s = 0; s < student_hidden; s++)
-        {
-            for (int t = 0; t < teacher_hidden; t++)
+            for (int s = 0; s < student_hidden; s++)
             {
-                r_log_map["r_" + std::to_string(s) + std::to_string(t)][log_i] = state.state["R"](s, t);
-                u_log_map["u_" + std::to_string(s) + std::to_string(t)][log_i] = state.state["U"](s, t);
+                for (int s_ = 0; s_ < student_hidden; s_++)
+                {
+                    q_log_map["q_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["Q"](s, s_);
+                }
             }
-        }
 
-        for (int s = 0; s < student_hidden; s++)
-        {
-            h_0_log_map["h_0" + std::to_string(s)][log_i] = state.state["h1"](s);
-            if (multi_head)
+            for (int s = 0; s < student_hidden; s++)
             {
-                h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
+                for (int t = 0; t < teacher_hidden; t++)
+                {
+                    r_log_map["r_" + std::to_string(s) + std::to_string(t)][log_i] = state.state["R"](s, t);
+                    u_log_map["u_" + std::to_string(s) + std::to_string(t)][log_i] = state.state["U"](s, t);
+                }
             }
+
+            for (int s = 0; s < student_hidden; s++)
+            {
+                h_0_log_map["h_0" + std::to_string(s)][log_i] = state.state["h1"](s);
+                if (multi_head)
+                {
+                    h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
+                }
+            }
+            log_i++;
         }
 
         // q_00_log[log_i] = state.state["Q"](0, 0);
@@ -197,18 +205,16 @@ int main(int argc, char **argv)
 
         // h_1_00_log[log_i] = state.state["h2"](0);
         // h_1_01_log[log_i] = state.state["h2"](1);
-
-        log_i++;
     }
 
     std::cout << "Solve complete, saving data..." << std::endl;
 
     std::ofstream file;
     file.open(output_path / "error_0.csv");
-    for (int i = 0; i < num_deltas; i++)
+    for (int i = 0; i < num_logs; i++)
     {
         file << error_0_log[i];
-        if (i < num_deltas - 1)
+        if (i < num_logs - 1)
         {
             file << "\n";
         }
@@ -216,10 +222,10 @@ int main(int argc, char **argv)
     file.close();
 
     file.open(output_path / "error_1.csv");
-    for (int i = 0; i < num_deltas; i++)
+    for (int i = 0; i < num_logs; i++)
     {
         file << error_1_log[i];
-        if (i < num_deltas - 1)
+        if (i < num_logs - 1)
         {
             file << "\n";
         }
@@ -235,10 +241,10 @@ int main(int argc, char **argv)
         {
             csv_name = "q_" + std::to_string(i) + std::to_string(j) + ".csv";
             file.open(output_path / csv_name);
-            for (int n = 0; n < num_deltas; n++)
+            for (int n = 0; n < num_logs; n++)
             {
                 file << q_log_map["q_" + std::to_string(i) + std::to_string(j)][n];
-                if (n < num_deltas - 1)
+                if (n < num_logs - 1)
                 {
                     file << "\n";
                 }
@@ -254,10 +260,10 @@ int main(int argc, char **argv)
         {
             csv_name = "u_" + std::to_string(i) + std::to_string(j) + ".csv";
             file.open(output_path / csv_name);
-            for (int n = 0; n < num_deltas; n++)
+            for (int n = 0; n < num_logs; n++)
             {
                 file << u_log_map["u_" + std::to_string(i) + std::to_string(j)][n];
-                if (n < num_deltas - 1)
+                if (n < num_logs - 1)
                 {
                     file << "\n";
                 }
@@ -265,10 +271,10 @@ int main(int argc, char **argv)
             file.close();
             csv_name = "r_" + std::to_string(i) + std::to_string(j) + ".csv";
             file.open(output_path / csv_name);
-            for (int n = 0; n < num_deltas; n++)
+            for (int n = 0; n < num_logs; n++)
             {
                 file << r_log_map["r_" + std::to_string(i) + std::to_string(j)][n];
-                if (n < num_deltas - 1)
+                if (n < num_logs - 1)
                 {
                     file << "\n";
                 }
@@ -283,10 +289,10 @@ int main(int argc, char **argv)
     {
         csv_name = "h_0" + std::to_string(i) + ".csv";
         file.open(output_path / csv_name);
-        for (int n = 0; n < num_deltas; n++)
+        for (int n = 0; n < num_logs; n++)
         {
             file << h_0_log_map["h_0" + std::to_string(i)][n];
-            if (n < num_deltas - 1)
+            if (n < num_logs - 1)
             {
                 file << "\n";
             }
@@ -296,10 +302,10 @@ int main(int argc, char **argv)
         {
             csv_name = "h_1" + std::to_string(i) + ".csv";
             file.open(output_path / csv_name);
-            for (int n = 0; n < num_deltas; n++)
+            for (int n = 0; n < num_logs; n++)
             {
                 file << h_1_log_map["h_1" + std::to_string(i)][n];
-                if (n < num_deltas - 1)
+                if (n < num_logs - 1)
                 {
                     file << "\n";
                 }
