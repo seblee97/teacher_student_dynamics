@@ -9,6 +9,7 @@ logging:
     stdout_frequency: 100000
 
     overlap_frequency: 100
+    ode_log_frequency: 1000
 
 ode:
     implementation: cpp
