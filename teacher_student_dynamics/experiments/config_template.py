@@ -34,6 +34,9 @@ class ConfigTemplate:
             config_field.Field(
                 name=constants.OVERLAP_FREQUENCY, types=[int, type(None)]
             ),
+            config_field.Field(
+                name=constants.ODE_LOG_FREQUENCY, types=[int, type(None)]
+            ),
         ],
         level=[constants.LOGGING],
     )
