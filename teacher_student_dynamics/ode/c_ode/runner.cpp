@@ -72,9 +72,9 @@ int main(int argc, char **argv)
 
     float time = num_steps / input_dimension;
     float switch_time = switch_step / input_dimension;
-    int num_deltas = static_cast<int>(time / timestep);
-    int num_logs = static_cast<int>(num_deltas / log_frequency);
-    int switch_delta = static_cast<int>(switch_time / timestep);
+    int num_deltas = static_cast<int>(std::round(time / timestep));
+    int num_logs = static_cast<int>(std::round(num_deltas / log_frequency));
+    int switch_delta = static_cast<int>(std::round(switch_time / timestep));
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
@@ -208,26 +208,6 @@ int main(int argc, char **argv)
     }
 
     std::cout << "Solve complete, saving data..." << std::endl;
-
-    std::ofstream myfile(output_path / "error_0_try.csv");
-
-    if (myfile.is_open())
-    {
-        for (int i = 0; i < error_0_log.size(); i++)
-        {
-            myfile << error_0_log[i];
-            if (i != error_0_log.size() - 1)
-            {
-                myfile << ",";
-            }
-            myfile << "\n";
-        }
-        myfile.close();
-    }
-    else
-    {
-        std::cout << "Unable to open file";
-    }
 
     std::ofstream file;
     file.open(output_path / "error_0.csv");
