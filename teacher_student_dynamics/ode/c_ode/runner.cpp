@@ -209,6 +209,26 @@ int main(int argc, char **argv)
 
     std::cout << "Solve complete, saving data..." << std::endl;
 
+    std::ofstream myfile(output_path / "error_0_try.csv");
+
+    if (myfile.is_open())
+    {
+        for (int i = 0; i < error_0_log.size(); i++)
+        {
+            myfile << error_0_log[i];
+            if (i != error_0_log.size() - 1)
+            {
+                myfile << ",";
+            }
+            myfile << "\n";
+        }
+        myfile.close();
+    }
+    else
+    {
+        std::cout << "Unable to open file";
+    }
+
     std::ofstream file;
     file.open(output_path / "error_0.csv");
     for (int i = 0; i < num_logs; i++)
