@@ -94,7 +94,7 @@ if __name__ == "__main__":
         except ValueError:
             seeds_arg = args.seeds
 
-        seeds = utils.process_seed_arguments(args.seeds)
+        seeds = utils.process_seed_arguments(seeds_arg)
 
         experiment_path, checkpoint_paths = utils.setup_experiment(
             mode="multi",
