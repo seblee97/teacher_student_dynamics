@@ -82,6 +82,8 @@ int main(int argc, char **argv)
 
     std::cout << "num steps: " << num_steps << std::endl;
     std::cout << "time: " << time << std::endl;
+    std::cout << "log time: " << log_time << std::endl;
+    std::cout << "log step: " << log_step << std::endl;
     std::cout << "num deltas: " << num_deltas << std::endl;
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
