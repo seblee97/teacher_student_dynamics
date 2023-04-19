@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     std::cout << "configuration covariance matrix:" << std::endl;
     std::cout << state.getCovarianceMatrix() << std::endl;
 
-    float log_time = log_frequency / input_dimensions;
+    float log_time = log_frequency / input_dimension;
     int log_step = static_cast<int>(std::round(log_time / timestep));
 
     float time = num_steps / input_dimension;
