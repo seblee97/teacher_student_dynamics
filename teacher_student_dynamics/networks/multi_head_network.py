@@ -152,7 +152,12 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             output_layer = nn.Linear(
                 self._layer_dimensions[-1], self._output_dimension, bias=self._bias
             )
-            self._initialise_weights(output_layer)
+            if self._unit_norm_head:
+                head_norm = torch.norm(output_layer.weight)
+                normalised_head = output_layer.weight / head_norm
+                output_layer.weight.data = normalised_head
+            else:
+                self._initialise_weights(output_layer)
             # freeze heads by default
             for param in output_layer.parameters():
                 param.requires_grad = False
