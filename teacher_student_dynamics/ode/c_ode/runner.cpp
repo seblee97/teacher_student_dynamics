@@ -70,10 +70,13 @@ int main(int argc, char **argv)
     std::cout << "configuration covariance matrix:" << std::endl;
     std::cout << state.getCovarianceMatrix() << std::endl;
 
+    float log_time = log_frequency / input_dimensions;
+    int log_step = static_cast<int>(std::round(log_time / timestep));
+
     float time = num_steps / input_dimension;
     float switch_time = switch_step / input_dimension;
     int num_deltas = static_cast<int>(std::round(time / timestep));
-    int num_logs = static_cast<int>(std::round(num_deltas / log_frequency));
+    int num_logs = static_cast<int>(std::round(num_deltas / log_step));
     int switch_delta = static_cast<int>(std::round(switch_time / timestep));
     float step_scaling = input_dimension / (1 / timestep);
 
@@ -156,7 +159,7 @@ int main(int argc, char **argv)
         }
         step_errors = ODE.step();
 
-        if (i % log_frequency == 0)
+        if (i % log_step == 0)
         {
             error_0_log[log_i] = std::get<0>(step_errors);
             error_1_log[log_i] = std::get<1>(step_errors);
