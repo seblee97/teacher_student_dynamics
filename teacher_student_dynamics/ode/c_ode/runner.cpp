@@ -70,8 +70,12 @@ int main(int argc, char **argv)
     std::cout << "configuration covariance matrix:" << std::endl;
     std::cout << state.getCovarianceMatrix() << std::endl;
 
-    float log_time = log_frequency / input_dimension;
+    float log_time = (float)log_frequency / (float)input_dimension;
     int log_step = static_cast<int>(std::round(log_time / timestep));
+
+    std::cout << "log freq: " << log_frequency << std::endl;
+    std::cout << "log time: " << log_time << std::endl;
+    std::cout << "log step: " << log_step << std::endl;
 
     float time = num_steps / input_dimension;
     float switch_time = switch_step / input_dimension;
@@ -82,8 +86,6 @@ int main(int argc, char **argv)
 
     std::cout << "num steps: " << num_steps << std::endl;
     std::cout << "time: " << time << std::endl;
-    std::cout << "log time: " << log_time << std::endl;
-    std::cout << "log step: " << log_step << std::endl;
     std::cout << "num deltas: " << num_deltas << std::endl;
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
