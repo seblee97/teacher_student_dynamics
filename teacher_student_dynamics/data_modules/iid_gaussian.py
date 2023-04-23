@@ -51,7 +51,7 @@ class IIDGaussian(base_data_module.BaseData):
         if variance == 0:
             self._data_distribution = tdist.Categorical(torch.Tensor([1.0]))
         else:
-            self._data_distribution = tdist.Normal(mean, variance)
+            self._data_distribution = tdist.Normal(mean, torch.sqrt(variance))
 
         self._dataset_size = dataset_size
 
