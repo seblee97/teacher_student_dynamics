@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+import numpy as np
 import torch
 import torch.distributions as tdist
 from torch.utils.data import DataLoader
@@ -51,7 +52,7 @@ class IIDGaussian(base_data_module.BaseData):
         if variance == 0:
             self._data_distribution = tdist.Categorical(torch.Tensor([1.0]))
         else:
-            self._data_distribution = tdist.Normal(mean, torch.sqrt(variance))
+            self._data_distribution = tdist.Normal(mean, np.sqrt(variance))
 
         self._dataset_size = dataset_size
 
