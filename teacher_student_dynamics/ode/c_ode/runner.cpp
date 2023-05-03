@@ -218,10 +218,10 @@ int main(int argc, char **argv)
 
     std::ofstream file;
     file.open(output_path / "error_0.csv");
-    for (int i = 0; i < num_logs; i++)
+    for (int i = 0; i < error_0_log.size(); i++)
     {
         file << error_0_log[i];
-        if (i < num_logs - 1)
+        if (i != error_0_log.size() - 1)
         {
             file << "\n";
         }
@@ -229,10 +229,10 @@ int main(int argc, char **argv)
     file.close();
 
     file.open(output_path / "error_1.csv");
-    for (int i = 0; i < num_logs; i++)
+    for (int i = 0; i < error_1_log.size(); i++)
     {
         file << error_1_log[i];
-        if (i < num_logs - 1)
+        if (i < error_1_log.size() - 1)
         {
             file << "\n";
         }
