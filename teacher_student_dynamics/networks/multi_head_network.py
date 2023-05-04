@@ -234,3 +234,13 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             x = self._nonlinear_function(self._forward_hidden_scaling * layer(x))
         task_outputs = [head(x) for head in self._heads]
         return task_outputs
+
+    def forward_all_batches(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """Call to forward of all network heads where each head gets a different input"""
+        task_outputs = []
+        for xi, head in zip(x, self._heads):
+            for layer in self._layers:
+                xi = self._nonlinear_function(self._forward_hidden_scaling * layer(xi))
+            task_output = head(xi)
+            task_outputs.append(task_output)
+        return task_outputs
