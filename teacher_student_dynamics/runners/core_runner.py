@@ -6,6 +6,7 @@ import pandas as pd
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.runners import (
     base_network_runner,
+    hmm_multi_teacher_runner,
     ode_runner,
     vanilla_multi_teacher_runner,
 )
@@ -30,7 +31,8 @@ class CoreRunner:
 
         self._checkpoint_path = config.checkpoint_path
 
-        self._ode_x_scaling = config.input_dimension / (1 / config.timestep)
+        if self._run_ode:
+            self._ode_x_scaling = config.input_dimension / (1 / config.timestep)
 
         self._setup_runners(config=config, unique_id=unique_id)
 
@@ -43,9 +45,16 @@ class CoreRunner:
             network_id = f"{unique_id}_{constants.NETWORK}"
             ode_id = f"{unique_id}_{constants.ODE}"
 
-        self._network_runner = vanilla_multi_teacher_runner.VanillaMultiTeacherRunner(
-            config=config, unique_id=network_id
-        )
+        if config.input_source == constants.IID_GAUSSIAN:
+            self._network_runner = (
+                vanilla_multi_teacher_runner.VanillaMultiTeacherRunner(
+                    config=config, unique_id=network_id
+                )
+            )
+        elif config.input_source == constants.HIDDEN_MANIFOLD:
+            self._network_runner = hmm_multi_teacher_runner.HMMMultiTeacherRunner(
+                config=config, unique_id=unique_id
+            )
 
         if self._run_ode:
             network_configuration = self._network_runner.get_network_configuration()
