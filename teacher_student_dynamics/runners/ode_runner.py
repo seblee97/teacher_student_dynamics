@@ -20,7 +20,7 @@ class ODERunner(base_runner.BaseRunner):
     def __init__(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.NetworkConfiguration,
+        network_configuration: network_configuration.VanillaNetworkConfiguration,
         unique_id: str = "",
     ) -> None:
         super().__init__(config=config, unique_id=unique_id)
@@ -66,7 +66,7 @@ class ODERunner(base_runner.BaseRunner):
     def _construct_ode_config(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.NetworkConfiguration,
+        network_configuration: network_configuration.VanillaNetworkConfiguration,
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
