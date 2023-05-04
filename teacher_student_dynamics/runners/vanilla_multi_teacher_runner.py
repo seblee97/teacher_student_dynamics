@@ -1,6 +1,4 @@
-import os
-import time
-from typing import Any, Dict, List
+from typing import List
 
 import numpy as np
 import torch
@@ -9,12 +7,6 @@ torch.set_num_threads(torch.get_num_threads())
 
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.data_modules import base_data_module, iid_gaussian
-from teacher_student_dynamics.networks import multi_head_network
-from teacher_student_dynamics.networks.network_ensembles import (
-    identical_ensemble,
-    node_sharing_ensemble,
-    rotation_ensemble,
-)
 from teacher_student_dynamics.runners import base_network_runner
 from teacher_student_dynamics.utils import network_configuration
 
@@ -28,13 +20,13 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     """
 
     def __init__(self, config: experiments.config.Config, unique_id: str = "") -> None:
-        self._overlap_frequency = config.overlap_frequency or np.inf
-        self._multi_head = config.multi_head
+
+        self._teacher_input_dimension = config.input_dimension
+
         super().__init__(config, unique_id)
-        self._logger.info("Setting up network runner...")
+        self._logger.info("Setting up vanilla teacher-student network runner...")
 
     def get_network_configuration(self):
-        # self._logger.info("Obtaining network configuration...")
         with torch.no_grad():
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
@@ -58,8 +50,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 for teacher in self._teachers.networks
             ]
 
-        # self._logger.info("Network configuration obtained.")
-
         return network_configuration.NetworkConfiguration(
             student_head_weights=student_head_weights,
             teacher_head_weights=teacher_head_weights,
@@ -68,94 +58,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             teacher_cross_overlaps=teacher_cross_overlaps,
             student_teacher_overlaps=student_teacher_overlaps,
         )
-
-    def _get_data_columns(self):
-        columns = [constants.TEACHER_INDEX, constants.LOSS]
-        for i in range(self._num_teachers):
-            columns.append(f"{constants.GENERALISATION_ERROR}_{i}")
-            columns.append(f"{constants.LOG_GENERALISATION_ERROR}_{i}")
-        if self._overlap_frequency < np.inf:
-            sample_network_config = self.get_network_configuration()
-            columns.extend(list(sample_network_config.sub_dictionary.keys()))
-        return columns
-
-    def _setup_teachers(self, config: experiments.config.Config):
-        """Initialise teacher object containing teacher networks."""
-        base_arguments = {
-            constants.INPUT_DIMENSION: config.input_dimension,
-            constants.HIDDEN_DIMENSION: config.teacher_hidden,
-            constants.OUTPUT_DIMENSION: config.output_dimension,
-            constants.ENSEMBLE_SIZE: config.num_teachers,
-            constants.BIAS: config.teacher_bias,
-            constants.NONLINEARITY: config.nonlinearity,
-            constants.INITIALISATION_STD: config.teacher_initialisation_std,
-            constants.NORMALISE_WEIGHTS: config.normalise_teachers,
-            constants.UNIT_NORM_HEAD: config.unit_norm_teacher_head,
-        }
-        if config.teacher_configuration == constants.ROTATION:
-            teachers_class = rotation_ensemble.RotationEnsemble
-            additional_arguments = {
-                constants.FEATURE_ROTATION_ALPHA: config.feature_rotation_alpha,
-                constants.READOUT_ROTATION_ALPHA: config.readout_rotation_alpha,
-            }
-        elif config.teacher_configuration == constants.NODE_SHARING:
-            teachers_class = node_sharing_ensemble.NodeSharingEnsemble
-            additional_arguments = {
-                constants.NUM_SHARED_NODES: config.num_shared_nodes,
-                constants.FEATURE_ROTATION_ALPHA: config.feature_rotation_alpha,
-            }
-        elif config.teacher_configuration == constants.IDENTICAL:
-            teachers_class = identical_ensemble.IdenticalEnsemble
-            additional_arguments = {}
-        else:
-            raise ValueError(
-                f"Teacher configuration '{config.teacher_configuration}' not recognised."
-            )
-
-        teachers = teachers_class(**base_arguments, **additional_arguments)
-
-        save_path = os.path.join(
-            config.checkpoint_path, constants.TEACHER_WEIGHT_SAVE_PATH
-        )
-        teachers.save_all_network_weights(save_path=save_path)
-
-        return teachers
-
-    def _setup_student(self, config: experiments.config.Config):
-        """Initialise object containing student network."""
-        if self._multi_head:
-            num_heads = self._num_teachers
-        else:
-            num_heads = 1
-        return multi_head_network.MultiHeadNetwork(
-            input_dimension=config.input_dimension,
-            hidden_dimension=config.student_hidden,
-            output_dimension=config.output_dimension,
-            bias=config.student_bias,
-            num_heads=num_heads,
-            nonlinearity=config.nonlinearity,
-            initialisation_std=config.student_initialisation_std,
-            train_hidden_layer=config.train_hidden_layer,
-            train_head_layer=config.train_head_layer,
-        )
-
-    def _setup_optimiser(self, config: experiments.config.Config) -> torch.optim:
-        (
-            trainable_hidden_parameters,
-            trainable_head_parameters,
-        ) = self._student.get_trainable_parameters()
-
-        # scale head parameter learning rates
-        for param_set in trainable_head_parameters:
-            param_set["lr"] = config.learning_rate / config.input_dimension
-
-        trainable_parameters = trainable_hidden_parameters + trainable_head_parameters
-
-        if config.optimiser == constants.SGD:
-            optimiser = torch.optim.SGD(trainable_parameters, lr=config.learning_rate)
-        else:
-            raise ValueError(f"Optimiser type {config.optimiser} not recognised.")
-        return optimiser
 
     def _setup_data(
         self, config: experiments.config.Config
@@ -229,85 +131,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             label_noise_modules,
             input_noise_modules,
         )
-
-    def train(self):
-        while self._total_step_count <= self._total_training_steps:
-            teacher_index = next(self._curriculum)
-
-            self._train_on_teacher(teacher_index=teacher_index)
-
-    def _train_on_teacher(self, teacher_index: int):
-        """One phase of training (wrt one teacher)."""
-        if self._multi_head:
-            self._student.signal_boundary(new_head=teacher_index)
-        else:
-            self._student.signal_boundary(new_head=0)
-
-        task_step_count = 0
-        latest_generalisation_errors = [np.inf for _ in range(self._num_teachers)]
-
-        timer = time.time()
-
-        while self._total_step_count <= self._total_training_steps:
-
-            if (
-                self._total_step_count % self._checkpoint_frequency == 0
-                and self._total_step_count != 0
-            ):
-                self._data_logger.checkpoint()
-
-            self._total_step_count += 1
-            task_step_count += 1
-
-            step_logging_dict = self._train_test_step(teacher_index=teacher_index)
-
-            latest_generalisation_errors = [
-                step_logging_dict.get(
-                    f"{constants.GENERALISATION_ERROR}_{i}",
-                    latest_generalisation_errors[i],
-                )
-                for i in range(self._num_teachers)
-            ]
-
-            if self._total_step_count % self._stdout_frequency == 0:
-                if self._total_step_count != 0:
-                    self._logger.info(
-                        f"Time for last {self._stdout_frequency} steps: {time.time() - timer}"
-                    )
-                    timer = time.time()
-                self._logger.info(
-                    f"Generalisation errors @ (~) step {self._total_step_count} "
-                    f"({task_step_count}'th step training on teacher {teacher_index}): "
-                )
-                for i in range(self._num_teachers):
-                    self._logger.info(
-                        f"    Teacher {i}: {latest_generalisation_errors[i]}\n"
-                    )
-
-            if self._curriculum.to_switch(
-                task_step=task_step_count,
-                error=latest_generalisation_errors[teacher_index],
-            ):
-                break
-
-            self._log_step_data(
-                step=self._total_step_count, logging_dict=step_logging_dict
-            )
-
-    def _train_test_step(self, teacher_index: int) -> Dict[str, Any]:
-        step_logging_dict = self._training_step(teacher_index=teacher_index)
-
-        if self._total_step_count % self._test_frequency == 0:
-            generalisation_errors = self._compute_generalisation_errors()
-            step_logging_dict = {**step_logging_dict, **generalisation_errors}
-
-        if self._total_step_count % self._overlap_frequency == 0:
-            network_config = self.get_network_configuration()
-            step_logging_dict = {**step_logging_dict, **network_config.sub_dictionary}
-
-        step_logging_dict[constants.TEACHER_INDEX] = teacher_index
-
-        return step_logging_dict
 
     def _training_step(self, teacher_index: int):
         """Perform single training step."""
