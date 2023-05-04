@@ -82,6 +82,42 @@ class ConfigTemplate:
         dependent_variables_required_values=[[constants.IID_GAUSSIAN]],
     )
 
+    _hidden_manifold_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.MEAN,
+                types=[float, int],
+            ),
+            config_field.Field(
+                name=constants.VARIANCE,
+                types=[int, float],
+                requirements=[lambda x: x > 0],
+            ),
+            config_field.Field(
+                name=constants.LATENT_DIMENSION,
+                types=[int],
+                requirements=[lambda x: x > 0],
+            ),
+            config_field.Field(
+                name=constants.ACTIVATION,
+                types=[str],
+                requirements=[lambda x: x in [constants.SCALED_ERF]],
+            ),
+            config_field.Field(
+                name=constants.FEATURE_MATRIX_CORRELATIONS,
+                types=[list],
+                requirements=[
+                    lambda x: all(
+                        [isinstance(y, float) and y >= 0.0 and y <= 1.0 for y in x]
+                    )
+                ],
+            ),
+        ],
+        level=[constants.DATA, constants.HIDDEN_MANIFOLD],
+        dependent_variables=[constants.INPUT_SOURCE],
+        dependent_variables_required_values=[[constants.HIDDEN_MANIFOLD]],
+    )
+
     _data_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -91,6 +127,7 @@ class ConfigTemplate:
                     lambda x: x
                     in [
                         constants.IID_GAUSSIAN,
+                        constants.HIDDEN_MANIFOLD,
                     ]
                 ],
             ),
@@ -137,7 +174,7 @@ class ConfigTemplate:
                 ],
             ),
         ],
-        nested_templates=[_iid_gaussian_template],
+        nested_templates=[_iid_gaussian_template, _hidden_manifold_template],
         level=[constants.DATA],
     )
 
