@@ -19,12 +19,20 @@ ode:
     timestep: 0.001
 
 data:
-    input_source: iid_gaussian # iid_gaussian
+    input_source: hidden_manifold # iid_gaussian, hidden_manifold
 
     iid_gaussian:
         mean: 0
         variance: 1
         dataset_size: inf
+
+    hidden_manifold:
+        mean: 0
+        variance: 1
+        latent_dimension: 100
+        activation: scaled_erf
+
+        feature_matrix_correlations: [1.]
 
     noise_to_student_input:
     # list of lists dim 2 (one per teacher)
