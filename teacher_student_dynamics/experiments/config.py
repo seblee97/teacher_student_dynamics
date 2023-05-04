@@ -23,12 +23,13 @@ class Config(base_configuration.BaseConfiguration):
             assert (
                 self.implementation == constants.CPP
             ), "ODEs currently implemented in C++ only."
-            assert (
-                self.input_source == constants.IID_GAUSSIAN
-            ), "ODEs implemented for IID Gaussian inputs only."
-            assert (
-                self.dataset_size == constants.INF
-            ), "ODEs implemented for online learning (infinite dataset size) only."
+            assert self.input_source in [
+                constants.IID_GAUSSIAN,
+            ], "ODEs implemented for IID Gaussian inputs only."
+            if self.input_source == constants.IID_GAUSSIAN:
+                assert (
+                    self.dataset_size == constants.INF
+                ), "ODEs implemented for online learning (infinite dataset size) only."
             assert [
                 len(i) == 0 or i[0] == 0.0 for i in self.noise_to_student_input
             ], "ODEs implemented for 0-centered noise on student inputs only."
