@@ -100,3 +100,11 @@ class BaseEnsemble(abc.ABC):
         """Call to forward of all networks (used primarily for evaluation)"""
         outputs = [self.forward(t, batch) for t in range(self._ensemble_size)]
         return outputs
+
+    def forward_all_batches(self, batches: torch.Tensor) -> List[torch.Tensor]:
+        """Call to forward of all networks where each network gets a different input"""
+        outputs = [
+            self.forward(t, batch)
+            for t, batch in zip(range(self._ensemble_size), batches)
+        ]
+        return outputs
