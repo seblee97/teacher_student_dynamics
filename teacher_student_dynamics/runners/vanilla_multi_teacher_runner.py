@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Optional
 
 import numpy as np
 import torch
@@ -132,7 +132,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             input_noise_modules,
         )
 
-    def _training_step(self, teacher_index: int):
+    def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""
 
         training_step_dict = {}
