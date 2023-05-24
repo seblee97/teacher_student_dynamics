@@ -377,14 +377,60 @@ class ConfigTemplate:
                     )
                 ],
             ),
-            config_field.Field(
-                name=constants.INTERLEAVE_PERIOD, types=[int, type(None)]
-            ),
-            config_field.Field(
-                name=constants.INTERLEAVE_DURATION, types=[int, type(None)]
-            ),
         ],
         level=[constants.CURRICULUM],
+    )
+
+    _periodic_replay_template = config_template.Template(
+        fields=[
+            config_field.Field(name=constants.INTERLEAVE_PERIOD, types=[int]),
+            config_field.Field(name=constants.INTERLEAVE_DURATION, types=[int]),
+        ],
+        dependent_variables=[constants.SCHEDULE],
+        dependent_variables_required_values=[[constants.PERIODIC]],
+        level=[constants.REPLAY, constants.PERIODIC_REPLAY],
+    )
+
+    _gamma_replay_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.GAMMA,
+                types=[float],
+                requirements=[lambda x: x >= 0 and x <= 1],
+            )
+        ],
+        dependent_variables=[constants.STRATEGY],
+        dependent_variables_required_values=[[constants.GAMMA]],
+        level=[constants.REPLAY, constants.GAMMA_REPLAY],
+    )
+
+    _replay_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.SCHEDULE,
+                types=[str, type(None)],
+                requirements=[
+                    lambda x: x is None
+                    or x
+                    in [
+                        constants.PERIODIC,
+                    ]
+                ],
+            ),
+            config_field.Field(
+                name=constants.STRATEGY,
+                types=[str],
+                requirements=[
+                    lambda x: x
+                    in [
+                        constants.UNIFORM,
+                        constants.GAMMA,
+                    ]
+                ],
+            ),
+        ],
+        level=[constants.REPLAY],
+        nested_templates=[_periodic_replay_template, _gamma_replay_template],
     )
 
     base_config_template = config_template.Template(
@@ -398,5 +444,6 @@ class ConfigTemplate:
             _testing_template,
             _network_template,
             _curriculum_template,
+            _replay_template,
         ],
     )
