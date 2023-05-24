@@ -101,7 +101,17 @@ curriculum:
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]            
 
-    # how often to interleave previous examples (None for no interleaving)
-    interleave_period:
-    # number of examples from previous task to show in each interleaving                                      
-    interleave_duration: 1
+replay:
+    schedule: periodic # periodic or None for no replay
+
+    strategy: gamma # uniform or gamma (hmm)
+    
+    periodic_replay:
+        # how often to interleave previous examples
+        interleave_period: 100
+        # number of examples from previous task to show in each interleaving                                      
+        interleave_duration: 1
+
+    gamma_replay:
+        gamma: 0.5
+    
