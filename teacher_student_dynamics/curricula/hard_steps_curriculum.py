@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 
-from teacher_student_dynamics import experiments
+from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.curricula import base_curriculum
 from teacher_student_dynamics.utils import custom_functions
 
@@ -13,7 +13,10 @@ class HardStepsCurriculum(base_curriculum.BaseCurriculum):
     def __init__(self, config: experiments.config.Config) -> None:
         self._curriculum_switch_steps = iter(config.switch_steps)
 
-        if config.interleave_period is not None:
+        if (
+            config.schedule == constants.PERIODIC
+            and config.interleave_period is not None
+        ):
             assert (
                 len(config.switch_steps) < 2
             ), "interleaving currently only implemented for single switch."
@@ -47,6 +50,8 @@ class HardStepsCurriculum(base_curriculum.BaseCurriculum):
             bool indicating whether or not to switch.
         """
         if task_step == self._steps_to_next_switch:
+            if len(self._history) > 1:
+                self._replaying = not self._replaying
             try:
                 next_switch_step = next(self._curriculum_switch_steps)
                 self._steps_to_next_switch = next_switch_step - self._next_switch_step
