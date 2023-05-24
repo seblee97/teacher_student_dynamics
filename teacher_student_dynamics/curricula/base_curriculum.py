@@ -9,6 +9,7 @@ class BaseCurriculum(abc.ABC):
 
     def __init__(self, config: experiments.config.Config) -> None:
         self._curriculum = itertools.cycle(list(range(config.num_teachers)))
+        self._replaying = False
         self._history = []
 
     @property
@@ -18,8 +19,9 @@ class BaseCurriculum(abc.ABC):
     def __next__(self):
         """Get next index from curriculum."""
         next_index = next(self._curriculum)
+        replaying = self._replaying
         self._history.append(next_index)
-        return next_index
+        return next_index, replaying
 
     @abc.abstractmethod
     def to_switch(self, task_step: int, error: float) -> bool:
