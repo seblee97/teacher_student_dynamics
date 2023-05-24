@@ -1,7 +1,7 @@
 import abc
 import os
 import time
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import torch
@@ -50,6 +50,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._total_step_count = 0
         self._overlap_frequency = config.overlap_frequency or np.inf
         self._multi_head = config.multi_head
+        self._replay_schedule = config.schedule
+        self._replay_strategy = config.strategy
 
         # initialise student, teachers, logger_module,
         # data_module, loss_module, torch optimiser, and curriculum object
@@ -57,6 +59,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._num_teachers = len(self._teachers.networks)
         self._student = self._setup_student(config=config)
         # self._logger = self._setup_logger(config=config)
+
         (
             self._data_module,
             self._test_data_inputs,
@@ -64,6 +67,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             self._label_noise_modules,
             self._input_noise_modules,
         ) = self._setup_data(config=config)
+
         self._loss_function = self._setup_loss(config=config)
         self._optimiser = self._setup_optimiser(config=config)
         self._curriculum = self._setup_curriculum(config=config)
@@ -265,11 +269,13 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
     def train(self):
         while self._total_step_count <= self._total_training_steps:
-            teacher_index = next(self._curriculum)
+            teacher_index, replaying = next(self._curriculum)
 
-            self._train_on_teacher(teacher_index=teacher_index)
+            print(self._total_step_count, teacher_index, replaying)
 
-    def _train_on_teacher(self, teacher_index: int):
+            self._train_on_teacher(teacher_index=teacher_index, replaying=replaying)
+
+    def _train_on_teacher(self, teacher_index: int, replaying: Optional[bool] = None):
         """One phase of training (wrt one teacher)."""
         if self._multi_head:
             self._student.signal_boundary(new_head=teacher_index)
@@ -292,7 +298,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             self._total_step_count += 1
             task_step_count += 1
 
-            step_logging_dict = self._train_test_step(teacher_index=teacher_index)
+            step_logging_dict = self._train_test_step(
+                teacher_index=teacher_index, replaying=replaying
+            )
 
             latest_generalisation_errors = [
                 step_logging_dict.get(
@@ -327,8 +335,12 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
                 step=self._total_step_count, logging_dict=step_logging_dict
             )
 
-    def _train_test_step(self, teacher_index: int) -> Dict[str, Any]:
-        step_logging_dict = self._training_step(teacher_index=teacher_index)
+    def _train_test_step(
+        self, teacher_index: int, replaying: Optional[bool] = None
+    ) -> Dict[str, Any]:
+        step_logging_dict = self._training_step(
+            teacher_index=teacher_index, replaying=replaying
+        )
 
         if self._total_step_count % self._test_frequency == 0:
             generalisation_errors = self._compute_generalisation_errors()
