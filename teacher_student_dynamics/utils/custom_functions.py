@@ -1,4 +1,5 @@
-from typing import Tuple, Union
+import itertools
+from typing import List, Tuple, Union
 
 import numpy as np
 import torch
@@ -83,3 +84,23 @@ def generate_rotated_matrices(
         second_matrix[node_index] = scaling * node
 
     return first_matrix, second_matrix
+
+
+def create_iterator(offset: int, increments: List[int]):
+    class CustomIterator:
+        def __init__(self):
+            self._increments = increments
+            self._increment_index_cycle = itertools.cycle(range(len(increments)))
+            self._current_increment = next(self._increment_index_cycle)
+
+        def __iter__(self):
+            self.a = offset
+            return self
+
+        def __next__(self):
+            x = self.a
+            self.a += self._increments[self._current_increment]
+            self._current_increment = next(self._increment_index_cycle)
+            return x
+
+    return iter(CustomIterator())
