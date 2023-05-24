@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Optional
 
 import numpy as np
 import torch
@@ -24,14 +24,15 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._teacher_input_dimension = config.latent_dimension
         self._latent_dimension = config.latent_dimension
 
+        if config.strategy == constants.GAMMA:
+            self._replay_gamma = config.gamma
+
         super().__init__(config, unique_id)
         self._logger.info("Setting up hidden manifold network runner...")
 
     def get_network_configuration(self):
 
         with torch.no_grad():
-            a0, b0, c0 = self._data_module[0].folding_function_coefficients
-            a1, b1, c1 = self._data_module[1].folding_function_coefficients
 
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
@@ -154,6 +155,11 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         feature_matrix=next_feature_matrix,
                     )
                 )
+            if (
+                self._replay_schedule is not None
+                and self._replay_strategy == constants.GAMMA
+            ):
+                data_modules[0].surrogate_feature_matrices = [next_feature_matrix]
         else:
             raise ValueError(
                 f"Data module (specified by input source) {config.input_source} not recognised"
@@ -208,12 +214,21 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             input_noise_modules,
         )
 
-    def _training_step(self, teacher_index: int):
+    def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""
 
         training_step_dict = {}
 
-        batch = self._data_module[teacher_index].get_batch()
+        if replaying:
+            if self._replay_strategy == constants.GAMMA:
+                batch = self._data_module[teacher_index].get_mixed_batch(
+                    gamma=self._replay_gamma, surrogate_index=0
+                )
+            else:
+                batch = self._data_module[teacher_index].get_batch()
+        else:
+            batch = self._data_module[teacher_index].get_batch()
+
         batch_input = batch[constants.X].to(self._device)
         batch_latent = batch[constants.LATENT].to(self._device)
 
