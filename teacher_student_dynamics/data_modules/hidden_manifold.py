@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, List, Union
 
 import numpy as np
 import torch
@@ -42,6 +42,8 @@ class HiddenManifold(base_data_module.BaseData):
         self._activation = self._get_activation_function()
         self._feature_matrix = feature_matrix
 
+        self._surrogate_feature_matrices = []
+
     @property
     def folding_function_coefficients(self):
         # a, b, b
@@ -59,6 +61,14 @@ class HiddenManifold(base_data_module.BaseData):
     @property
     def feature_matrix(self):
         return self._feature_matrix
+
+    @property
+    def surrogate_feature_matrices(self):
+        return self._surrogate_feature_matrices
+
+    @surrogate_feature_matrices.setter
+    def surrogate_feature_matrices(self, surrogate_feature_matrices: List):
+        self._surrogate_feature_matrices = surrogate_feature_matrices
 
     def _get_activation_function(self) -> Callable:
         """Makes the activation function specified by the config.
@@ -104,5 +114,18 @@ class HiddenManifold(base_data_module.BaseData):
         )
         batch = self._activation(
             np.matmul(latent, self._feature_matrix.T) / np.sqrt(self._input_dimension)
+        )
+        return {constants.X: batch, constants.LATENT: latent}
+
+    def get_mixed_batch(self, gamma: float, surrogate_index: int):
+        latent = self._latent_distribution.sample(
+            (self._train_batch_size, self._latent_dimension)
+        )
+        mixed_feature_matrix = (
+            gamma * self._feature_matrix
+            + (1 - gamma) ** 2 * self._surrogate_feature_matrices[surrogate_index]
+        )
+        batch = self._activation(
+            np.matmul(latent, mixed_feature_matrix.T) / np.sqrt(self._input_dimension)
         )
         return {constants.X: batch, constants.LATENT: latent}
