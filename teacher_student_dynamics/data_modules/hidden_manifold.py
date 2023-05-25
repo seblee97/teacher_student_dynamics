@@ -122,8 +122,9 @@ class HiddenManifold(base_data_module.BaseData):
             (self._train_batch_size, self._latent_dimension)
         )
         mixed_feature_matrix = (
-            gamma * self._feature_matrix
-            + (1 - gamma) ** 2 * self._surrogate_feature_matrices[surrogate_index]
+            gamma**2 * self._feature_matrix
+            + np.sqrt(1 - gamma**2)
+            * self._surrogate_feature_matrices[surrogate_index]
         )
         batch = self._activation(
             np.matmul(latent, mixed_feature_matrix.T) / np.sqrt(self._input_dimension)
