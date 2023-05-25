@@ -8,6 +8,8 @@ import torch
 import torch.nn as nn
 from run_modes import base_runner
 
+torch.set_num_threads(torch.get_num_threads())
+
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.curricula import (
     base_curriculum,
