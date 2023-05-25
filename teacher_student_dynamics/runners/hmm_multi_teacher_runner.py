@@ -276,10 +276,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         with torch.no_grad():
             student_outputs = self._student.forward_all_batches(self._test_data_inputs)
 
-            if not self._multi_head:
-                student_outputs = [
-                    student_outputs[0] for _ in range(len(self._test_teacher_outputs))
-                ]
+            # if not self._multi_head:
+            #     student_outputs = [
+            #         student_outputs[0] for _ in range(len(self._test_teacher_outputs))
+            #     ]
 
             for i, (student_output, teacher_output) in enumerate(
                 zip(student_outputs, self._test_teacher_outputs)
