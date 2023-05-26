@@ -174,22 +174,24 @@ if __name__ == "__main__":
             #     stochastic_packages=STOCHASTIC_PACKAGES,
             # )
 
+            executor = submitit.AutoExecutor(folder=experiment_path)
+
             if args.num_gpus > 0:
                 partition = "gpu"
             else:
                 partition = "cpu"
 
+            executor.update_parameters(
+                timeout_min=args.timeout,
+                mem_gb=args.mem,
+                gpus_per_node=args.num_gpus,
+                cpus_per_task=args.num_cpus,
+                slurm_partition=partition,
+            )
+
             jobs = []
 
             for checkpoint_path in checkpoint_paths:
-                executor = submitit.AutoExecutor(folder=checkpoint_path)
-                executor.update_parameters(
-                    timeout_min=args.timeout,
-                    mem_gb=args.mem,
-                    gpus_per_node=args.num_gpus,
-                    cpus_per_task=args.num_cpus,
-                    slurm_partition=partition,
-                )
                 changes = utils.json_to_config_changes(
                     os.path.join(checkpoint_path, constants.CONFIG_CHANGES_JSON)
                 )
