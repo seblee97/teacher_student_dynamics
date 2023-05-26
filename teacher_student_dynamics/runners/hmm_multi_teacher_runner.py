@@ -93,6 +93,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     self._teachers.networks,
                 )
             ]
+
         return network_configuration.HiddenManifoldNetworkConfiguration(
             student_head_weights=student_head_weights,
             teacher_head_weights=teacher_head_weights,
