@@ -131,6 +131,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     variance=config.variance,
                     activation=config.activation,
                     feature_matrix=base_feature_matrix,
+                    precompute_data=config.precompute_data,
                 )
             ]
             for feature_correlation in config.feature_matrix_correlations:
@@ -153,6 +154,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         variance=config.variance,
                         activation=config.activation,
                         feature_matrix=next_feature_matrix,
+                        precompute_data=config.precompute_data,
                     )
                 )
             if (
@@ -217,6 +219,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""
 
+        precompute_labels_on = self._data_module[teacher_index].precompute_labels_on
+        if precompute_labels_on is not None:
+            self._data_module[teacher_index].add_precomputed_labels(
+                self._teachers.forward(teacher_index, precompute_labels_on)
+            )
+
         training_step_dict = {}
 
         if replaying:
@@ -246,7 +254,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         student_output = self._student.forward(student_batch_input)
 
         # forward through teacher network(s)
-        teacher_output = self._teachers.forward(teacher_index, batch_latent)
+        teacher_output = batch.get(
+            constants.Y, self._teachers.forward(teacher_index, batch_latent)
+        )
 
         if label_noise_module is None:
             teacher_output = teacher_output
