@@ -63,6 +63,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._student = self._setup_student(config=config)
         # self._logger = self._setup_logger(config=config)
 
+        self._manage_network_devices()
+
         (
             self._data_module,
             self._test_data_inputs,
@@ -77,8 +79,6 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         self._freeze_units = config.freeze_units
         self._unit_masks = self._setup_unit_masks(config=config)
-
-        self._manage_network_devices()
 
         self._data_columns = self._setup_data_columns()
         self._log_columns = self._get_data_columns()
