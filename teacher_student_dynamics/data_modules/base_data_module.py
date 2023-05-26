@@ -48,4 +48,19 @@ class BaseData(abc.ABC):
     @abc.abstractmethod
     def get_batch(self) -> Dict[str, torch.Tensor]:
         """returns batch of training data (input data and label if relevant)"""
-        raise NotImplementedError("Base class method")
+        pass
+
+    @abc.abstractmethod
+    def _get_fixed_data(self) -> Dict[str, torch.Tensor]:
+        """returns batch of data (input data and label if relevant)"""
+        pass
+
+    def add_precomputed_labels(self, labels: List[float]) -> None:
+        self._training_data = [
+            {**i, **{constants.Y: j}} for i, j in zip(self._training_data, labels)
+        ]
+        self._precompute_labels = False
+
+    def get_test_data(self) -> Dict[str, torch.Tensor]:
+        """Give fixed test data set (input data only)."""
+        return self._get_fixed_data(size=self._test_batch_size)
