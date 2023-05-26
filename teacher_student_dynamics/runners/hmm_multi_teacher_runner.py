@@ -120,7 +120,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         # core data module
         if config.input_source == constants.HIDDEN_MANIFOLD:
             base_feature_matrix = torch.normal(
-                mean=0.0, std=1.0, size=(self._input_dimension, self._latent_dimension)
+                mean=0.0,
+                std=1.0,
+                size=(self._input_dimension, self._latent_dimension),
+                device=self._device,
             )
             data_modules = [
                 hidden_manifold.HiddenManifold(
@@ -141,6 +144,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     mean=0.0,
                     std=1.0,
                     size=(self._input_dimension, self._latent_dimension),
+                    device=self._device,
                 )
                 next_feature_matrix = (
                     feature_correlation * base_feature_matrix
