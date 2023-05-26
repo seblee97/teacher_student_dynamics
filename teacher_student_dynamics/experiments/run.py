@@ -167,7 +167,7 @@ if __name__ == "__main__":
                 partition = "cpu"
 
             executor.update_parameters(
-                timeout_min=args.timeout,
+                timeout_min=int(args.timeout),
                 mem_gb=args.mem,
                 gpus_per_node=args.num_gpus,
                 cpus_per_task=args.num_cpus,
