@@ -86,6 +86,7 @@ if __name__ == "__main__":
         constants.PARALLEL,
         constants.SERIAL,
         constants.CLUSTER,
+        constants.SUBMITIT,
     ]:
 
         if constants.SINGLE in args.mode:
@@ -190,21 +191,21 @@ if __name__ == "__main__":
 
             jobs = []
 
-            with executor.batch():
-                for checkpoint_path in checkpoint_paths:
-                    changes = utils.json_to_config_changes(
-                        os.path.join(checkpoint_path, constants.CONFIG_CHANGES_JSON)
-                    )
-                    job = executor.submit(
-                        single_run.single_run,
-                        runner_class,
-                        config_class,
-                        RUN_METHODS,
-                        args.config_path,
-                        checkpoint_path,
-                        changes,
-                        STOCHASTIC_PACKAGES,
-                    )
+            for checkpoint_path in checkpoint_paths:
+                executor.update_parameters(folder=checkpoint_path)
+                changes = utils.json_to_config_changes(
+                    os.path.join(checkpoint_path, constants.CONFIG_CHANGES_JSON)
+                )
+                job = executor.submit(
+                    single_run.single_run,
+                    runner_class,
+                    config_class,
+                    RUN_METHODS,
+                    args.config_path,
+                    checkpoint_path,
+                    changes,
+                    STOCHASTIC_PACKAGES,
+                )
 
     else:
         raise ValueError(f"run mode {args.mode} not recognised.")
