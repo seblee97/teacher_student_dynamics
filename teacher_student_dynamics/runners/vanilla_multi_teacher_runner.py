@@ -78,6 +78,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 mean=config.mean,
                 variance=config.variance,
                 dataset_size=config.dataset_size,
+                precompute_data=config.precompute_data,
             )
         else:
             raise ValueError(
