@@ -159,21 +159,6 @@ if __name__ == "__main__":
 
         elif args.mode == constants.SUBMITIT:
 
-            # _, single_checkpoint_path = utils.setup_experiment(
-            #     mode=constants.SINGLE,
-            #     results_folder=results_folder,
-            #     config_path=args.config_path,
-            # )
-
-            # single_run.single_run(
-            #     runner_class=runner_class,
-            #     config_class=config_class,
-            #     config_path=args.config_path,
-            #     checkpoint_path=single_checkpoint_path,
-            #     run_methods=RUN_METHODS,
-            #     stochastic_packages=STOCHASTIC_PACKAGES,
-            # )
-
             executor = submitit.AutoExecutor(folder=experiment_path)
 
             if args.num_gpus > 0:
