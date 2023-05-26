@@ -73,6 +73,22 @@ class HiddenManifold(base_data_module.BaseData):
     def surrogate_feature_matrices(self, surrogate_feature_matrices: List):
         self._surrogate_feature_matrices = surrogate_feature_matrices
 
+    @property
+    def precompute_labels_on(self) -> Union[torch.Tensor, None]:
+        if self._precompute_data is not None and self._precompute_labels:
+            return self._precomputed_latents
+
+    def _get_precomputed_data(self):
+        grouped_training_data = self._get_fixed_data(size=self._precompute_data)
+        self._precomputed_latents = grouped_training_data[constants.LATENT]
+        self._training_data = [
+            {constants.X: i, constants.LATENT: l}
+            for i, l in zip(
+                grouped_training_data[constants.X], self._precomputed_latents
+            )
+        ]
+        self._precompute_labels = True
+
     def _get_activation_function(self) -> Callable:
         """Makes the activation function specified by the config.
 
@@ -92,26 +108,25 @@ class HiddenManifold(base_data_module.BaseData):
             raise ValueError(f"Unknown activation: {self._activation_name}")
         return activation_function
 
-    def get_test_data(self) -> Dict[str, torch.Tensor]:
-        """Give fixed test data set (input data only)."""
-        test_data_latent = self._latent_distribution.sample(
-            (self._test_batch_size, self._latent_dimension)
-        )
+    def _get_fixed_data(self, size: int) -> Dict[str, torch.Tensor]:
+        data_latent = self._latent_distribution.sample((size, self._latent_dimension))
 
-        test_data_inputs = self._activation(
-            np.matmul(test_data_latent, self._feature_matrix.T)
+        data_inputs = self._activation(
+            np.matmul(data_latent, self._feature_matrix.T)
             / np.sqrt(self._input_dimension)
         )
-
-        test_data_dict = {
-            constants.X: test_data_inputs,
-            constants.LATENT: test_data_latent,
+        return {
+            constants.X: data_inputs,
+            constants.LATENT: data_latent,
         }
-
-        return test_data_dict
 
     def get_batch(self) -> Dict[str, torch.Tensor]:
         """Returns batch of training data (input only)"""
+        if self._precompute_data is not None:
+            if not self._training_data:
+                self._get_precomputed_data()
+            return self._training_data.pop()
+
         latent = self._latent_distribution.sample(
             (self._train_batch_size, self._latent_dimension)
         )
