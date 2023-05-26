@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import submitit
 from run_modes import cluster_run, parallel_run, serial_run, single_run, utils
 
 from teacher_student_dynamics import constants
@@ -154,6 +155,56 @@ if __name__ == "__main__":
                 cluster_debug=args.cluster_debug,
                 cluster_debug_run=args.cluster_debug_run,
             )
+
+        elif args.mode == constants.SUBMITIT:
+
+            # _, single_checkpoint_path = utils.setup_experiment(
+            #     mode=constants.SINGLE,
+            #     results_folder=results_folder,
+            #     config_path=args.config_path,
+            # )
+
+            # single_run.single_run(
+            #     runner_class=runner_class,
+            #     config_class=config_class,
+            #     config_path=args.config_path,
+            #     checkpoint_path=single_checkpoint_path,
+            #     run_methods=RUN_METHODS,
+            #     stochastic_packages=STOCHASTIC_PACKAGES,
+            # )
+
+            executor = submitit.AutoExecutor(folder=experiment_path)
+
+            if args.num_gpus > 0:
+                partition = "gpu"
+            else:
+                partition = "cpu"
+
+            executor.update_parameters(
+                timeout_min=args.timeout,
+                mem_gb=args.mem,
+                gpus_per_node=args.num_gpus,
+                cpus_per_task=args.num_cpus,
+                slurm_partition=partition,
+            )
+
+            jobs = []
+
+            with executor.batch():
+                for checkpoint_path in checkpoint_paths:
+                    changes = utils.json_to_config_changes(
+                        os.path.join(checkpoint_path, constants.CONFIG_CHANGES_JSON)
+                    )
+                    job = executor.submit(
+                        single_run.single_run,
+                        runner_class,
+                        config_class,
+                        RUN_METHODS,
+                        args.config_path,
+                        checkpoint_path,
+                        changes,
+                        STOCHASTIC_PACKAGES,
+                    )
 
     else:
         raise ValueError(f"run mode {args.mode} not recognised.")
