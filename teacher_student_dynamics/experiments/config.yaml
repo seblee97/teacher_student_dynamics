@@ -21,6 +21,8 @@ ode:
 data:
     input_source: hidden_manifold # iid_gaussian, hidden_manifold
 
+    precompute_data: 100000
+
     iid_gaussian:
         mean: 0
         variance: 1
