@@ -365,7 +365,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             generalisation_errors = {}
 
         if self._total_step_count % self._overlap_frequency == 0:
-            self.get_network_configuration()
+            for key, value in self.get_network_configuration().sub_dictionary.items():
+                self._data_columns[key][self._data_index] = value
 
         self._data_columns[constants.TEACHER_INDEX][self._data_index] = teacher_index
 
