@@ -16,6 +16,7 @@ class HiddenManifold(base_data_module.BaseData):
 
     def __init__(
         self,
+        device: str,
         train_batch_size: int,
         test_batch_size: int,
         input_dimension: int,
@@ -41,6 +42,7 @@ class HiddenManifold(base_data_module.BaseData):
         self._surrogate_feature_matrices = []
 
         super().__init__(
+            device=device,
             train_batch_size=train_batch_size,
             test_batch_size=test_batch_size,
             input_dimension=input_dimension,
@@ -109,12 +111,14 @@ class HiddenManifold(base_data_module.BaseData):
         return activation_function
 
     def _get_fixed_data(self, size: int) -> Dict[str, torch.Tensor]:
-        data_latent = self._latent_distribution.sample((size, self._latent_dimension))
+        data_latent = self._latent_distribution.sample(
+            (size, self._latent_dimension)
+        ).to(self._device)
 
         data_inputs = self._activation(
             np.matmul(data_latent, self._feature_matrix.T)
             / np.sqrt(self._input_dimension)
-        )
+        ).to(self._device)
         return {
             constants.X: data_inputs,
             constants.LATENT: data_latent,
@@ -129,16 +133,16 @@ class HiddenManifold(base_data_module.BaseData):
 
         latent = self._latent_distribution.sample(
             (self._train_batch_size, self._latent_dimension)
-        )
+        ).to(self._device)
         batch = self._activation(
             np.matmul(latent, self._feature_matrix.T) / np.sqrt(self._input_dimension)
-        )
+        ).to(self._device)
         return {constants.X: batch, constants.LATENT: latent}
 
     def get_mixed_batch(self, gamma: float, surrogate_index: int):
         latent = self._latent_distribution.sample(
             (self._train_batch_size, self._latent_dimension)
-        )
+        ).to(self._device)
         mixed_feature_matrix = (
             gamma**2 * self._feature_matrix
             + np.sqrt(1 - gamma**2)
@@ -146,5 +150,5 @@ class HiddenManifold(base_data_module.BaseData):
         )
         batch = self._activation(
             np.matmul(latent, mixed_feature_matrix.T) / np.sqrt(self._input_dimension)
-        )
+        ).to(self._device)
         return {constants.X: batch, constants.LATENT: latent}

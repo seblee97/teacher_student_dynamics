@@ -18,6 +18,7 @@ class BaseData(abc.ABC):
 
     def __init__(
         self,
+        device: str,
         train_batch_size: int,
         test_batch_size: int,
         input_dimension: int,
@@ -28,6 +29,8 @@ class BaseData(abc.ABC):
         self._test_batch_size = test_batch_size
         self._input_dimension = input_dimension
         self._precompute_data = precompute_data
+
+        self._device = device
 
         if self._precompute_data is not None:
             self._get_precomputed_data()

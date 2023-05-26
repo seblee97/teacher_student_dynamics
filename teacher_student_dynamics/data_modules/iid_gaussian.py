@@ -36,6 +36,7 @@ class IIDGaussian(base_data_module.BaseData):
 
     def __init__(
         self,
+        device: str,
         train_batch_size: int,
         test_batch_size: int,
         input_dimension: int,
@@ -61,6 +62,7 @@ class IIDGaussian(base_data_module.BaseData):
             self._reset_data_iterator()
 
         super().__init__(
+            device=device,
             train_batch_size=train_batch_size,
             test_batch_size=test_batch_size,
             input_dimension=input_dimension,
@@ -80,7 +82,9 @@ class IIDGaussian(base_data_module.BaseData):
 
     def _get_fixed_data(self, size) -> Dict[str, torch.Tensor]:
 
-        input_data = self._data_distribution.sample((size, self._input_dimension))
+        input_data = self._data_distribution.sample((size, self._input_dimension)).to(
+            self._device
+        )
 
         data_dict = {constants.X: input_data}
 
@@ -109,7 +113,7 @@ class IIDGaussian(base_data_module.BaseData):
     def _get_infinite_dataset_batch(self) -> torch.Tensor:
         batch = self._data_distribution.sample(
             (self._train_batch_size, self._input_dimension)
-        )
+        ).to(self._device)
         return batch
 
     def _reset_data_iterator(self):

@@ -72,6 +72,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         # core data module
         if config.input_source == constants.IID_GAUSSIAN:
             data_module = iid_gaussian.IIDGaussian(
+                device=config.experiment_device,
                 train_batch_size=config.train_batch_size,
                 test_batch_size=config.test_batch_size,
                 input_dimension=config.input_dimension,

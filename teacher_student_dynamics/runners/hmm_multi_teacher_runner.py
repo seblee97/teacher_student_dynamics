@@ -124,6 +124,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             )
             data_modules = [
                 hidden_manifold.HiddenManifold(
+                    device=config.experiment_device,
                     train_batch_size=config.train_batch_size,
                     test_batch_size=config.test_batch_size,
                     input_dimension=config.input_dimension,
@@ -147,6 +148,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 )
                 data_modules.append(
                     hidden_manifold.HiddenManifold(
+                        device=config.experiment_device,
                         train_batch_size=config.train_batch_size,
                         test_batch_size=config.test_batch_size,
                         input_dimension=config.input_dimension,
