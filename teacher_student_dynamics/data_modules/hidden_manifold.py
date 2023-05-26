@@ -118,7 +118,7 @@ class HiddenManifold(base_data_module.BaseData):
         data_inputs = self._activation(
             torch.matmul(data_latent, self._feature_matrix.T)
             / np.sqrt(self._input_dimension)
-        ).to(self._device)
+        )
         return {
             constants.X: data_inputs,
             constants.LATENT: data_latent,
@@ -135,8 +135,9 @@ class HiddenManifold(base_data_module.BaseData):
             (self._train_batch_size, self._latent_dimension)
         ).to(self._device)
         batch = self._activation(
-            np.matmul(latent, self._feature_matrix.T) / np.sqrt(self._input_dimension)
-        ).to(self._device)
+            torch.matmul(latent, self._feature_matrix.T)
+            / np.sqrt(self._input_dimension)
+        )
         return {constants.X: batch, constants.LATENT: latent}
 
     def get_mixed_batch(self, gamma: float, surrogate_index: int):
@@ -149,6 +150,7 @@ class HiddenManifold(base_data_module.BaseData):
             * self._surrogate_feature_matrices[surrogate_index]
         )
         batch = self._activation(
-            np.matmul(latent, mixed_feature_matrix.T) / np.sqrt(self._input_dimension)
+            torch.matmul(latent, mixed_feature_matrix.T)
+            / np.sqrt(self._input_dimension)
         ).to(self._device)
         return {constants.X: batch, constants.LATENT: latent}
