@@ -87,7 +87,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             )
 
         # test data: get fixed sample from data module and generate labels from teachers.
-        test_data_inputs = data_module.get_test_data()[constants.X].to(self._device)
+        test_data_inputs = data_module.get_test_data()[constants.X]
         test_teacher_outputs = self._teachers.forward_all(test_data_inputs)
 
         # noise for outputs on teachers, noise for inputs to students.
@@ -142,7 +142,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             )
 
         batch = self._data_module.get_batch()
-        batch_input = batch[constants.X].to(self._device)
+        batch_input = batch[constants.X]
 
         input_noise_module = self._input_noise_modules[teacher_index]
         label_noise_module = self._label_noise_modules[teacher_index]
@@ -151,7 +151,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             student_batch_input = batch_input
         else:
             noise = input_noise_module.get_batch()
-            noise_input = noise[constants.X].to(self._device)
+            noise_input = noise[constants.X]
             student_batch_input = batch_input + noise_input
 
         # forward through student network
@@ -166,7 +166,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             teacher_output = teacher_output
         else:
             noise = label_noise_module.get_batch()
-            label_noise = noise[constants.X].to(self._device)
+            label_noise = noise[constants.X]
             teacher_output += label_noise
 
         # training iteration

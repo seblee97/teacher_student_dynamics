@@ -172,8 +172,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         # test data: get fixed sample from data module and generate labels from teachers.
         test_data = [data_module.get_test_data() for data_module in data_modules]
-        test_data_inputs = [t[constants.X].to(self._device) for t in test_data]
-        test_data_latents = [t[constants.LATENT].to(self._device) for t in test_data]
+        test_data_inputs = [t[constants.X] for t in test_data]
+        test_data_latents = [t[constants.LATENT] for t in test_data]
 
         test_teacher_outputs = self._teachers.forward_all_batches(test_data_latents)
 
@@ -238,8 +238,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         else:
             batch = self._data_module[teacher_index].get_batch()
 
-        batch_input = batch[constants.X].to(self._device)
-        batch_latent = batch[constants.LATENT].to(self._device)
+        batch_input = batch[constants.X]
+        batch_latent = batch[constants.LATENT]
 
         input_noise_module = self._input_noise_modules[teacher_index]
         label_noise_module = self._label_noise_modules[teacher_index]
@@ -248,7 +248,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             student_batch_input = batch_input
         else:
             noise = input_noise_module.get_batch()
-            noise_input = noise[constants.X].to(self._device)
+            noise_input = noise[constants.X]
             student_batch_input = batch_input + noise_input
 
         # forward through student network
@@ -263,7 +263,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             teacher_output = teacher_output
         else:
             noise = label_noise_module.get_batch()
-            label_noise = noise[constants.X].to(self._device)
+            label_noise = noise[constants.X]
             teacher_output += label_noise
 
         # training iteration
