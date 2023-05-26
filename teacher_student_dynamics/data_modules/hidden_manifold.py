@@ -116,8 +116,8 @@ class HiddenManifold(base_data_module.BaseData):
         ).to(self._device)
 
         data_inputs = self._activation(
-            np.matmul(data_latent, self._feature_matrix.T)
-            / np.sqrt(self._input_dimension)
+            torch.matmul(data_latent, self._feature_matrix.T)
+            / torch.sqrt(self._input_dimension)
         ).to(self._device)
         return {
             constants.X: data_inputs,
