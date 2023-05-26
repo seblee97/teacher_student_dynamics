@@ -225,8 +225,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 self._teachers.forward(teacher_index, precompute_labels_on)
             )
 
-        training_step_dict = {}
-
         if replaying:
             if self._replay_strategy == constants.GAMMA:
                 batch = self._data_module[teacher_index].get_mixed_batch(
@@ -269,13 +267,11 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._optimiser.zero_grad()
         loss = self._compute_loss(student_output, teacher_output)
 
-        training_step_dict[constants.LOSS] = loss.item()
+        self._data_columns[constants.LOSS][self._data_index] = loss.item()
 
         loss.backward()
 
         self._optimiser.step()
-
-        return training_step_dict
 
     def _compute_generalisation_errors(self) -> List[float]:
         """Compute test errors for student with respect to all teachers."""
@@ -286,21 +282,19 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         with torch.no_grad():
             student_outputs = self._student.forward_all_batches(self._test_data_inputs)
 
-            # if not self._multi_head:
-            #     student_outputs = [
-            #         student_outputs[0] for _ in range(len(self._test_teacher_outputs))
-            #     ]
-
             for i, (student_output, teacher_output) in enumerate(
                 zip(student_outputs, self._test_teacher_outputs)
             ):
                 loss = self._compute_loss(student_output, teacher_output)
+                self._data_columns[f"{constants.GENERALISATION_ERROR}_{i}"][
+                    self._data_index
+                ] = loss.item()
+                self._data_columns[f"{constants.LOG_GENERALISATION_ERROR}_{i}"][
+                    self._data_index
+                ] = np.log10(loss.item())
                 generalisation_errors[
                     f"{constants.GENERALISATION_ERROR}_{i}"
                 ] = loss.item()
-                generalisation_errors[
-                    f"{constants.LOG_GENERALISATION_ERROR}_{i}"
-                ] = np.log10(loss.item())
 
         self._student.train()
 
