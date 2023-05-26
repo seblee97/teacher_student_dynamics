@@ -86,6 +86,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         abc.ABC.__init__(self)
         base_runner.BaseRunner.__init__(self, config=config, unique_id=unique_id)
 
+        self._logger.info(f"NUM_THREADS: {torch.get_num_threads()}")
+
     @abc.abstractmethod
     def get_network_configuration(self):
         """Get configuration of networks e.g. in terms of macroscopic order parameters.
