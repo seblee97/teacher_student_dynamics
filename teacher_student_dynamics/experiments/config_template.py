@@ -439,7 +439,10 @@ class ConfigTemplate:
     )
 
     base_config_template = config_template.Template(
-        fields=[config_field.Field(name=constants.SEED, types=[int])],
+        fields=[
+            config_field.Field(name=constants.SEED, types=[int]),
+            config_field.Field(name=constants.GPU_ID, types=[type(None), int]),
+        ],
         nested_templates=[
             _runner_template,
             _logging_template,

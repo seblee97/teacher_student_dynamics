@@ -1,4 +1,5 @@
 seed: 0
+gpu_id: 0
 
 runner:
     run_ode: False
