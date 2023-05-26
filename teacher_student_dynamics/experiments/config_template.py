@@ -132,6 +132,11 @@ class ConfigTemplate:
                 ],
             ),
             config_field.Field(
+                name=constants.PRECOMPUTE_DATA,
+                types=[int, type(None)],
+                requirements=[lambda x: x is None or x > 0],
+            ),
+            config_field.Field(
                 name=constants.NOISE_TO_STUDENT_INPUT,
                 types=[list],
                 requirements=[
