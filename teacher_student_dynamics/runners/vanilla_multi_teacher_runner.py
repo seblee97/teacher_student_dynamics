@@ -140,8 +140,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 self._teachers.forward(teacher_index, precompute_labels_on)
             )
 
-        training_step_dict = {}
-
         batch = self._data_module.get_batch()
         batch_input = batch[constants.X].to(self._device)
 
@@ -174,7 +172,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._optimiser.zero_grad()
         loss = self._compute_loss(student_output, teacher_output)
 
-        training_step_dict[constants.LOSS] = loss.item()
+        self._data_columns[constants.LOSS][self._data_index] = loss.item()
 
         loss.backward()
 
@@ -187,8 +185,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     params.grad[unit, :] = self._unit_masks[teacher_index][unit_index]
 
         self._optimiser.step()
-
-        return training_step_dict
 
     def _compute_generalisation_errors(self) -> List[float]:
         """Compute test errors for student with respect to all teachers."""
@@ -208,12 +204,15 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 zip(student_outputs, self._test_teacher_outputs)
             ):
                 loss = self._compute_loss(student_output, teacher_output)
+                self._data_columns[f"{constants.GENERALISATION_ERROR}_{i}"][
+                    self._data_index
+                ] = loss.item()
+                self._data_columns[f"{constants.LOG_GENERALISATION_ERROR}_{i}"][
+                    self._data_index
+                ] = np.log10(loss.item())
                 generalisation_errors[
                     f"{constants.GENERALISATION_ERROR}_{i}"
                 ] = loss.item()
-                generalisation_errors[
-                    f"{constants.LOG_GENERALISATION_ERROR}_{i}"
-                ] = np.log10(loss.item())
 
         self._student.train()
 
