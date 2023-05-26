@@ -1,7 +1,9 @@
 import abc
-from typing import Dict
+from typing import Dict, List, Union
 
 import torch
+
+from teacher_student_dynamics import constants
 
 
 class BaseData(abc.ABC):
@@ -15,17 +17,33 @@ class BaseData(abc.ABC):
     """
 
     def __init__(
-        self, train_batch_size: int, test_batch_size: int, input_dimension: int
+        self,
+        train_batch_size: int,
+        test_batch_size: int,
+        input_dimension: int,
+        precompute_data: Union[int, None],
     ):
         """Class constructor"""
         self._train_batch_size = train_batch_size
         self._test_batch_size = test_batch_size
         self._input_dimension = input_dimension
+        self._precompute_data = precompute_data
+
+        if self._precompute_data is not None:
+            self._get_precomputed_data()
+
+    @abc.abstractproperty
+    def precompute_labels_on(self) -> Union[None, torch.Tensor]:
+        pass
+
+    @abc.abstractmethod
+    def _get_precomputed_data(self) -> None:
+        pass
 
     @abc.abstractmethod
     def get_test_data(self) -> Dict[str, torch.Tensor]:
         """returns fixed test data sets (data and labels)"""
-        raise NotImplementedError("Base class method")
+        pass
 
     @abc.abstractmethod
     def get_batch(self) -> Dict[str, torch.Tensor]:
