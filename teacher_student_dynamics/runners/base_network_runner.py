@@ -4,6 +4,7 @@ import time
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 from run_modes import base_runner
@@ -79,6 +80,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         self._manage_network_devices()
 
+        self._data_columns = self._setup_data_columns()
+        self._log_columns = self._get_data_columns()
+
         abc.ABC.__init__(self)
         base_runner.BaseRunner.__init__(self, config=config, unique_id=unique_id)
 
@@ -115,6 +119,22 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             sample_network_config = self.get_network_configuration()
             columns.extend(list(sample_network_config.sub_dictionary.keys()))
         return columns
+
+    def _setup_data_columns(self):
+        data_columns = {}
+        for key in self._get_data_columns():
+            arr = np.empty(self._checkpoint_frequency)
+            arr[:] = np.NaN
+            data_columns[key] = arr
+
+        return data_columns
+
+    def _checkpoint_data(self):
+        log_dict = {k: self._data_columns[k] for k in self._log_columns}
+        self._data_logger.logger_data = pd.DataFrame.from_dict(log_dict)
+        self._data_logger.checkpoint()
+        self._data_columns = self._setup_data_columns()
+        self._data_index = 0
 
     @decorators.timer
     def _setup_teachers(self, config: experiments.config.Config):
@@ -270,6 +290,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             self._data_logger.write_scalar(tag=tag, step=step, scalar=scalar)
 
     def train(self):
+
+        self._data_index = 0
+
         while self._total_step_count <= self._total_training_steps:
             teacher_index, replaying = next(self._curriculum)
 
@@ -291,21 +314,12 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         while self._total_step_count <= self._total_training_steps:
 
-            if (
-                self._total_step_count % self._checkpoint_frequency == 0
-                and self._total_step_count != 0
-            ):
-                self._data_logger.checkpoint()
-
-            self._total_step_count += 1
-            task_step_count += 1
-
-            step_logging_dict = self._train_test_step(
+            generalisation_errors = self._train_test_step(
                 teacher_index=teacher_index, replaying=replaying
             )
 
             latest_generalisation_errors = [
-                step_logging_dict.get(
+                generalisation_errors.get(
                     f"{constants.GENERALISATION_ERROR}_{i}",
                     latest_generalisation_errors[i],
                 )
@@ -327,31 +341,32 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
                         f"    Teacher {i}: {latest_generalisation_errors[i]}\n"
                     )
 
+            self._total_step_count += 1
+            task_step_count += 1
+            self._data_index += 1
+
+            if self._total_step_count % self._checkpoint_frequency == 0:
+                self._checkpoint_data()
+
             if self._curriculum.to_switch(
                 task_step=task_step_count,
                 error=latest_generalisation_errors[teacher_index],
             ):
                 break
 
-            self._log_step_data(
-                step=self._total_step_count, logging_dict=step_logging_dict
-            )
-
     def _train_test_step(
         self, teacher_index: int, replaying: Optional[bool] = None
     ) -> Dict[str, Any]:
-        step_logging_dict = self._training_step(
-            teacher_index=teacher_index, replaying=replaying
-        )
+        self._training_step(teacher_index=teacher_index, replaying=replaying)
 
         if self._total_step_count % self._test_frequency == 0:
             generalisation_errors = self._compute_generalisation_errors()
-            step_logging_dict = {**step_logging_dict, **generalisation_errors}
+        else:
+            generalisation_errors = {}
 
         if self._total_step_count % self._overlap_frequency == 0:
-            network_config = self.get_network_configuration()
-            step_logging_dict = {**step_logging_dict, **network_config.sub_dictionary}
+            self.get_network_configuration()
 
-        step_logging_dict[constants.TEACHER_INDEX] = teacher_index
+        self._data_columns[constants.TEACHER_INDEX][self._data_index] = teacher_index
 
-        return step_logging_dict
+        return generalisation_errors
