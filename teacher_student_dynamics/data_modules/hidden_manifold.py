@@ -24,7 +24,7 @@ class HiddenManifold(base_data_module.BaseData):
         mean: Union[int, float],
         variance: Union[int, float],
         activation: str,
-        feature_matrix: np.ndarray,
+        feature_matrix: torch.Tensor,
         precompute_data: Union[None, int],
     ):
 
