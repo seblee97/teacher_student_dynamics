@@ -42,12 +42,8 @@ class IIDGaussian(base_data_module.BaseData):
         mean: Union[int, float],
         variance: Union[int, float],
         dataset_size: Union[str, int],
+        precompute_data: Union[None, int],
     ):
-        super().__init__(
-            train_batch_size=train_batch_size,
-            test_batch_size=test_batch_size,
-            input_dimension=input_dimension,
-        )
 
         if variance == 0:
             self._data_distribution = tdist.Categorical(torch.Tensor([1.0]))
@@ -64,19 +60,39 @@ class IIDGaussian(base_data_module.BaseData):
             )
             self._reset_data_iterator()
 
-    def get_test_data(self) -> Dict[str, torch.Tensor]:
-        """Give fixed test data set (input data only)."""
-        test_input_data = self._data_distribution.sample(
-            (self._test_batch_size, self._input_dimension)
+        super().__init__(
+            train_batch_size=train_batch_size,
+            test_batch_size=test_batch_size,
+            input_dimension=input_dimension,
+            precompute_data=precompute_data,
         )
 
-        test_data_dict = {constants.X: test_input_data}
+    @property
+    def precompute_labels_on(self) -> Union[torch.Tensor, None]:
+        if self._precompute_data is not None and self._precompute_labels:
+            return self._precomputed_inputs
 
-        return test_data_dict
+    def _get_precomputed_data(self):
+        grouped_training_data = self._get_fixed_data(size=self._precompute_data)
+        self._precomputed_inputs = grouped_training_data[constants.X]
+        self._training_data = [{constants.X: i} for i in self._precomputed_inputs]
+        self._precompute_labels = False
+
+    def _get_fixed_data(self, size) -> Dict[str, torch.Tensor]:
+
+        input_data = self._data_distribution.sample((size, self._input_dimension))
+
+        data_dict = {constants.X: input_data}
+
+        return data_dict
 
     def get_batch(self) -> Dict[str, torch.Tensor]:
         """Returns batch of training data (input only)"""
         if self._dataset_size == constants.INF:
+            if self._precompute_data is not None:
+                if not self._training_data:
+                    self._get_precomputed_data()
+                return self._training_data.pop()
             batch = self._get_infinite_dataset_batch()
         else:
             batch = self._get_finite_dataset_batch()
