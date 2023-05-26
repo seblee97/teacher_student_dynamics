@@ -48,7 +48,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 for teacher in self._teachers.networks
             ]
 
-        return network_configuration.NetworkConfiguration(
+        return network_configuration.VanillaNetworkConfiguration(
             student_head_weights=student_head_weights,
             teacher_head_weights=teacher_head_weights,
             student_self_overlap=student_self_overlap,
@@ -134,6 +134,12 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""
 
+        precompute_labels_on = self._data_module.precompute_labels_on
+        if precompute_labels_on is not None:
+            self._data_module.add_precomputed_labels(
+                self._teachers.forward(teacher_index, precompute_labels_on)
+            )
+
         training_step_dict = {}
 
         batch = self._data_module.get_batch()
@@ -153,7 +159,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         student_output = self._student.forward(student_batch_input)
 
         # forward through teacher network(s)
-        teacher_output = self._teachers.forward(teacher_index, batch_input)
+        teacher_output = batch.get(
+            constants.Y, self._teachers.forward(teacher_index, batch_input)
+        )
 
         if label_noise_module is None:
             teacher_output = teacher_output
