@@ -24,12 +24,8 @@ class HiddenManifold(base_data_module.BaseData):
         variance: Union[int, float],
         activation: str,
         feature_matrix: np.ndarray,
+        precompute_data: Union[None, int],
     ):
-        super().__init__(
-            train_batch_size=train_batch_size,
-            test_batch_size=test_batch_size,
-            input_dimension=input_dimension,
-        )
 
         self._latent_dimension = latent_dimension
 
@@ -43,6 +39,13 @@ class HiddenManifold(base_data_module.BaseData):
         self._feature_matrix = feature_matrix
 
         self._surrogate_feature_matrices = []
+
+        super().__init__(
+            train_batch_size=train_batch_size,
+            test_batch_size=test_batch_size,
+            input_dimension=input_dimension,
+            precompute_data=precompute_data,
+        )
 
     @property
     def folding_function_coefficients(self):
