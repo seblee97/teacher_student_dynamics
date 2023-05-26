@@ -103,7 +103,7 @@ class HiddenManifold(base_data_module.BaseData):
         if self._activation_name == constants.RELU:
             activation_function = F.relu
         elif self._activation_name == constants.SCALED_ERF:
-            activation_function = custom_activations.scaled_erf_activation
+            activation_function = custom_activations.ScaledErf()
         elif self._activation_name == constants.LINEAR:
             activation_function = custom_activations.linear_activation
         else:

@@ -6,8 +6,8 @@ runner:
     run_network: True
 
 logging:
-    checkpoint_frequency: 1000
-    stdout_frequency: 100000
+    checkpoint_frequency: 100000
+    stdout_frequency: 1000
 
     overlap_frequency: 100
     ode_log_frequency: 1000
@@ -57,9 +57,9 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 30000000
+    total_training_steps: 300000
     optimiser: sgd
-    learning_rate: 1
+    learning_rate: 1.
     loss_function: mse
     train_hidden_layer: True
     train_head_layer: True

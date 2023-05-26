@@ -83,7 +83,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         if self._nonlinearity == constants.RELU:
             nonlinear_function = F.relu
         elif self._nonlinearity == constants.SCALED_ERF:
-            nonlinear_function = custom_activations.scaled_erf_activation
+            nonlinear_function = custom_activations.ScaledErf()
         elif self._nonlinearity == constants.LINEAR:
             nonlinear_function = custom_activations.linear_activation
         else:
