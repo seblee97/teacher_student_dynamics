@@ -6,5 +6,10 @@ def linear_activation(x):
     return x
 
 
-def scaled_erf_activation(x):
-    return torch.erf(x / np.sqrt(2))
+class ScaledErf:
+
+    SCALING = np.sqrt(2)
+
+    @staticmethod
+    def __call__(x):
+        return torch.erf(x / ScaledErf.SCALING)
