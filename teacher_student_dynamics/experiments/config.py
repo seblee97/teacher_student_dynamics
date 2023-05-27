@@ -51,6 +51,4 @@ class Config(base_configuration.BaseConfiguration):
             assert (
                 not self.student_bias and not self.teacher_bias
             ), "ODEs implemented for networks without bias only."
-            assert (
-                self.interleave_period is None
-            ), "Interleaved replay not implemented for ODEs."
+            assert self.schedule is None, "Interleaved replay not implemented for ODEs."
