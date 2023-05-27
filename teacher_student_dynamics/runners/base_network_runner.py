@@ -298,8 +298,6 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         while self._total_step_count <= self._total_training_steps:
             teacher_index, replaying = next(self._curriculum)
 
-            print(self._total_step_count, teacher_index, replaying)
-
             self._train_on_teacher(teacher_index=teacher_index, replaying=replaying)
 
     def _train_on_teacher(self, teacher_index: int, replaying: Optional[bool] = None):
