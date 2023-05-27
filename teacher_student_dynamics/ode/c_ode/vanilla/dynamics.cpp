@@ -1,8 +1,8 @@
 #include <vector>
 #include <Eigen/Dense>
-#include "integrals.cpp"
+#include "../integrals.cpp"
 #include <tuple>
-#include <omp.h>
+// #include <omp.h>
 
 using Eigen::MatrixXd;
 
@@ -128,8 +128,7 @@ public:
     float error_1()
     {
         float error = 0;
-#pragma omp parallel sections reduction(+ \
-                                        : error)
+#pragma omp parallel sections reduction(+ : error)
         {
 #pragma omp section
 #pragma omp parallel for collapse(2)
@@ -183,8 +182,7 @@ public:
         }
 
         float error = 0;
-#pragma omp parallel sections reduction(+ \
-                                        : error)
+#pragma omp parallel sections reduction(+ : error)
         {
 #pragma omp section
 #pragma omp parallel for collapse(2)
@@ -257,8 +255,7 @@ public:
             for (int n = 0; n < derivative.cols(); n++)
             {
                 float in_derivative = 0.0;
-#pragma omp parallel sections reduction(+ \
-                                        : in_derivative)
+#pragma omp parallel sections reduction(+ : in_derivative)
                 {
 #pragma omp section
                     for (int m = 0; m < teacher_hidden; m++)
@@ -315,8 +312,7 @@ public:
             for (int p = 0; p < derivative.cols(); p++)
             {
                 float ip_derivative = 0.0;
-#pragma omp parallel sections reduction(+ \
-                                        : ip_derivative)
+#pragma omp parallel sections reduction(+ : ip_derivative)
                 {
 #pragma omp section
                     for (int m = 0; m < teacher_hidden; m++)
@@ -375,8 +371,7 @@ public:
                 float ik_derivative = 0.0;
                 float sum_1_factor = timestep * w_learning_rate;
                 float sum_2_factor = timestep * pow(w_learning_rate, 2) * (1 + pow(input_noise_stds[active_teacher], 2)) * student_head(i) * student_head(k);
-#pragma omp parallel sections reduction(+ \
-                                        : ik_derivative)
+#pragma omp parallel sections reduction(+ : ik_derivative)
                 {
 #pragma omp section
                     for (int m = 0; m < teacher_hidden; m++)
@@ -502,8 +497,7 @@ public:
             for (int i = 0; i < student_hidden; i++)
             {
                 float i_derivative = 0.0;
-#pragma omp parallel sections reduction(+ \
-                                        : i_derivative)
+#pragma omp parallel sections reduction(+ : i_derivative)
                 {
 #pragma omp section
                     for (int m = 0; m < teacher_hidden; m++)
@@ -536,8 +530,7 @@ public:
             for (int i = 0; i < student_hidden; i++)
             {
                 float i_derivative = 0.0;
-#pragma omp parallel sections reduction(+ \
-                                        : i_derivative)
+#pragma omp parallel sections reduction(+ : i_derivative)
                 {
 #pragma omp section
                     for (int p = 0; p < teacher_hidden; p++)

@@ -1,6 +1,6 @@
 #include "state.cpp"
 #include "dynamics.cpp"
-#include "utils.cpp"
+#include "../utils.cpp"
 #include <fstream>
 #include <filesystem>
 #include <chrono>
@@ -33,13 +33,13 @@ int main(int argc, char **argv)
     std::cout.rdbuf(out.rdbuf());
 
     // set number of threads for use in parallelisation
-    int omp_num_threads;
-    omp_num_threads = std::get<int>(config["omp_num_threads"]);
-    if (omp_num_threads > 0)
-    {
-        omp_set_num_threads(omp_num_threads);
-        std::cout << "OMP Threads: " << omp_num_threads << std::endl;
-    }
+    // int omp_num_threads;
+    // omp_num_threads = std::get<int>(config["omp_num_threads"]);
+    // if (omp_num_threads > 0)
+    // {
+    //     omp_set_num_threads(omp_num_threads);
+    //     std::cout << "OMP Threads: " << omp_num_threads << std::endl;
+    // }
 
     int num_steps = std::get<int>(config["num_steps"]);
     int log_frequency = std::get<int>(config["ode_log_frequency"]);
