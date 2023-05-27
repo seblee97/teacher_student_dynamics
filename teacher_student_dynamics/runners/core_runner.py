@@ -5,10 +5,10 @@ import pandas as pd
 
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.runners import (
-    base_network_runner,
     hmm_multi_teacher_runner,
-    ode_runner,
+    hmm_ode_runner,
     vanilla_multi_teacher_runner,
+    vanilla_ode_runner,
 )
 from teacher_student_dynamics.utils import plotting_functions
 
@@ -58,11 +58,15 @@ class CoreRunner:
 
         if self._run_ode:
             network_configuration = self._network_runner.get_network_configuration()
-            self._ode_runner = ode_runner.ODERunner(
-                config=config,
-                unique_id=ode_id,
-                network_configuration=network_configuration,
-            )
+
+            if config.input_source == constants.IID_GAUSSIAN:
+                self._ode_runner = vanilla_ode_runner.VanillaODERunner(
+                    config=config,
+                    unique_id=ode_id,
+                    network_configuration=network_configuration,
+                )
+            elif config.input_source == constants.HIDDEN_MANIFOLD:
+                raise NotImplementedError
 
     def run(self):
         if self._run_network:
