@@ -25,7 +25,8 @@ class Config(base_configuration.BaseConfiguration):
             ), "ODEs currently implemented in C++ only."
             assert self.input_source in [
                 constants.IID_GAUSSIAN,
-            ], "ODEs implemented for IID Gaussian inputs only."
+                constants.HIDDEN_MANIFOLD,
+            ], "ODEs implemented for IID Gaussian inputs or the Hidden Manifold Model only."
             if self.input_source == constants.IID_GAUSSIAN:
                 assert (
                     self.dataset_size == constants.INF
