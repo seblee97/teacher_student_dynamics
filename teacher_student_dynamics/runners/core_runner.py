@@ -66,7 +66,11 @@ class CoreRunner:
                     network_configuration=network_configuration,
                 )
             elif config.input_source == constants.HIDDEN_MANIFOLD:
-                raise NotImplementedError
+                self._ode_runner = hmm_ode_runner.HMMODERunner(
+                    config=config,
+                    unique_id=ode_id,
+                    network_configuration=network_configuration,
+                )
 
     def run(self):
         if self._run_network:
