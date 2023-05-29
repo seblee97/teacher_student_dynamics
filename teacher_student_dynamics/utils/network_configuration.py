@@ -168,7 +168,8 @@ class HiddenManifoldNetworkConfiguration:
         student_teacher_overlaps: List[np.ndarray],
         student_weighted_feature_matrices: List[np.ndarray],
         student_local_field_covariances: List[np.ndarray],
-        student_weighted_feature_matrix_self_overlaps=List[np.ndarray],
+        student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
+        feature_matrix_overlaps: List[np.ndarray],
     ):
         self._student_head_weights = student_head_weights
         self._teacher_head_weights = teacher_head_weights
@@ -181,6 +182,7 @@ class HiddenManifoldNetworkConfiguration:
         self._student_weighted_feature_matrix_self_overlaps = (
             student_weighted_feature_matrix_self_overlaps
         )
+        self._feature_matrix_overlaps = feature_matrix_overlaps
 
         self._num_teachers = len(self._teacher_head_weights)
 
@@ -261,6 +263,22 @@ class HiddenManifoldNetworkConfiguration:
     @property
     def student_self_overlap(self) -> np.ndarray:
         return self._student_self_overlap
+
+    @property
+    def student_weighted_feature_matrices(self) -> np.ndarray:
+        return self._student_weighted_feature_matrices
+
+    @property
+    def student_local_field_covariances(self) -> np.ndarray:
+        return self._student_local_field_covariances
+
+    @property
+    def student_weighted_feature_matrix_self_overlaps(self) -> np.ndarray:
+        return self._student_weighted_feature_matrix_self_overlaps
+
+    @property
+    def feature_matrix_overlaps(self) -> np.ndarray:
+        return self._feature_matrix_overlaps
 
     @property
     def teacher_self_overlaps(self) -> List[np.ndarray]:
