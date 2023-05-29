@@ -94,6 +94,11 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 )
             ]
 
+            feature_matrix_overlaps = [
+                data_module.feature_matrix.mm(data_module.feature_matrix.t())
+                for data_module in self._data_module
+            ]
+
         return network_configuration.HiddenManifoldNetworkConfiguration(
             student_head_weights=student_head_weights,
             teacher_head_weights=teacher_head_weights,
@@ -104,6 +109,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             student_weighted_feature_matrices=student_weighted_feature_matrices,
             student_local_field_covariances=student_local_field_covariances,
             student_weighted_feature_matrix_self_overlaps=student_weighted_feature_matrix_self_overlaps,
+            feature_matrix_overlaps=feature_matrix_overlaps,
         )
 
     def _setup_data(
