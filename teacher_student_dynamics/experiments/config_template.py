@@ -104,6 +104,9 @@ class ConfigTemplate:
                 requirements=[lambda x: x in [constants.SCALED_ERF]],
             ),
             config_field.Field(
+                name=constants.NUM_BINS, types=[int], requirements=[lambda x: x > 0]
+            ),
+            config_field.Field(
                 name=constants.FEATURE_MATRIX_CORRELATIONS,
                 types=[list],
                 requirements=[
