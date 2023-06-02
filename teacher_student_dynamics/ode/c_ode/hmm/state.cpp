@@ -27,8 +27,8 @@ private:
     // Matrix<double, Dynamic, Dynamic> Omega2;
     // Matrix<double, Dynamic, Dynamic> S1;
     // Matrix<double, Dynamic, Dynamic> S2;
-    // Matrix<double, Dynamic, Dynamic> r_density;
-    // Matrix<double, Dynamic, Dynamic> u_density;
+    Matrix<double, Dynamic, Dynamic> r_density;
+    Matrix<double, Dynamic, Dynamic> u_density;
     Matrix<double, Dynamic, Dynamic> Q;
     Matrix<double, Dynamic, Dynamic> R;
     Matrix<double, Dynamic, Dynamic> U;
@@ -66,8 +66,8 @@ public:
 
     void resize_matrices()
     {
-        // this->u_density.resize(num_bins, student_hidden * teacher_hidden);
-        // this->r_density.resize(num_bins, student_hidden * teacher_hidden);
+        this->u_density.resize(num_bins, student_hidden * teacher_hidden);
+        this->r_density.resize(num_bins, student_hidden * teacher_hidden);
         this->W.resize(student_hidden, student_hidden);
         this->Sigma1.resize(student_hidden, student_hidden);
         this->Sigma2.resize(student_hidden, student_hidden);
@@ -98,8 +98,8 @@ public:
 
     void populate_state_map()
     {
-        // this->state.insert({"r_density", this->r_density});
-        // this->state.insert({"u_density", this->u_density});
+        this->state.insert({"r_density", this->r_density});
+        this->state.insert({"u_density", this->u_density});
         this->state.insert({"W", this->W});
         this->state.insert({"Sigma1", this->Sigma1});
         this->state.insert({"Sigma2", this->Sigma2});
