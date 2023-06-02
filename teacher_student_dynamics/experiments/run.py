@@ -8,12 +8,6 @@ from teacher_student_dynamics import constants
 from teacher_student_dynamics.experiments import config
 from teacher_student_dynamics.runners import core_runner
 
-# os.environ["MKL_NUM_THREADS"] = "1"
-# os.environ["NUMEXPR_NUM_THREADS"] = "1"
-# os.environ["OMP_NUM_THREADS"] = "1"
-# os.environ["OPENBLAS_NUM_THREADS"] = "1"
-
-
 MAIN_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 STOCHASTIC_PACKAGES = ["numpy", "torch", "random"]
