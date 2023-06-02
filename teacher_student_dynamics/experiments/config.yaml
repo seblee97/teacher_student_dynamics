@@ -35,6 +35,9 @@ data:
         latent_dimension: 100
         activation: scaled_erf
 
+        # number of bins for discretising densities
+        num_bins: 200
+
         feature_matrix_correlations: [1.]
 
     noise_to_student_input:
