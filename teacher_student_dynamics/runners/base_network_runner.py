@@ -9,8 +9,6 @@ import torch
 import torch.nn as nn
 from run_modes import base_runner
 
-torch.set_num_threads(torch.get_num_threads())
-
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.curricula import (
     base_curriculum,
@@ -73,6 +71,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             self._input_noise_modules,
         ) = self._setup_data(config=config)
 
+        self._network_configuration = self.get_network_configuration(update=False)
+
         self._loss_function = self._setup_loss(config=config)
         self._optimiser = self._setup_optimiser(config=config)
         self._curriculum = self._setup_curriculum(config=config)
@@ -89,7 +89,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._logger.info(f"NUM_THREADS: {torch.get_num_threads()}")
 
     @abc.abstractmethod
-    def get_network_configuration(self):
+    def get_network_configuration(self, update=True):
         """Get configuration of networks e.g. in terms of macroscopic order parameters.
 
         Can be used for both logging purposes and e.g. as input to ODE runner.
@@ -118,8 +118,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             columns.append(f"{constants.GENERALISATION_ERROR}_{i}")
             columns.append(f"{constants.LOG_GENERALISATION_ERROR}_{i}")
         if self._overlap_frequency < np.inf:
-            sample_network_config = self.get_network_configuration()
-            columns.extend(list(sample_network_config.sub_dictionary.keys()))
+            columns.extend(list(self._network_configuration.sub_dictionary.keys()))
         return columns
 
     def _setup_data_columns(self):
