@@ -1,12 +1,12 @@
 seed: 0
-gpu_id: 0
+gpu_id: 0 # None for CPU
 
 runner:
-    run_ode: False
-    run_network: True
+    run_ode: True
+    run_network: False
 
 logging:
-    checkpoint_frequency: 100000
+    checkpoint_frequency: 1000
     stdout_frequency: 1000
 
     overlap_frequency: 100
@@ -14,15 +14,15 @@ logging:
 
 ode:
     implementation: cpp
-    omp: True
-    omp_num_threads: 8
+    omp: False
+    omp_num_threads: 0
     eigen_path:
     timestep: 0.001
 
 data:
     input_source: hidden_manifold # iid_gaussian, hidden_manifold
 
-    precompute_data: 100000
+    precompute_data: 1000
 
     iid_gaussian:
         mean: 0
@@ -60,7 +60,7 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 300000
+    total_training_steps: 30000
     optimiser: sgd
     learning_rate: 1.
     loss_function: mse
@@ -108,7 +108,7 @@ curriculum:
     loss_thresholds: [0.0001]
 
 replay:
-    schedule: periodic # periodic or None for no replay
+    schedule:  # periodic or None for no replay
 
     strategy: gamma # uniform or gamma (hmm)
     
