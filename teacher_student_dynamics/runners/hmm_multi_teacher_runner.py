@@ -23,6 +23,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         self._teacher_input_dimension = config.latent_dimension
         self._latent_dimension = config.latent_dimension
+        self._num_bins = config.num_bins
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
@@ -30,17 +31,14 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         super().__init__(config, unique_id)
         self._logger.info("Setting up hidden manifold network runner...")
 
-    def get_network_configuration(self):
+    def get_network_configuration(self, update=True):
 
         with torch.no_grad():
 
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
             ]
-            teacher_head_weights = [
-                teacher.heads[0].weight.data.cpu().numpy().flatten()
-                for teacher in self._teachers.networks
-            ]
+
             # W^{kl}
             student_self_overlap = self._student.self_overlap.cpu().numpy()
             # S^k_r
@@ -73,14 +71,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     self._data_module, student_weighted_feature_matrix_self_overlaps
                 )
             ]
-            # T^{mn} and equivalent for second teacher
-            teacher_self_overlaps = [
-                teacher.self_overlap.cpu().numpy()
-                for teacher in self._teachers.networks
-            ]
-            teacher_cross_overlaps = [
-                o.cpu().numpy() for o in self._teachers.cross_overlaps
-            ]
+
             student_teacher_overlaps = [
                 data_module.folding_function_coefficients[1]
                 * weighted_feature_matrix.mm(teacher.layers[0].weight.data.t())
@@ -94,23 +85,108 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 )
             ]
 
-            feature_matrix_overlaps = [
-                data_module.feature_matrix.mm(data_module.feature_matrix.t())
-                for data_module in self._data_module
-            ]
+            if not update:
+                # T^{mn} and equivalent for second teacher
+                teacher_self_overlaps = [
+                    teacher.self_overlap.cpu().numpy()
+                    for teacher in self._teachers.networks
+                ]
+                teacher_cross_overlaps = [
+                    o.cpu().numpy() for o in self._teachers.cross_overlaps
+                ]
+                feature_matrix_overlaps = [
+                    data_module.feature_matrix.t().mm(data_module.feature_matrix)
+                    / self._input_dimension
+                    for data_module in self._data_module
+                ]
+                teacher_head_weights = [
+                    teacher.heads[0].weight.data.cpu().numpy().flatten()
+                    for teacher in self._teachers.networks
+                ]
 
-        return network_configuration.HiddenManifoldNetworkConfiguration(
-            student_head_weights=student_head_weights,
-            teacher_head_weights=teacher_head_weights,
-            student_self_overlap=student_self_overlap,
-            teacher_self_overlaps=teacher_self_overlaps,
-            teacher_cross_overlaps=teacher_cross_overlaps,
-            student_teacher_overlaps=student_teacher_overlaps,
-            student_weighted_feature_matrices=student_weighted_feature_matrices,
-            student_local_field_covariances=student_local_field_covariances,
-            student_weighted_feature_matrix_self_overlaps=student_weighted_feature_matrix_self_overlaps,
-            feature_matrix_overlaps=feature_matrix_overlaps,
-        )
+                feature_matrix_eigenspectra = [
+                    torch.linalg.eig(overlap) for overlap in feature_matrix_overlaps
+                ]
+
+                # (Eq. B19 student weights projected onto eigenbasis of Omega
+                gamma_tau_k = [
+                    overlap.mm(eigenbasis[1].to(torch.float))
+                    for overlap, eigenbasis in zip(
+                        student_weighted_feature_matrices,
+                        feature_matrix_eigenspectra,
+                    )
+                ]
+
+                # (Eq. B20) teacher weights projected onto eigenbasis of Omega
+                w_tilde_tau = [
+                    teacher.state_dict()["_layers.0.weight"].mm(
+                        eigenbasis[1].to(torch.float)
+                    )
+                    for teacher, eigenbasis in zip(
+                        self._teachers.networks, feature_matrix_eigenspectra
+                    )
+                ]
+
+                # (Eq. B31) density r_km
+                # TODO: How to choose max, min rho -> need to enforce normalisation constraint on psis?
+                rho_bins = np.linspace(0, 2, self._num_bins + 1)
+                student_teacher_overlap_densities = []
+                student_hidden_dim = student_head_weights[0].shape[0]
+                teacher_hidden_dim = teacher_head_weights[0].shape[0]
+                for task, eigenspectrum in enumerate(feature_matrix_eigenspectra):
+                    r_km = np.zeros(
+                        shape=(
+                            len(rho_bins) - 1,
+                            student_hidden_dim,
+                            teacher_hidden_dim,
+                        )
+                    )
+                    for i in range(len(r_km)):
+                        for tau, eigenvalue in enumerate(
+                            eigenspectrum[0].to(torch.float)
+                        ):
+                            if (
+                                eigenvalue.item() < rho_bins[i + 1]
+                                and eigenvalue.item() > rho_bins[i]
+                            ):
+                                r_km[i] = (
+                                    gamma_tau_k[task][:, [tau]]
+                                    .mm(w_tilde_tau[task][:, [tau]].t())
+                                    .numpy()
+                                )
+                    student_teacher_overlap_densities.append(
+                        r_km.reshape(-1, student_hidden_dim * teacher_hidden_dim)
+                    )
+
+        if not update:
+            return network_configuration.HiddenManifoldNetworkConfiguration(
+                student_head_weights=student_head_weights,
+                teacher_head_weights=teacher_head_weights,
+                student_self_overlap=student_self_overlap,
+                teacher_self_overlaps=teacher_self_overlaps,
+                teacher_cross_overlaps=teacher_cross_overlaps,
+                student_teacher_overlaps=student_teacher_overlaps,
+                student_weighted_feature_matrices=student_weighted_feature_matrices,
+                student_local_field_covariances=student_local_field_covariances,
+                student_weighted_feature_matrix_self_overlaps=student_weighted_feature_matrix_self_overlaps,
+                feature_matrix_overlaps=feature_matrix_overlaps,
+                student_teacher_overlap_densities=student_teacher_overlap_densities,
+            )
+        else:
+            self._network_configuration.student_head_weights = student_head_weights
+            self._network_configuration.student_self_overlap = student_self_overlap
+            self._network_configuration.student_teacher_overlaps = (
+                student_teacher_overlaps
+            )
+            self._network_configuration.student_local_field_covariances = (
+                student_local_field_covariances
+            )
+            self._network_configuration.student_weighted_feature_matrix_self_overlaps = (
+                student_weighted_feature_matrix_self_overlaps
+            )
+            self._network_configuration.student_weighted_feature_matrices = (
+                student_weighted_feature_matrices
+            )
 
     def _setup_data(
         self, config: experiments.config.Config
