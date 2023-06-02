@@ -32,7 +32,12 @@ class CoreRunner:
         self._checkpoint_path = config.checkpoint_path
 
         if self._run_ode:
-            self._ode_x_scaling = config.input_dimension / (1 / config.timestep)
+            if config.input_source == constants.IID_GAUSSIAN:
+                self._ode_x_scaling = config.input_dimension / (1 / config.timestep)
+            elif config.input_source == constants.HIDDEN_MANIFOLD:
+                self._ode_x_scaling = (
+                    config.latent_dimension * config.input_dimension
+                ) / (1 / config.timestep)
 
         self._setup_runners(config=config, unique_id=unique_id)
 
@@ -57,7 +62,9 @@ class CoreRunner:
             )
 
         if self._run_ode:
-            network_configuration = self._network_runner.get_network_configuration()
+            network_configuration = self._network_runner.get_network_configuration(
+                update=False
+            )
 
             if config.input_source == constants.IID_GAUSSIAN:
                 self._ode_runner = vanilla_ode_runner.VanillaODERunner(
