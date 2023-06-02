@@ -18,6 +18,7 @@ private:
     int teacher_hidden;
     int student_hidden;
     bool multi_head;
+    int num_bins;
 
     Matrix<double, Dynamic, Dynamic> W;
     Matrix<double, Dynamic, Dynamic> Sigma1;
@@ -26,6 +27,8 @@ private:
     // Matrix<double, Dynamic, Dynamic> Omega2;
     // Matrix<double, Dynamic, Dynamic> S1;
     // Matrix<double, Dynamic, Dynamic> S2;
+    // Matrix<double, Dynamic, Dynamic> r_density;
+    // Matrix<double, Dynamic, Dynamic> u_density;
     Matrix<double, Dynamic, Dynamic> Q;
     Matrix<double, Dynamic, Dynamic> R;
     Matrix<double, Dynamic, Dynamic> U;
@@ -50,7 +53,7 @@ public:
     // initialise state, map between order parameter name and values
     std::map<std::string, Matrix<double, Dynamic, Dynamic>> state;
 
-    HMMODEState(int t_hidden, int s_hidden, bool multi_h, std::string order_parameter_paths) : teacher_hidden(t_hidden), student_hidden(s_hidden), multi_head(multi_h)
+    HMMODEState(int t_hidden, int s_hidden, bool multi_h, int n_bins, std::string order_parameter_paths) : teacher_hidden(t_hidden), student_hidden(s_hidden), multi_head(multi_h), num_bins(n_bins)
     {
         resize_matrices();
         populate_state_map();
@@ -63,6 +66,8 @@ public:
 
     void resize_matrices()
     {
+        // this->u_density.resize(num_bins, student_hidden * teacher_hidden);
+        // this->r_density.resize(num_bins, student_hidden * teacher_hidden);
         this->W.resize(student_hidden, student_hidden);
         this->Sigma1.resize(student_hidden, student_hidden);
         this->Sigma2.resize(student_hidden, student_hidden);
@@ -93,6 +98,8 @@ public:
 
     void populate_state_map()
     {
+        // this->state.insert({"r_density", this->r_density});
+        // this->state.insert({"u_density", this->u_density});
         this->state.insert({"W", this->W});
         this->state.insert({"Sigma1", this->Sigma1});
         this->state.insert({"Sigma2", this->Sigma2});
