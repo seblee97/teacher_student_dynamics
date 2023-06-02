@@ -1,7 +1,9 @@
 import os
+from typing import List
 
 import numpy as np
 import pandas as pd
+import torch
 
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.ode import c_ode
@@ -49,6 +51,8 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             # "Omega2.csv": network_configuration.feature_matrix_overlaps[1],
             # "S1.csv": network_configuration.student_weighted_feature_matrices[0],
             # "S2.csv": network_configuration.student_weighted_feature_matrices[1],
+            # "r_density.csv": network_configuration.student_teacher_overlap_densities[0],
+            # "u_density.csv": network_configuration.student_teacher_overlap_densities[1],
             "Q.csv": network_configuration.student_self_overlap,
             "R.csv": network_configuration.student_teacher_overlaps[0],
             "U.csv": network_configuration.student_teacher_overlaps[1],
@@ -95,6 +99,8 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             constants.INPUT_DIMENSION: config.input_dimension,
             constants.STUDENT_HIDDEN: config.student_hidden,
             constants.TEACHER_HIDDEN: config.teacher_hidden,
+            constants.NUM_BINS: config.num_bins,
+            constants.DELTA: int(config.latent_dimension / config.input_dimension),
             constants.MULTI_HEAD: config.multi_head,
             constants.TIMESTEP: config.timestep,
             constants.TRAIN_HEAD_LAYER: config.train_head_layer,
@@ -114,8 +120,6 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
         cpp_utils.params_to_txt(params=ode_config, output_path=self._txt_config_path)
 
     def consolidate_outputs(self):
-
-        raise NotImplementedError
 
         df = pd.DataFrame()
 
