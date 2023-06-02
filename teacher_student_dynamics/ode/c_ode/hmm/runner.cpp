@@ -47,6 +47,8 @@ int main(int argc, char **argv)
     int input_dimension = std::get<int>(config["input_dimension"]);
     int teacher_hidden = std::get<int>(config["teacher_hidden"]);
     int student_hidden = std::get<int>(config["student_hidden"]);
+    int num_bins = std::get<int>(config["num_bins"]);
+    int delta_frac = std::get<int>(config["delta"]);
     bool multi_head = std::get<bool>(config["multi_head"]);
     float w_learning_rate = std::get<float>(config["hidden_learning_rate"]);
     float h_learning_rate = std::get<float>(config["head_learning_rate"]);
@@ -59,7 +61,7 @@ int main(int argc, char **argv)
 
     std::cout << "configuration parsed successfully." << std::endl;
 
-    HMMODEState state(teacher_hidden, student_hidden, multi_head, order_parameter_paths);
+    HMMODEState state(teacher_hidden, student_hidden, multi_head, num_bins, order_parameter_paths);
 
     for (auto const &[key, val] : state.state)
     {
@@ -94,6 +96,7 @@ int main(int argc, char **argv)
         state,
         teacher_hidden,
         student_hidden,
+        delta_frac,
         multi_head,
         w_learning_rate,
         h_learning_rate,
