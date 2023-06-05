@@ -5,7 +5,6 @@
 // #include <omp.h>
 
 using Eigen::MatrixXd;
-using Eigen::Vector;
 
 class HMMODE
 {
@@ -69,6 +68,17 @@ public:
                                    noise_stds(noises),
                                    freeze_units(freeze)
     {
+        // d_rho = (c - b^2)\delta + b^2\rho (hard-coded for scaled erf)
+        d_rho.resize(1, num_bins);
+        rho_min = pow(1 - pow(delta, 0.5), 2);
+        rho_max = pow(1 + pow(delta, 0.5), 2);
+        rho_interval = (rho_max - rho_min) / num_bins;
+        for (int bin = 0; bin < num_bins; bin++)
+        {
+            d_rho(0, bin) = rho_min + bin * rho_interval;
+        }
+        d_rho /= M_PI;
+        // d_rho += delta * (1 / 3 - M_PI);
         teacher_1_offset = student_hidden;
         teacher_2_offset = student_hidden + teacher_hidden;
         input_noise_offset = student_hidden + 2 * teacher_hidden;
