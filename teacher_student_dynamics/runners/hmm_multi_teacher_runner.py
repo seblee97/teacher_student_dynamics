@@ -24,6 +24,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._teacher_input_dimension = config.latent_dimension
         self._latent_dimension = config.latent_dimension
         self._num_bins = config.num_bins
+        self._delta = config.latent_dimension / config.input_dimension
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
@@ -129,7 +130,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
                 # (Eq. B31) density r_km
                 # TODO: How to choose max, min rho -> need to enforce normalisation constraint on psis?
-                rho_bins = np.linspace(0, 2, self._num_bins + 1)
+                RHO_MIN = (1 - np.sqrt(self._delta)) ** 2
+                RHO_MAX = (1 + np.sqrt(self._delta)) ** 2
+                rho_bins = np.linspace(RHO_MIN, RHO_MAX, self._num_bins + 1)
                 student_teacher_overlap_densities = []
                 student_hidden_dim = student_head_weights[0].shape[0]
                 teacher_hidden_dim = teacher_head_weights[0].shape[0]
@@ -155,7 +158,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                     .numpy()
                                 )
                     student_teacher_overlap_densities.append(
-                        r_km.reshape(-1, student_hidden_dim * teacher_hidden_dim)
+                        r_km.reshape(-1, student_hidden_dim * teacher_hidden_dim).T
                     )
 
         if not update:
