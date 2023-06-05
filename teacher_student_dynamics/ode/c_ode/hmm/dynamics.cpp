@@ -115,13 +115,14 @@ public:
         MatrixXd w_delta = MatrixXd::Constant(this->state.state["W"].rows(), this->state.state["W"].cols(), 0.0);
         MatrixXd sigma1_delta = MatrixXd::Constant(this->state.state["Sigma1"].rows(), this->state.state["Sigma1"].cols(), 0.0);
         MatrixXd sigma2_delta = MatrixXd::Constant(this->state.state["Sigma2"].rows(), this->state.state["Sigma2"].cols(), 0.0);
-        MatrixXd r_delta = MatrixXd::Constant(this->state.state["R"].rows(), this->state.state["R"].cols(), 0.0);
+        MatrixXd r_delta = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
         MatrixXd u_delta = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
         MatrixXd h1_delta = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
         MatrixXd h2_delta = MatrixXd::Constant(this->state.state["h2"].rows(), this->state.state["h2"].cols(), 0.0);
 
         if (train_w_layer)
         {
+            r_delta += dr_dt();
         }
         if (train_h_layer)
         {
@@ -134,7 +135,9 @@ public:
         this->state.step_order_parameter("W", w_delta);
         this->state.step_order_parameter("Sigma1", sigma1_delta);
         this->state.step_order_parameter("Sigma2", sigma2_delta);
-        this->state.step_order_parameter("R", r_delta);
+        this->state.step_order_parameter("r_density", r_delta);
+        this->state.integrate_order_parameter_density("R", "r_density");
+        // this->state.integrate_order_parameter_density("U");
         this->state.step_order_parameter("U", u_delta);
         this->state.step_order_parameter("h1", h1_delta);
 
@@ -242,5 +245,84 @@ public:
             }
         }
         return error;
+    }
+
+    MatrixXd dr_dt()
+    {
+        // std::cout << "dR/dt" << std::endl;
+        MatrixXd teacher_head(teacher_hidden, 1);
+        MatrixXd student_head(student_hidden, 1);
+        int offset;
+        if (active_teacher == 0)
+        {
+            teacher_head << this->state.state["th1"];
+            student_head << this->state.state["h1"];
+            offset = teacher_1_offset;
+        }
+        else
+        {
+            teacher_head << this->state.state["th2"];
+            offset = teacher_2_offset;
+            if (multi_head)
+            {
+                student_head << this->state.state["h2"];
+            }
+            else
+            {
+                student_head << this->state.state["h1"];
+            }
+        }
+
+        MatrixXd r_derivative = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
+
+        for (int k = 0; k < teacher_hidden; k++)
+        {
+            for (int m = 0; m < student_hidden; m++)
+            {
+                std::cout << "shape " << this->state.state["r_density"].rows() << this->state.state["r_density"].cols() << std::endl;
+                MatrixXd rkm = this->state.state["r_density"].row(k * student_hidden + m);
+                // for (int pri = 0; pri < rkm.size(); pri++)
+                // {
+                //     std::cout << "k " << k << std::endl;
+                //     std::cout << "m " << m << std::endl;
+                //     std::cout << "pri " << pri << std::endl;
+                //     std::cout << "rkm density bin " << rkm(pri) << std::endl;
+                // }
+                MatrixXd rkm_derivative = MatrixXd::Constant(1, num_bins, 0.0);
+                for (int j = 0; j < student_hidden; j++)
+                {
+                    if (j != k)
+                    {
+                        std::vector<int> kkj_indices{k, k, j};
+                        std::vector<int> kjj_indices{k, j, j};
+                        MatrixXd kkj_cov = this->state.generate_sub_covariance_matrix(kkj_indices);
+                        MatrixXd kjj_cov = this->state.generate_sub_covariance_matrix(kjj_indices);
+                        float nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(kkj_cov) - this->state.state["Q"](k, j) * sigmoid_i3(kjj_cov));
+                        // + student_head(k) * student_head(j) * rjm * (this->state.state["Q"](k, k) * sigmoid_i3(kjj_cov) - this->state.state["Q"](k, j) * sigmoid_i3(kkj_cov));
+                        float den = this->state.state["Q"](j, j) * this->state.state["Q"](k, k) - pow(this->state.state["Q"](k, j), 2);
+                        std::cout << "drho_shape " << d_rho.size() << d_rho.rows() << d_rho.cols() << std::endl;
+                        std::cout << "rkm_shape " << rkm.size() << rkm.rows() << rkm.cols() << std::endl;
+                        rkm_derivative += d_rho.cwiseProduct(rkm) * (nom / den);
+                    }
+                }
+                // for (int n = 0; n < student_hidden; n++)
+                // {
+                //     std::vector<int> kkn_indices{k, k, n};
+                //     std::vector<int> knn_indices{k, n, n};
+                //     MatrixXd kkn_cov = this->state.generate_sub_covariance_matrix(kkn_indices);
+                //     MatrixXd knn_cov = this->state.generate_sub_covariance_matrix(knn_indices);
+                //     float nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(kkn_cov) - this->state.state["R"](k, n) * sigmoid_i3(knn_cov) - brhodrho * teacher_head(n) * tilde_T(n, m) * (this->state.state["Q"](k, k) * sigmoid_i3(knn_cov) - this->state.state["R"](k, n) * sigmoid_i3(kkn_cov)));
+                //     float den = this->state.state["Q"](k, k) * this->state.state["T"](n, n) - pow(this->state.state["R"](k, n), 2);
+                //     km_derivative -= nom / den;
+                // }
+                // std::vector<int> kkk_indices{k, k, k};
+                // MatrixXd kkk_cov = this->state.generate_sub_covariance_matrix(kkk_indices);
+                // km_derivative += this->state.state["v"](k) * rkm * sigmoid_i3(kkk_cov) / this->state.state["Q"](k, k);
+
+                // derivative(k, m) = -w_learning_rate * km_derivative / delta;
+                r_derivative.row(k * student_hidden + m) = rkm_derivative;
+            }
+        }
+        return r_derivative;
     }
 };
