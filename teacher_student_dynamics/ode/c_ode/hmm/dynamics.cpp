@@ -5,6 +5,7 @@
 // #include <omp.h>
 
 using Eigen::MatrixXd;
+using Eigen::Vector;
 
 class HMMODE
 {
@@ -13,6 +14,8 @@ public:
 
     int teacher_hidden;
     int student_hidden;
+    float delta;
+    int num_bins;
     bool multi_head;
     float h_learning_rate;
     float w_learning_rate;
@@ -30,14 +33,17 @@ public:
     int teacher_2_offset;
     int input_noise_offset;
 
-    std::vector<float> d_rho;
-    int delta;
+    Matrix<double, 1, Dynamic> d_rho;
+    float rho_min;
+    float rho_max;
+    float rho_interval;
 
     HMMODE(
         HMMODEState &ode_state,
         int t_hidden,
         int s_hidden,
-        int delta_frac,
+        float delta_frac,
+        int num_b,
         bool multi_h,
         float h_lr,
         float w_lr,
@@ -51,6 +57,7 @@ public:
                                    teacher_hidden(t_hidden),
                                    student_hidden(s_hidden),
                                    delta(delta_frac),
+                                   num_bins(num_b),
                                    multi_head(multi_h),
                                    h_learning_rate(h_lr),
                                    w_learning_rate(w_lr),
