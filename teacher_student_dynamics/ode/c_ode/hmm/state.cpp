@@ -66,8 +66,8 @@ public:
 
     void resize_matrices()
     {
-        this->u_density.resize(num_bins, student_hidden * teacher_hidden);
-        this->r_density.resize(num_bins, student_hidden * teacher_hidden);
+        this->u_density.resize(student_hidden * teacher_hidden, num_bins);
+        this->r_density.resize(student_hidden * teacher_hidden, num_bins);
         this->W.resize(student_hidden, student_hidden);
         this->Sigma1.resize(student_hidden, student_hidden);
         this->Sigma2.resize(student_hidden, student_hidden);
@@ -153,6 +153,11 @@ public:
     void step_order_parameter(std::string order_parameter, MatrixXd delta)
     {
         this->state[order_parameter] = this->state[order_parameter] + delta;
+    }
+
+    void integrate_order_parameter_density(std::string order_parameter, std::string density)
+    {
+        this->state[order_parameter] = this->state[density].rowwise().mean().reshaped(student_hidden, teacher_hidden);
     }
 
 private:
