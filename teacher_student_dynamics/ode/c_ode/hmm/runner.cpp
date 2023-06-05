@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     int teacher_hidden = std::get<int>(config["teacher_hidden"]);
     int student_hidden = std::get<int>(config["student_hidden"]);
     int num_bins = std::get<int>(config["num_bins"]);
-    int delta_frac = std::get<int>(config["delta"]);
+    float delta = std::get<float>(config["delta"]);
     bool multi_head = std::get<bool>(config["multi_head"]);
     float w_learning_rate = std::get<float>(config["hidden_learning_rate"]);
     float h_learning_rate = std::get<float>(config["head_learning_rate"]);
@@ -96,7 +96,8 @@ int main(int argc, char **argv)
         state,
         teacher_hidden,
         student_hidden,
-        delta_frac,
+        delta,
+        num_bins,
         multi_head,
         w_learning_rate,
         h_learning_rate,
