@@ -183,6 +183,8 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
         feature_matrix_overlaps: List[np.ndarray],
         student_teacher_overlap_densities: List[np.ndarray],
+        student_latent_self_overlap_densities: List[np.ndarray],
+        projected_teacher_self_overlaps: List[np.ndarray],
     ):
 
         super().__init__(
@@ -201,6 +203,10 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         )
         self._feature_matrix_overlaps = feature_matrix_overlaps
         self._student_teacher_overlap_densities = student_teacher_overlap_densities
+        self._student_latent_self_overlap_densities = (
+            student_latent_self_overlap_densities
+        )
+        self._projected_teacher_self_overlaps = projected_teacher_self_overlaps
 
     @property
     def student_weighted_feature_matrices(self) -> List[np.ndarray]:
@@ -241,3 +247,45 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
     @property
     def student_teacher_overlap_densities(self) -> List[np.ndarray]:
         return self._student_teacher_overlap_densities
+
+    @property
+    def student_latent_self_overlap_densities(self) -> List[np.ndarray]:
+        return self._student_latent_self_overlap_densities
+
+    @property
+    def projected_teacher_self_overlaps(self) -> List[np.ndarray]:
+        return self._projected_teacher_self_overlaps
+
+    # over-write base class
+    @property
+    def sub_dictionary(self):
+        network_configuration_dictionary = {}
+
+        for i, head in enumerate(self._student_head_weights):
+            for j, weight in enumerate(head):
+                network_configuration_dictionary[
+                    f"{constants.STUDENT_HEAD}_{i}_{constants.WEIGHT}_{j}"
+                ] = weight
+        # for i, head in enumerate(self._teacher_head_weights):
+        #     for j, weight in enumerate(head):
+        #         network_configuration_dictionary[
+        #             f"{constants.TEACHER_HEAD}_{i}_{constants.WEIGHT}_{j}"
+        #         ] = weight
+        for (i, j), overlap_value in np.ndenumerate(self._student_self_overlap):
+            network_configuration_dictionary[
+                f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+            ] = overlap_value
+        for l, local_field_covariances in enumerate(
+            self._student_local_field_covariances
+        ):
+            for (i, j), overlap_value in np.ndenumerate(local_field_covariances):
+                network_configuration_dictionary[
+                    f"{constants.STUDENT_SELF_OVERLAP_AGGREGATE}_{l}_{i}_{j}"
+                ] = overlap_value
+        for t, student_teacher_overlap in enumerate(self._student_teacher_overlaps):
+            for (i, j), overlap_value in np.ndenumerate(student_teacher_overlap):
+                network_configuration_dictionary[
+                    f"{constants.STUDENT_TEACHER}_{t}_{constants.OVERLAP}_{i}_{j}"
+                ] = overlap_value
+
+        return network_configuration_dictionary
