@@ -112,6 +112,7 @@ int main(int argc, char **argv)
     std::vector<double> error_1_log(num_logs);
 
     std::map<std::string, std::vector<double>> q_log_map;
+    std::map<std::string, std::vector<double>> w_log_map;
     std::map<std::string, std::vector<double>> r_log_map;
     std::map<std::string, std::vector<double>> u_log_map;
     std::map<std::string, std::vector<double>> h_0_log_map;
@@ -122,7 +123,9 @@ int main(int argc, char **argv)
         for (int j = 0; j < student_hidden; j++)
         {
             std::vector<double> q_ij_log(num_logs);
+            std::vector<double> w_ij_log(num_logs);
             q_log_map["q_" + std::to_string(i) + std::to_string(j)] = q_ij_log;
+            w_log_map["w_" + std::to_string(i) + std::to_string(j)] = w_ij_log;
         }
     }
 
@@ -177,6 +180,7 @@ int main(int argc, char **argv)
                 for (int s_ = 0; s_ < student_hidden; s_++)
                 {
                     q_log_map["q_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["Q"](s, s_);
+                    w_log_map["w_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["W"](s, s_);
                 }
             }
 
@@ -238,6 +242,17 @@ int main(int argc, char **argv)
             for (int n = 0; n < num_logs; n++)
             {
                 file << q_log_map["q_" + std::to_string(i) + std::to_string(j)][n];
+                if (n < num_logs - 1)
+                {
+                    file << "\n";
+                }
+            }
+            file.close();
+            csv_name = "w_" + std::to_string(i) + std::to_string(j) + ".csv";
+            file.open(output_path / csv_name);
+            for (int n = 0; n < num_logs; n++)
+            {
+                file << w_log_map["w_" + std::to_string(i) + std::to_string(j)][n];
                 if (n < num_logs - 1)
                 {
                     file << "\n";
