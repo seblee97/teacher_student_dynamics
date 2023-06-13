@@ -29,11 +29,15 @@ private:
     // Matrix<double, Dynamic, Dynamic> S2;
     Matrix<double, Dynamic, Dynamic> r_density;
     Matrix<double, Dynamic, Dynamic> u_density;
+    Matrix<double, Dynamic, Dynamic> sigma_1_density;
+    Matrix<double, Dynamic, Dynamic> sigma_2_density;
     Matrix<double, Dynamic, Dynamic> Q;
     Matrix<double, Dynamic, Dynamic> R;
     Matrix<double, Dynamic, Dynamic> U;
     Matrix<double, Dynamic, Dynamic> T;
     Matrix<double, Dynamic, Dynamic> H;
+    Matrix<double, Dynamic, Dynamic> T_tilde;
+    Matrix<double, Dynamic, Dynamic> H_tilde;
     Matrix<double, Dynamic, Dynamic> V;
     Matrix<double, Dynamic, Dynamic> h1;
     Matrix<double, Dynamic, Dynamic> h2;
@@ -68,6 +72,8 @@ public:
     {
         this->u_density.resize(student_hidden * teacher_hidden, num_bins);
         this->r_density.resize(student_hidden * teacher_hidden, num_bins);
+        this->sigma_1_density.resize(student_hidden * student_hidden, num_bins);
+        this->sigma_2_density.resize(student_hidden * student_hidden, num_bins);
         this->W.resize(student_hidden, student_hidden);
         this->Sigma1.resize(student_hidden, student_hidden);
         this->Sigma2.resize(student_hidden, student_hidden);
@@ -78,6 +84,8 @@ public:
         this->U.resize(student_hidden, teacher_hidden);
         this->T.resize(teacher_hidden, teacher_hidden);
         this->H.resize(teacher_hidden, teacher_hidden);
+        this->T_tilde.resize(teacher_hidden, teacher_hidden);
+        this->H_tilde.resize(teacher_hidden, teacher_hidden);
         this->V.resize(teacher_hidden, teacher_hidden);
         this->h1.resize(student_hidden, 1);
         if (multi_head)
@@ -100,6 +108,8 @@ public:
     {
         this->state.insert({"r_density", this->r_density});
         this->state.insert({"u_density", this->u_density});
+        this->state.insert({"sigma_1_density", this->sigma_1_density});
+        this->state.insert({"sigma_2_density", this->sigma_2_density});
         this->state.insert({"W", this->W});
         this->state.insert({"Sigma1", this->Sigma1});
         this->state.insert({"Sigma2", this->Sigma2});
@@ -108,6 +118,8 @@ public:
         this->state.insert({"U", this->U});
         this->state.insert({"T", this->T});
         this->state.insert({"H", this->H});
+        this->state.insert({"T_tilde", this->T_tilde});
+        this->state.insert({"H_tilde", this->H_tilde});
         this->state.insert({"V", this->V});
         this->state.insert({"h1", this->h1});
         if (multi_head)
@@ -155,9 +167,15 @@ public:
         this->state[order_parameter] = this->state[order_parameter] + delta;
     }
 
+    void set_order_parameter(std::string order_parameter, MatrixXd value)
+    {
+        this->state[order_parameter] = value;
+    }
+
     void integrate_order_parameter_density(std::string order_parameter, std::string density)
     {
-        this->state[order_parameter] = this->state[density].rowwise().mean().reshaped(student_hidden, teacher_hidden);
+        // PLACEHOLDER
+        this->state[order_parameter] = this->state[density].rowwise().mean().reshaped(this->state[order_parameter].rows(), this->state[order_parameter].cols());
     }
 
 private:
