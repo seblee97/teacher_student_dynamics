@@ -33,9 +33,15 @@ public:
     int input_noise_offset;
 
     Matrix<double, 1, Dynamic> d_rho;
+    Matrix<double, 1, Dynamic> rho;
+    Matrix<double, 1, Dynamic> sigma_rho_term;
+
     float rho_min;
     float rho_max;
     float rho_interval;
+
+    float b = 1 / pow(M_PI, 0.5);
+    float c = 1 / 3;
 
     HMMODE(
         HMMODEState &ode_state,
@@ -70,15 +76,19 @@ public:
     {
         // d_rho = (c - b^2)\delta + b^2\rho (hard-coded for scaled erf)
         d_rho.resize(1, num_bins);
+        rho.resize(1, num_bins);
+        sigma_rho_term.resize(1, num_bins);
         rho_min = pow(1 - pow(delta, 0.5), 2);
         rho_max = pow(1 + pow(delta, 0.5), 2);
         rho_interval = (rho_max - rho_min) / num_bins;
+        float rho_b;
         for (int bin = 0; bin < num_bins; bin++)
         {
-            d_rho(0, bin) = rho_min + bin * rho_interval;
+            rho_b = rho_min + bin * rho_interval;
+            rho(0, bin) = rho_b;
+            d_rho(0, bin) = (rho_b / M_PI) + delta * (1 / 3 - M_PI);
+            sigma_rho_term(0, bin) = (c - pow(b, 2)) * rho_b + pow(rho_b * b, 2) / delta_frac;
         }
-        d_rho /= M_PI;
-        // d_rho += delta * (1 / 3 - M_PI);
         teacher_1_offset = student_hidden;
         teacher_2_offset = student_hidden + teacher_hidden;
         input_noise_offset = student_hidden + 2 * teacher_hidden;
