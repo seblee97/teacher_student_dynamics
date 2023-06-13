@@ -53,11 +53,19 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             # "S2.csv": network_configuration.student_weighted_feature_matrices[1],
             "r_density.csv": network_configuration.student_teacher_overlap_densities[0],
             "u_density.csv": network_configuration.student_teacher_overlap_densities[1],
+            "sigma_1_density.csv": network_configuration.student_latent_self_overlap_densities[
+                0
+            ],
+            "sigma_2_density.csv": network_configuration.student_latent_self_overlap_densities[
+                1
+            ],
             "Q.csv": network_configuration.student_self_overlap,
             "R.csv": network_configuration.student_teacher_overlaps[0],
             "U.csv": network_configuration.student_teacher_overlaps[1],
             "T.csv": network_configuration.teacher_self_overlaps[0],
             "H.csv": network_configuration.teacher_self_overlaps[1],
+            "T_tilde.csv": network_configuration.projected_teacher_self_overlaps[0],
+            "H_tilde.csv": network_configuration.projected_teacher_self_overlaps[1],
             "V.csv": network_configuration.teacher_cross_overlaps[0],
             "h1.csv": network_configuration.student_head_weights[0],
             "th1.csv": network_configuration.teacher_head_weights[0],
@@ -97,6 +105,7 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             constants.HIDDEN_LEARNING_RATE: config.learning_rate,
             constants.HEAD_LEARNING_RATE: config.learning_rate,
             constants.INPUT_DIMENSION: config.input_dimension,
+            constants.LATENT_DIMENSION: config.latent_dimension,
             constants.STUDENT_HIDDEN: config.student_hidden,
             constants.TEACHER_HIDDEN: config.teacher_hidden,
             constants.DELTA: config.latent_dimension / config.input_dimension,
@@ -126,7 +135,9 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
         for i in range(self._student_hidden):
             for j in range(self._student_hidden):
                 qij = np.genfromtxt(os.path.join(self._ode_file_path, f"q_{i}{j}.csv"))
-                df[f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"] = qij
+                df[f"{constants.STUDENT_SELF_OVERLAP_AGGREGATE}_{i}_{j}"] = qij
+                wij = np.genfromtxt(os.path.join(self._ode_file_path, f"w_{i}{j}.csv"))
+                df[f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"] = wij
 
         for i in range(self._student_hidden):
             for j in range(self._teacher_hidden):
