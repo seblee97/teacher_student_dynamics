@@ -26,6 +26,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._num_bins = config.num_bins
         self._delta = config.latent_dimension / config.input_dimension
 
+        RHO_MIN = (1 - np.sqrt(self._delta)) ** 2
+        RHO_MAX = (1 + np.sqrt(self._delta)) ** 2
+        self._rho_bins = np.linspace(RHO_MIN, RHO_MAX, self._num_bins + 1)
+
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
 
@@ -109,7 +113,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     torch.linalg.eig(overlap) for overlap in feature_matrix_overlaps
                 ]
 
-                # (Eq. B19 student weights projected onto eigenbasis of Omega
+                # (Eq. B19) student weights projected onto eigenbasis of Omega
                 gamma_tau_k = [
                     overlap.mm(eigenbasis[1].to(torch.float))
                     for overlap, eigenbasis in zip(
@@ -128,18 +132,23 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     )
                 ]
 
+                # (Eq. B29) teacher self-overlap in projected eigenbasis
+                projected_teacher_self_overlaps = [
+                    (eigen_values[0].to(torch.float) * w_tilde).mm(w_tilde.T).numpy()
+                    / self._latent_dimension
+                    for w_tilde, eigen_values in zip(
+                        w_tilde_tau, feature_matrix_eigenspectra
+                    )
+                ]
+
                 # (Eq. B31) density r_km
-                # TODO: How to choose max, min rho -> need to enforce normalisation constraint on psis?
-                RHO_MIN = (1 - np.sqrt(self._delta)) ** 2
-                RHO_MAX = (1 + np.sqrt(self._delta)) ** 2
-                rho_bins = np.linspace(RHO_MIN, RHO_MAX, self._num_bins + 1)
                 student_teacher_overlap_densities = []
                 student_hidden_dim = student_head_weights[0].shape[0]
                 teacher_hidden_dim = teacher_head_weights[0].shape[0]
                 for task, eigenspectrum in enumerate(feature_matrix_eigenspectra):
                     r_km = np.zeros(
                         shape=(
-                            len(rho_bins) - 1,
+                            len(self._rho_bins) - 1,
                             student_hidden_dim,
                             teacher_hidden_dim,
                         )
@@ -149,8 +158,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                             eigenspectrum[0].to(torch.float)
                         ):
                             if (
-                                eigenvalue.item() < rho_bins[i + 1]
-                                and eigenvalue.item() > rho_bins[i]
+                                eigenvalue.item() < self._rho_bins[i + 1]
+                                and eigenvalue.item() > self._rho_bins[i]
                             ):
                                 r_km[i] = (
                                     gamma_tau_k[task][:, [tau]]
@@ -159,6 +168,33 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                 )
                     student_teacher_overlap_densities.append(
                         r_km.reshape(-1, student_hidden_dim * teacher_hidden_dim).T
+                    )
+
+                # (Eq. B47) density sigma_kl
+                student_latent_self_overlap_densities = []
+                for task, eigenspectrum in enumerate(feature_matrix_eigenspectra):
+                    sigma_kl = np.zeros(
+                        shape=(
+                            len(self._rho_bins) - 1,
+                            student_hidden_dim,
+                            student_hidden_dim,
+                        )
+                    )
+                    for i in range(len(sigma_kl)):
+                        for tau, eigenvalue in enumerate(
+                            eigenspectrum[0].to(torch.float)
+                        ):
+                            if (
+                                eigenvalue.item() < self._rho_bins[i + 1]
+                                and eigenvalue.item() > self._rho_bins[i]
+                            ):
+                                sigma_kl[i] = (
+                                    gamma_tau_k[task][:, [tau]]
+                                    .mm(gamma_tau_k[task][:, [tau]].t())
+                                    .numpy()
+                                )
+                    student_latent_self_overlap_densities.append(
+                        sigma_kl.reshape(-1, student_hidden_dim * student_hidden_dim).T
                     )
 
         if not update:
@@ -174,6 +210,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 student_weighted_feature_matrix_self_overlaps=student_weighted_feature_matrix_self_overlaps,
                 feature_matrix_overlaps=feature_matrix_overlaps,
                 student_teacher_overlap_densities=student_teacher_overlap_densities,
+                student_latent_self_overlap_densities=student_latent_self_overlap_densities,
+                projected_teacher_self_overlaps=projected_teacher_self_overlaps,
             )
         else:
             self._network_configuration.student_head_weights = student_head_weights
