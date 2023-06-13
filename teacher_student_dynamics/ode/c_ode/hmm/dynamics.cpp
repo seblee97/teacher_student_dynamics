@@ -176,13 +176,13 @@ public:
         {
 #pragma omp section
 #pragma omp parallel for collapse(2)
-            for (int i = 0; i < student_hidden; i++)
+            for (int k = 0; k < student_hidden; k++)
             {
-                for (int j = 0; j < student_hidden; j++)
+                for (int l = 0; l < student_hidden; l++)
                 {
-                    std::vector<int> indices{i, j};
+                    std::vector<int> indices{k, l};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    error += 0.5 * this->state.state["h1"](i) * this->state.state["h1"](j) * sigmoid_i2(cov);
+                    error += 0.5 * this->state.state["h1"](k) * this->state.state["h1"](l) * sigmoid_i2(cov);
                 }
             }
 
@@ -199,13 +199,13 @@ public:
             }
 #pragma omp section
 #pragma omp parallel for collapse(2)
-            for (int i = 0; i < student_hidden; i++)
+            for (int k = 0; k < student_hidden; k++)
             {
                 for (int n = 0; n < teacher_hidden; n++)
                 {
-                    std::vector<int> indices{i, teacher_1_offset + n};
+                    std::vector<int> indices{k, teacher_1_offset + n};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    error -= this->state.state["h1"](i) * this->state.state["th1"](n) * sigmoid_i2(cov);
+                    error -= this->state.state["h1"](k) * this->state.state["th1"](n) * sigmoid_i2(cov);
                 }
             }
         }
@@ -293,12 +293,15 @@ public:
 
         MatrixXd r_derivative = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
 
-        for (int k = 0; k < teacher_hidden; k++)
+        for (int k = 0; k < student_hidden; k++)
         {
-            for (int m = 0; m < student_hidden; m++)
+            std::vector<int> kkk_indices{k, k, k};
+            MatrixXd kkk_cov = this->state.generate_sub_covariance_matrix(kkk_indices);
+            for (int m = 0; m < teacher_hidden; m++)
             {
                 std::cout << "shape " << this->state.state["r_density"].rows() << this->state.state["r_density"].cols() << std::endl;
-                MatrixXd rkm = this->state.state["r_density"].row(k * student_hidden + m);
+                // std::cout << "k t m " << k * teacher_hidden + m << std::endl;
+                MatrixXd rkm = this->state.state["r_density"].row(k * teacher_hidden + m);
                 // for (int pri = 0; pri < rkm.size(); pri++)
                 // {
                 //     std::cout << "k " << k << std::endl;
