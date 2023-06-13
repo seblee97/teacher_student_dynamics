@@ -121,18 +121,22 @@ public:
         // std::cout << "error 1: " << e1 << std::endl;
         // std::cout << "error 2: " << e2 << std::endl;
 
-        MatrixXd q_delta = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
-        MatrixXd w_delta = MatrixXd::Constant(this->state.state["W"].rows(), this->state.state["W"].cols(), 0.0);
+        MatrixXd Q_delta = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
+        MatrixXd W_delta = MatrixXd::Constant(this->state.state["W"].rows(), this->state.state["W"].cols(), 0.0);
         MatrixXd sigma1_delta = MatrixXd::Constant(this->state.state["Sigma1"].rows(), this->state.state["Sigma1"].cols(), 0.0);
         MatrixXd sigma2_delta = MatrixXd::Constant(this->state.state["Sigma2"].rows(), this->state.state["Sigma2"].cols(), 0.0);
         MatrixXd r_delta = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
+        MatrixXd sigma_1_delta = MatrixXd::Constant(this->state.state["sigma_1_density"].rows(), this->state.state["sigma_1_density"].cols(), 0.0);
         MatrixXd u_delta = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
         MatrixXd h1_delta = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
         MatrixXd h2_delta = MatrixXd::Constant(this->state.state["h2"].rows(), this->state.state["h2"].cols(), 0.0);
 
         if (train_w_layer)
         {
-            r_delta += dr_dt();
+            r_delta += timestep * dr_dt();
+            W_delta += timestep * dW_dt();
+            sigma_1_delta += timestep * dsigma_1_dt();
+            h1_delta += timestep * dh1_dt();
         }
         if (train_h_layer)
         {
@@ -141,19 +145,23 @@ public:
             }
         }
 
-        this->state.step_order_parameter("Q", q_delta);
-        this->state.step_order_parameter("W", w_delta);
-        this->state.step_order_parameter("Sigma1", sigma1_delta);
-        this->state.step_order_parameter("Sigma2", sigma2_delta);
+        this->state.step_order_parameter("W", W_delta);
+        this->state.step_order_parameter("sigma_1_density", sigma_1_delta);
         this->state.step_order_parameter("r_density", r_delta);
-        this->state.integrate_order_parameter_density("R", "r_density");
+
+        this->state.set_order_parameter("Q", (c - pow(b, 2)) * this->state.state["W"] + pow(b, 2) * this->state.state["Sigma1"]);
+        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped(student_hidden, teacher_hidden));
+        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped(student_hidden, student_hidden));
+
+        // this->state.integrate_order_parameter_density("Sigma1", "sigma_1_density");
+        // this->state.integrate_order_parameter_density("R", "r_density");
         // this->state.integrate_order_parameter_density("U");
-        this->state.step_order_parameter("U", u_delta);
+        // this->state.step_order_parameter("U", u_delta);
         this->state.step_order_parameter("h1", h1_delta);
 
         if (multi_head)
         {
-            this->state.step_order_parameter("h2", h2_delta);
+            // this->state.step_order_parameter("h2", h2_delta);
         }
 
         std::tuple<float, float> step_errors;
