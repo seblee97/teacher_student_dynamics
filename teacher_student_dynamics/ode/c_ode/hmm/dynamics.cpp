@@ -89,8 +89,8 @@ public:
         // rho_interval = (rho_max - rho_min) / latent_dimension;
         for (int bin = 0; bin < latent_dimension; bin++)
         {
-            float rho_b_1 = this->state.state["rho_1"](bin);
-            float rho_b_2 = this->state.state["rho_2"](bin);
+            double rho_b_1 = this->state.state["rho_1"](bin);
+            double rho_b_2 = this->state.state["rho_2"](bin);
             d_rho_1(0, bin) = pow(b, 2) * rho_b_1 + delta * (c - pow(b, 2));
             d_rho_2(0, bin) = pow(b, 2) * rho_b_2 + delta * (c - pow(b, 2));
             sigma_rho_1_term(0, bin) = (c - pow(b, 2)) * rho_b_1 + pow(rho_b_1 * b, 2) / delta_frac;
@@ -125,14 +125,14 @@ public:
         std::cerr << "Output Noise: " << noise_stds[active_teacher] << std::endl;
     }
 
-    std::tuple<float, float> step()
+    std::tuple<double, double> step()
     {
         // std::cout << "Taking ODE Step" << std::endl;
         this->state.step_covariance_matrix();
         // std::cout << "Stepped Cov Matrix" << std::endl;
 
-        float e1 = 0;
-        float e2 = 0;
+        double e1 = 0;
+        double e2 = 0;
 
         e1 += error_1();
         e2 += error_2();
@@ -183,14 +183,14 @@ public:
             // this->state.step_order_parameter("h2", h2_delta);
         }
 
-        std::tuple<float, float> step_errors;
+        std::tuple<double, double> step_errors;
         step_errors = std::make_tuple(e1, e2);
         return step_errors;
     }
 
-    float error_1()
+    double error_1()
     {
-        float error = 0;
+        double error = 0;
 #pragma omp parallel sections reduction(+ : error)
         {
 #pragma omp section
@@ -231,7 +231,7 @@ public:
         return error;
     }
 
-    float error_2()
+    double error_2()
     {
         Matrix<double, Dynamic, Dynamic> head;
         head.resize(student_hidden, 1);
@@ -244,7 +244,7 @@ public:
             head = this->state.state["h1"];
         }
 
-        float error = 0;
+        double error = 0;
 #pragma omp parallel sections reduction(+ : error)
         {
 #pragma omp section
@@ -338,8 +338,8 @@ public:
                     MatrixXd kkj_cov = this->state.generate_sub_covariance_matrix(kkj_indices);
                     MatrixXd kjj_cov = this->state.generate_sub_covariance_matrix(kjj_indices);
                     // term 1
-                    float nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(kkj_cov) - this->state.state["Q"](k, j) * sigmoid_i3(kjj_cov));
-                    float den = this->state.state["Q"](j, j) * this->state.state["Q"](k, k) - pow(this->state.state["Q"](k, j), 2);
+                    double nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(kkj_cov) - this->state.state["Q"](k, j) * sigmoid_i3(kjj_cov));
+                    double den = this->state.state["Q"](j, j) * this->state.state["Q"](k, k) - pow(this->state.state["Q"](k, j), 2);
                     // std::cout << "drho_shape " << d_rho.size() << d_rho.rows() << d_rho.cols() << std::endl;
                     // std::cout << "rkm_shape " << rkm.size() << rkm.rows() << rkm.cols() << std::endl;
                     rkm_derivative += d_rho_1.cwiseProduct(rkm) * (nom / den);
@@ -357,8 +357,8 @@ public:
                     MatrixXd kkn_cov = this->state.generate_sub_covariance_matrix(kkn_indices);
                     MatrixXd knn_cov = this->state.generate_sub_covariance_matrix(knn_indices);
                     // term 4
-                    float nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(kkn_cov) - this->state.state["R"](k, n) * sigmoid_i3(knn_cov));
-                    float den = this->state.state["Q"](k, k) * this->state.state["T"](n, n) - pow(this->state.state["R"](k, n), 2);
+                    double nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(kkn_cov) - this->state.state["R"](k, n) * sigmoid_i3(knn_cov));
+                    double den = this->state.state["Q"](k, k) * this->state.state["T"](n, n) - pow(this->state.state["R"](k, n), 2);
                     rkm_derivative -= d_rho_1.cwiseProduct(rkm) * (nom / den);
                     // term 5
                     nom = teacher_head(n) * this->state.state["T_tilde"](n, m) * (this->state.state["Q"](k, k) * sigmoid_i3(knn_cov) - this->state.state["R"](k, n) * sigmoid_i3(kkn_cov));
@@ -402,7 +402,7 @@ public:
         {
             for (int l = 0; l < student_hidden; l++)
             {
-                float W_kl_derivative = 0;
+                double W_kl_derivative = 0;
                 // first halves of terms 1 & 2
                 for (int j = 0; j < student_hidden; j++)
                 {
@@ -501,8 +501,8 @@ public:
                         MatrixXd kkj_cov = this->state.generate_sub_covariance_matrix(kkj_indices);
                         MatrixXd kjj_cov = this->state.generate_sub_covariance_matrix(kjj_indices);
                         // term 1
-                        float nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(kkj_cov) - this->state.state["Q"](k, j) * sigmoid_i3(kjj_cov));
-                        float den = this->state.state["Q"](j, j) * this->state.state["Q"](k, k) - pow(this->state.state["Q"](k, j), 2);
+                        double nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(kkj_cov) - this->state.state["Q"](k, j) * sigmoid_i3(kjj_cov));
+                        double den = this->state.state["Q"](j, j) * this->state.state["Q"](k, k) - pow(this->state.state["Q"](k, j), 2);
                         sigma_1_kl_derivative_1 += student_head(k) * d_rho_1.cwiseProduct(sigma_1_kl) * (nom / den);
                         // term 2
                         MatrixXd sigma_1_jl = this->state.state["sigma_1_density"].row(j * student_hidden + l);
@@ -520,8 +520,8 @@ public:
                     MatrixXd knn_cov = this->state.generate_sub_covariance_matrix(knn_indices);
                     MatrixXd rln = this->state.state["r_density"].row(l * teacher_hidden + n);
                     // term 4
-                    float nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(kkn_cov) - this->state.state["R"](k, n) * sigmoid_i3(knn_cov));
-                    float den = this->state.state["Q"](k, k) * this->state.state["T"](n, n) - pow(this->state.state["R"](k, n), 2);
+                    double nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(kkn_cov) - this->state.state["R"](k, n) * sigmoid_i3(knn_cov));
+                    double den = this->state.state["Q"](k, k) * this->state.state["T"](n, n) - pow(this->state.state["R"](k, n), 2);
                     sigma_1_kl_derivative_1 -= d_rho_1.cwiseProduct(sigma_1_kl) * student_head(k) * (nom / den);
                     // term 5
                     nom = teacher_head(n) * (this->state.state["Q"](k, k) * sigmoid_i3(knn_cov) - this->state.state["R"](k, n) * sigmoid_i3(kkn_cov));
@@ -539,8 +539,8 @@ public:
                         MatrixXd llj_cov = this->state.generate_sub_covariance_matrix(llj_indices);
                         MatrixXd ljj_cov = this->state.generate_sub_covariance_matrix(ljj_indices);
                         // term 1
-                        float nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(llj_cov) - this->state.state["Q"](l, j) * sigmoid_i3(ljj_cov));
-                        float den = this->state.state["Q"](j, j) * this->state.state["Q"](l, l) - pow(this->state.state["Q"](l, j), 2);
+                        double nom = student_head(j) * (this->state.state["Q"](j, j) * sigmoid_i3(llj_cov) - this->state.state["Q"](l, j) * sigmoid_i3(ljj_cov));
+                        double den = this->state.state["Q"](j, j) * this->state.state["Q"](l, l) - pow(this->state.state["Q"](l, j), 2);
                         sigma_1_kl_derivative_1 += student_head(l) * d_rho_1.cwiseProduct(sigma_1_lk) * (nom / den);
                         // term 2
                         MatrixXd sigma_1_jk = this->state.state["sigma_1_density"].row(j * student_hidden + k);
@@ -558,8 +558,8 @@ public:
                     MatrixXd lnn_cov = this->state.generate_sub_covariance_matrix(lnn_indices);
                     MatrixXd rkn = this->state.state["r_density"].row(k * teacher_hidden + n);
                     // term 4
-                    float nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(lln_cov) - this->state.state["R"](l, n) * sigmoid_i3(lnn_cov));
-                    float den = this->state.state["Q"](l, l) * this->state.state["T"](n, n) - pow(this->state.state["R"](l, n), 2);
+                    double nom = teacher_head(n) * (this->state.state["T"](n, n) * sigmoid_i3(lln_cov) - this->state.state["R"](l, n) * sigmoid_i3(lnn_cov));
+                    double den = this->state.state["Q"](l, l) * this->state.state["T"](n, n) - pow(this->state.state["R"](l, n), 2);
                     sigma_1_kl_derivative_1 -= d_rho_1.cwiseProduct(sigma_1_lk) * student_head(l) * (nom / den);
                     // term 5
                     nom = teacher_head(n) * (this->state.state["Q"](l, l) * sigmoid_i3(lnn_cov) - this->state.state["R"](l, n) * sigmoid_i3(lln_cov));
@@ -619,7 +619,7 @@ public:
 #pragma omp parallel for
             for (int k = 0; k < student_hidden; k++)
             {
-                float k_derivative = 0.0;
+                double k_derivative = 0.0;
 #pragma omp parallel sections reduction(+ : i_derivative)
                 {
 #pragma omp section
