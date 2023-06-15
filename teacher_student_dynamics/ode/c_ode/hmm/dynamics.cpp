@@ -112,6 +112,9 @@ public:
         }
 
         std::cout << "delta = P/N " << delta << std::endl;
+        std::cout << "b " << b << std::endl;
+        std::cout << "c " << c << std::endl;
+        std::cout << "timestep " << timestep << std::endl;
     }
 
     void set_active_teacher(int teacher_index)
