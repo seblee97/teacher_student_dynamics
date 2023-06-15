@@ -178,10 +178,15 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         teacher_self_overlaps: List[np.ndarray],
         teacher_cross_overlaps: List[np.ndarray],
         student_teacher_overlaps: List[np.ndarray],
+        rotated_student_teacher_overlaps: List[np.ndarray],
         student_weighted_feature_matrices: List[np.ndarray],
         student_local_field_covariances: List[np.ndarray],
+        rotated_student_local_field_covariances: List[np.ndarray],
         student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
+        rotated_student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
         feature_matrix_overlaps: List[np.ndarray],
+        feature_matrix_overlap_eigenvalues: List[np.ndarray],
+        feature_matrix_overlap_eigenvectors: List[np.ndarray],
         student_teacher_overlap_densities: List[np.ndarray],
         student_latent_self_overlap_densities: List[np.ndarray],
         projected_teacher_self_overlaps: List[np.ndarray],
@@ -198,10 +203,19 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
 
         self._student_weighted_feature_matrices = student_weighted_feature_matrices
         self._student_local_field_covariances = student_local_field_covariances
+        self._rotated_student_local_field_covariances = (
+            rotated_student_local_field_covariances
+        )
         self._student_weighted_feature_matrix_self_overlaps = (
             student_weighted_feature_matrix_self_overlaps
         )
+        self._rotated_student_weighted_feature_matrix_self_overlaps = (
+            rotated_student_weighted_feature_matrix_self_overlaps
+        )
+        self._rotated_student_teacher_overlaps = rotated_student_teacher_overlaps
         self._feature_matrix_overlaps = feature_matrix_overlaps
+        self._feature_matrix_overlap_eigenvalues = feature_matrix_overlap_eigenvalues
+        self._feature_matrix_overlap_eigenvectors = feature_matrix_overlap_eigenvectors
         self._student_teacher_overlap_densities = student_teacher_overlap_densities
         self._student_latent_self_overlap_densities = (
             student_latent_self_overlap_densities
@@ -229,20 +243,60 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         self._student_local_field_covariances = student_local_field_covariances
 
     @property
+    def rotated_student_local_field_covariances(self) -> List[np.ndarray]:
+        return self._rotated_student_local_field_covariances
+
+    @rotated_student_local_field_covariances.setter
+    def rotated_student_local_field_covariances(
+        self, student_local_field_covariances
+    ) -> List[np.ndarray]:
+        self._rotated_student_local_field_covariances = student_local_field_covariances
+
+    @property
     def student_weighted_feature_matrix_self_overlaps(self) -> List[np.ndarray]:
         return self._student_weighted_feature_matrix_self_overlaps
 
     @student_weighted_feature_matrix_self_overlaps.setter
     def student_weighted_feature_matrix_self_overlaps(
         self, student_weighted_feature_matrix_self_overlaps
-    ) -> np.ndarray:
+    ) -> None:
         self._student_weighted_feature_matrix_self_overlaps = (
             student_weighted_feature_matrix_self_overlaps
         )
 
     @property
+    def rotated_student_weighted_feature_matrix_self_overlaps(self) -> List[np.ndarray]:
+        return self._rotated_student_weighted_feature_matrix_self_overlaps
+
+    @rotated_student_weighted_feature_matrix_self_overlaps.setter
+    def rotated_student_weighted_feature_matrix_self_overlaps(
+        self, student_weighted_feature_matrix_self_overlaps
+    ) -> None:
+        self._rotated_student_weighted_feature_matrix_self_overlaps = (
+            student_weighted_feature_matrix_self_overlaps
+        )
+
+    @property
+    def rotated_student_teacher_overlaps(self) -> List[np.ndarray]:
+        return self._rotated_student_teacher_overlaps
+
+    @rotated_student_teacher_overlaps.setter
+    def rotated_student_teacher_overlaps(
+        self, rotated_student_teacher_overlaps
+    ) -> None:
+        self._rotated_student_teacher_overlaps = rotated_student_teacher_overlaps
+
+    @property
     def feature_matrix_overlaps(self) -> List[np.ndarray]:
         return self._feature_matrix_overlaps
+
+    @property
+    def feature_matrix_overlap_eigenvalues(self) -> List[np.ndarray]:
+        return self._feature_matrix_overlap_eigenvalues
+
+    @property
+    def feature_matrix_overlap_eigenvectors(self) -> List[np.ndarray]:
+        return self._feature_matrix_overlap_eigenvectors
 
     @property
     def student_teacher_overlap_densities(self) -> List[np.ndarray]:
@@ -271,21 +325,36 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         #         network_configuration_dictionary[
         #             f"{constants.TEACHER_HEAD}_{i}_{constants.WEIGHT}_{j}"
         #         ] = weight
+
         for (i, j), overlap_value in np.ndenumerate(self._student_self_overlap):
             network_configuration_dictionary[
-                f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                f"{constants.AMBIENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
             ] = overlap_value
         for l, local_field_covariances in enumerate(
-            self._student_local_field_covariances
+            self._rotated_student_local_field_covariances
         ):
             for (i, j), overlap_value in np.ndenumerate(local_field_covariances):
                 network_configuration_dictionary[
-                    f"{constants.STUDENT_SELF_OVERLAP_AGGREGATE}_{l}_{i}_{j}"
+                    f"{constants.AGGREGATE}_{constants.STUDENT_SELF_OVERLAP}_{l}_{i}_{j}"
+                ] = overlap_value
+        for l, latent_overlaps in enumerate(
+            self._rotated_student_weighted_feature_matrix_self_overlaps
+        ):
+            for (i, j), overlap_value in np.ndenumerate(latent_overlaps):
+                network_configuration_dictionary[
+                    f"{constants.LATENT}_{constants.STUDENT_SELF_OVERLAP}_{l}_{i}_{j}"
                 ] = overlap_value
         for t, student_teacher_overlap in enumerate(self._student_teacher_overlaps):
             for (i, j), overlap_value in np.ndenumerate(student_teacher_overlap):
                 network_configuration_dictionary[
                     f"{constants.STUDENT_TEACHER}_{t}_{constants.OVERLAP}_{i}_{j}"
+                ] = overlap_value
+        for t, student_teacher_overlap in enumerate(
+            self._rotated_student_teacher_overlaps
+        ):
+            for (i, j), overlap_value in np.ndenumerate(student_teacher_overlap):
+                network_configuration_dictionary[
+                    f"{constants.ROTATED}_{constants.STUDENT_TEACHER}_{t}_{constants.OVERLAP}_{i}_{j}"
                 ] = overlap_value
 
         return network_configuration_dictionary
