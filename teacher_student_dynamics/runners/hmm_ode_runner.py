@@ -41,10 +41,10 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
 
         order_params = {
             "W.csv": network_configuration.student_self_overlap,
-            "Sigma1.csv": network_configuration.student_weighted_feature_matrix_self_overlaps[
+            "Sigma1.csv": network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
                 0
             ],
-            "Sigma2.csv": network_configuration.student_weighted_feature_matrix_self_overlaps[
+            "Sigma2.csv": network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
                 1
             ],
             # "Omega1.csv": network_configuration.feature_matrix_overlaps[0],
@@ -59,9 +59,11 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             "sigma_2_density.csv": network_configuration.student_latent_self_overlap_densities[
                 1
             ],
-            "Q.csv": network_configuration.student_self_overlap,
-            "R.csv": network_configuration.student_teacher_overlaps[0],
-            "U.csv": network_configuration.student_teacher_overlaps[1],
+            "rho_1.csv": network_configuration.feature_matrix_overlap_eigenvalues[0],
+            "rho_2.csv": network_configuration.feature_matrix_overlap_eigenvalues[1],
+            "Q.csv": network_configuration.rotated_student_local_field_covariances[0],
+            "R.csv": network_configuration.rotated_student_teacher_overlaps[0],
+            "U.csv": network_configuration.rotated_student_teacher_overlaps[1],
             "T.csv": network_configuration.teacher_self_overlaps[0],
             "H.csv": network_configuration.teacher_self_overlaps[1],
             "T_tilde.csv": network_configuration.projected_teacher_self_overlaps[0],
@@ -109,7 +111,7 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             constants.STUDENT_HIDDEN: config.student_hidden,
             constants.TEACHER_HIDDEN: config.teacher_hidden,
             constants.DELTA: config.latent_dimension / config.input_dimension,
-            constants.NUM_BINS: config.num_bins,
+            # constants.NUM_BINS: config.num_bins,
             constants.MULTI_HEAD: config.multi_head,
             constants.TIMESTEP: config.timestep,
             constants.TRAIN_HEAD_LAYER: config.train_head_layer,
@@ -135,24 +137,53 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
         for i in range(self._student_hidden):
             for j in range(self._student_hidden):
                 qij = np.genfromtxt(os.path.join(self._ode_file_path, f"q_{i}{j}.csv"))
-                df[f"{constants.STUDENT_SELF_OVERLAP_AGGREGATE}_{i}_{j}"] = qij
+                df[
+                    f"{constants.AGGREGATE}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                ] = qij
                 wij = np.genfromtxt(os.path.join(self._ode_file_path, f"w_{i}{j}.csv"))
-                df[f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"] = wij
+                df[
+                    f"{constants.AMBIENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                ] = wij
+                sigma_ij = np.genfromtxt(
+                    os.path.join(self._ode_file_path, f"sigma_1_{i}{j}.csv")
+                )
+                df[
+                    f"{constants.LATENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                ] = sigma_ij
 
         for i in range(self._student_hidden):
             for j in range(self._teacher_hidden):
                 rij = np.genfromtxt(os.path.join(self._ode_file_path, f"r_{i}{j}.csv"))
                 uij = np.genfromtxt(os.path.join(self._ode_file_path, f"u_{i}{j}.csv"))
-                df[f"{constants.STUDENT_TEACHER}_{0}_{constants.OVERLAP}_{i}_{j}"] = rij
-                df[f"{constants.STUDENT_TEACHER}_{1}_{constants.OVERLAP}_{i}_{j}"] = uij
+                df[
+                    f"{constants.ROTATED}_{constants.STUDENT_TEACHER}_{0}_{constants.OVERLAP}_{i}_{j}"
+                ] = rij
+                df[
+                    f"{constants.ROTATED}_{constants.STUDENT_TEACHER}_{1}_{constants.OVERLAP}_{i}_{j}"
+                ] = uij
 
-        for i in range(self._num_teachers):
+        for t in range(self._num_teachers):
 
-            ei = np.genfromtxt(os.path.join(self._ode_file_path, f"error_{i}.csv"))
-            df[f"{constants.GENERALISATION_ERROR}_{i}"] = ei
+            ei = np.genfromtxt(os.path.join(self._ode_file_path, f"error_{t}.csv"))
+            df[f"{constants.GENERALISATION_ERROR}_{t}"] = ei
 
             log_ei = np.log10(ei)
-            df[f"{constants.LOG_GENERALISATION_ERROR}_{i}"] = log_ei
+            df[f"{constants.LOG_GENERALISATION_ERROR}_{t}"] = log_ei
+
+            for i in range(self._student_hidden):
+                for j in range(self._student_hidden):
+                    qij = np.genfromtxt(
+                        os.path.join(self._ode_file_path, f"q_{i}{j}.csv")
+                    )
+                    df[
+                        f"{constants.AGGREGATE}_{constants.STUDENT_SELF_OVERLAP}_{t}_{i}_{j}"
+                    ] = qij
+                    sigma_ij = np.genfromtxt(
+                        os.path.join(self._ode_file_path, f"sigma_1_{i}{j}.csv")
+                    )
+                    df[
+                        f"{constants.LATENT}_{constants.STUDENT_SELF_OVERLAP}_{t}_{i}_{j}"
+                    ] = sigma_ij
 
         if self._multi_head:
             for i in range(self._num_teachers):
