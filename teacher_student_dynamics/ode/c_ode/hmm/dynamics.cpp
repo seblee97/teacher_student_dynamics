@@ -101,9 +101,9 @@ public:
         input_noise_offset = student_hidden + 2 * teacher_hidden;
         set_active_teacher(0);
 
-        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped(student_hidden, student_hidden));
+        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, student_hidden));
         this->state.set_order_parameter("Q", (c - pow(b, 2)) * this->state.state["W"] + pow(b, 2) * this->state.state["Sigma1"]);
-        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped(student_hidden, teacher_hidden));
+        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, teacher_hidden));
 
         for (auto const &[key, val] : this->state.state)
         {
@@ -169,9 +169,9 @@ public:
         this->state.step_order_parameter("r_density", r_delta);
         this->state.step_order_parameter("h1", h1_delta);
 
-        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped(student_hidden, student_hidden));
+        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, student_hidden));
         this->state.set_order_parameter("Q", (c - pow(b, 2)) * this->state.state["W"] + pow(b, 2) * this->state.state["Sigma1"]);
-        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped(student_hidden, teacher_hidden));
+        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, teacher_hidden));
 
         // this->state.integrate_order_parameter_density("Sigma1", "sigma_1_density");
         // this->state.integrate_order_parameter_density("R", "r_density");
