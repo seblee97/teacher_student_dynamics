@@ -57,6 +57,10 @@ class HiddenManifold(base_data_module.BaseData):
             a = 0
             b = np.sqrt(1 / np.pi)
             c = 1 / 3
+        elif self._activation_name == constants.SIGN:
+            a = 0
+            b = np.sqrt(2 / np.pi)
+            c = 1.0
         else:
             raise ValueError(
                 f"Folding function coefficients for {self._activation_name} unknown."
@@ -104,6 +108,8 @@ class HiddenManifold(base_data_module.BaseData):
             activation_function = F.relu
         elif self._activation_name == constants.SCALED_ERF:
             activation_function = custom_activations.ScaledErf()
+        elif self._activation_name == constants.SIGN:
+            activation_function = torch.sign
         elif self._activation_name == constants.LINEAR:
             activation_function = custom_activations.linear_activation
         else:
