@@ -18,7 +18,7 @@ private:
     int teacher_hidden;
     int student_hidden;
     bool multi_head;
-    int num_bins;
+    int latent_dimension;
 
     Matrix<double, Dynamic, Dynamic> W;
     Matrix<double, Dynamic, Dynamic> Sigma1;
@@ -29,6 +29,8 @@ private:
     // Matrix<double, Dynamic, Dynamic> S2;
     Matrix<double, Dynamic, Dynamic> r_density;
     Matrix<double, Dynamic, Dynamic> u_density;
+    Matrix<double, Dynamic, Dynamic> rho_1;
+    Matrix<double, Dynamic, Dynamic> rho_2;
     Matrix<double, Dynamic, Dynamic> sigma_1_density;
     Matrix<double, Dynamic, Dynamic> sigma_2_density;
     Matrix<double, Dynamic, Dynamic> Q;
@@ -57,7 +59,7 @@ public:
     // initialise state, map between order parameter name and values
     std::map<std::string, Matrix<double, Dynamic, Dynamic>> state;
 
-    HMMODEState(int t_hidden, int s_hidden, bool multi_h, int n_bins, std::string order_parameter_paths) : teacher_hidden(t_hidden), student_hidden(s_hidden), multi_head(multi_h), num_bins(n_bins)
+    HMMODEState(int t_hidden, int s_hidden, bool multi_h, int lat_dimension, std::string order_parameter_paths) : teacher_hidden(t_hidden), student_hidden(s_hidden), multi_head(multi_h), latent_dimension(lat_dimension)
     {
         resize_matrices();
         populate_state_map();
@@ -70,10 +72,12 @@ public:
 
     void resize_matrices()
     {
-        this->u_density.resize(student_hidden * teacher_hidden, num_bins);
-        this->r_density.resize(student_hidden * teacher_hidden, num_bins);
-        this->sigma_1_density.resize(student_hidden * student_hidden, num_bins);
-        this->sigma_2_density.resize(student_hidden * student_hidden, num_bins);
+        this->u_density.resize(student_hidden * teacher_hidden, latent_dimension);
+        this->r_density.resize(student_hidden * teacher_hidden, latent_dimension);
+        this->rho_1.resize(1, latent_dimension);
+        this->rho_2.resize(1, latent_dimension);
+        this->sigma_1_density.resize(student_hidden * student_hidden, latent_dimension);
+        this->sigma_2_density.resize(student_hidden * student_hidden, latent_dimension);
         this->W.resize(student_hidden, student_hidden);
         this->Sigma1.resize(student_hidden, student_hidden);
         this->Sigma2.resize(student_hidden, student_hidden);
@@ -113,6 +117,8 @@ public:
         this->state.insert({"W", this->W});
         this->state.insert({"Sigma1", this->Sigma1});
         this->state.insert({"Sigma2", this->Sigma2});
+        this->state.insert({"rho_1", this->rho_1});
+        this->state.insert({"rho_2", this->rho_2});
         this->state.insert({"Q", this->Q});
         this->state.insert({"R", this->R});
         this->state.insert({"U", this->U});
