@@ -101,7 +101,7 @@ class ConfigTemplate:
             config_field.Field(
                 name=constants.ACTIVATION,
                 types=[str],
-                requirements=[lambda x: x in [constants.SCALED_ERF]],
+                requirements=[lambda x: x in [constants.SCALED_ERF, constants.SIGN]],
             ),
             config_field.Field(
                 name=constants.NUM_BINS, types=[int], requirements=[lambda x: x > 0]
