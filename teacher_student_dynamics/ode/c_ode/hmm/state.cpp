@@ -178,12 +178,6 @@ public:
         this->state[order_parameter] = value;
     }
 
-    void integrate_order_parameter_density(std::string order_parameter, std::string density)
-    {
-        // PLACEHOLDER
-        this->state[order_parameter] = this->state[density].rowwise().mean().reshaped(this->state[order_parameter].rows(), this->state[order_parameter].cols());
-    }
-
 private:
     void read_state_from_file(std::string order_parameter_paths)
     {
