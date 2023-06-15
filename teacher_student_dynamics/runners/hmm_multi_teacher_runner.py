@@ -23,12 +23,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         self._teacher_input_dimension = config.latent_dimension
         self._latent_dimension = config.latent_dimension
-        self._num_bins = config.num_bins
+        # self._num_bins = config.num_bins
         self._delta = config.latent_dimension / config.input_dimension
 
-        RHO_MIN = (1 - np.sqrt(self._delta)) ** 2
-        RHO_MAX = (1 + np.sqrt(self._delta)) ** 2
-        self._rho_bins = np.linspace(RHO_MIN, RHO_MAX, self._num_bins + 1)
+        # RHO_MIN = (1 - np.sqrt(self._delta)) ** 2
+        # RHO_MAX = (1 + np.sqrt(self._delta)) ** 2
+        # self._rho_bins = np.linspace(RHO_MIN, RHO_MAX, self._num_bins + 1)
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
