@@ -46,13 +46,13 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
             # W^{kl}
             student_self_overlap = self._student.self_overlap.cpu().numpy()
-            # S^k_r
+            # S^k_r (student weights projected onto manifold)
             student_weighted_feature_matrices = [
                 self._student.layers[0].weight.data.mm(data_module.feature_matrix)
                 / np.sqrt(self._input_dimension)
                 for data_module in self._data_module
             ]
-            # Sigma^{kl}
+            # Sigma^{kl} (self overlap in the projected space)
             student_weighted_feature_matrix_self_overlaps = [
                 (
                     weighted_feature_matrix.mm(weighted_feature_matrix.t())
@@ -60,7 +60,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 )
                 for weighted_feature_matrix in student_weighted_feature_matrices
             ]
-            # Q^{kl}
+            # Q^{kl} (combination of ambient and latent self overlaps) [sigma not rotated]
             student_local_field_covariances = [
                 (
                     (
@@ -77,6 +77,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 )
             ]
 
+            # R_{km} [not rotated]
             student_teacher_overlaps = [
                 data_module.folding_function_coefficients[1]
                 * weighted_feature_matrix.mm(teacher.layers[0].weight.data.t())
