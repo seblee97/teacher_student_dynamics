@@ -40,7 +40,7 @@ class BaseODERunner(base_runner.BaseRunner):
             self._ode_file_path = os.path.join(
                 self._checkpoint_path, constants.ODE_FILES
             )
-            os.mkdir(self._ode_file_path)
+            os.makedirs(self._ode_file_path, exist_ok=True)
 
             self._cpp_out_path = os.path.join(self._ode_file_path, "ode_runner.out")
             self._txt_config_path = os.path.join(self._ode_file_path, "ode_config.txt")
@@ -56,13 +56,13 @@ class BaseODERunner(base_runner.BaseRunner):
 
         self._logger.info("ODE runner setup.")
 
-    @abc.abstractmethod
-    def _construct_ode_config(
-        self,
-        config: experiments.config.Config,
-        network_configuration: network_configuration.VanillaNetworkConfiguration,
-    ):
-        pass
+    # @abc.abstractmethod
+    # def construct_ode_config(
+    #     self,
+    #     config: experiments.config.Config,
+    #     network_configuration: network_configuration.VanillaNetworkConfiguration,
+    # ):
+    #     pass
 
     def run(self):
 
