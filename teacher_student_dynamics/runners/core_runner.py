@@ -68,6 +68,10 @@ class CoreRunner:
             network_configuration = self._network_runner.get_network_configuration(
                 update=False
             )
+            self._network_runner.save_network_configuration(
+                network_configuration=network_configuration,
+                step=None,
+            )
 
             if config.input_source == constants.IID_GAUSSIAN:
                 self._ode_runner = vanilla_ode_runner.VanillaODERunner(
