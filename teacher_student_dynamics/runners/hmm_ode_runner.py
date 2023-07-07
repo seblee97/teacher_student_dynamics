@@ -39,52 +39,7 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
-        order_params = {
-            "W.csv": network_configuration.student_self_overlap,
-            "Sigma1.csv": network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
-                0
-            ],
-            "Sigma2.csv": network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
-                1
-            ],
-            # "Omega1.csv": network_configuration.feature_matrix_overlaps[0],
-            # "Omega2.csv": network_configuration.feature_matrix_overlaps[1],
-            # "S1.csv": network_configuration.student_weighted_feature_matrices[0],
-            # "S2.csv": network_configuration.student_weighted_feature_matrices[1],
-            "r_density.csv": network_configuration.student_teacher_overlap_densities[0],
-            "u_density.csv": network_configuration.student_teacher_overlap_densities[1],
-            "sigma_1_density.csv": network_configuration.student_latent_self_overlap_densities[
-                0
-            ],
-            "sigma_2_density.csv": network_configuration.student_latent_self_overlap_densities[
-                1
-            ],
-            "rho_1.csv": network_configuration.feature_matrix_overlap_eigenvalues[0],
-            "rho_2.csv": network_configuration.feature_matrix_overlap_eigenvalues[1],
-            "Q.csv": network_configuration.rotated_student_local_field_covariances[0],
-            "R.csv": network_configuration.rotated_student_teacher_overlaps[0],
-            "U.csv": network_configuration.rotated_student_teacher_overlaps[1],
-            "T.csv": network_configuration.teacher_self_overlaps[0],
-            "H.csv": network_configuration.teacher_self_overlaps[1],
-            "T_tilde.csv": network_configuration.projected_teacher_self_overlaps[0],
-            "H_tilde.csv": network_configuration.projected_teacher_self_overlaps[1],
-            "V.csv": network_configuration.teacher_cross_overlaps[0],
-            "h1.csv": network_configuration.student_head_weights[0],
-            "th1.csv": network_configuration.teacher_head_weights[0],
-            "th2.csv": network_configuration.teacher_head_weights[1],
-        }
-
-        if config.multi_head:
-            order_params["h2.csv"] = network_configuration.student_head_weights[1]
-
         order_param_path = os.path.join(self._ode_file_path, "order_parameter.txt")
-
-        with open(order_param_path, "+w") as txt_file:
-            for k, v in order_params.items():
-                op_csv_path = os.path.join(self._ode_file_path, k)
-                np.savetxt(op_csv_path, v, delimiter=",")
-                param_name = k.split(".")[0]
-                txt_file.write(f"{param_name},{op_csv_path}\n")
 
         assert all(
             [not len(n) or (n[0] == 0) for n in config.noise_to_teacher_output]
@@ -119,12 +74,14 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             constants.INPUT_NOISE_STDS: student_input_noises,
             constants.NOISE_STDS: teacher_output_noises,
             constants.FREEZE_UNITS: config.freeze_units,
+            constants.DEBUG_COPY: config.debug_copy,
+            constants.DEBUG_FREQUENCY: config.save_overlap_frequency,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
             constants.OUTPUT_PATH: self._ode_file_path,
             constants.OMP_NUM_THREADS: config.omp_num_threads,
             constants.STDOUT_FREQUENCY: config.stdout_frequency,
             constants.STDOUT_PATH: os.path.join(
-                self._checkpoint_path, constants.ODE_LOG_FILE_NAME
+                config.checkpoint_path, constants.ODE_LOG_FILE_NAME
             ),
         }
 
