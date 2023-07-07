@@ -30,10 +30,10 @@ std::vector<std::string> split(const std::string &s, char delim)
 
 // std::variant<int, float, std::string, bool, std::vector<float>> map_values_var
 
-std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>>>
+std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>, std::vector<std::string>>>
 parse_input(std::string input_file_path)
 {
-    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>>> config;
+    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>, std::vector<std::string>>> config;
 
     std::ifstream ifs(input_file_path); // input file stream
     std::string line;
@@ -43,7 +43,7 @@ parse_input(std::string input_file_path)
         while (getline(ifs, line))
         {
             std::vector<std::string> split_string = split(line, ';');
-            std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>> value;
+            std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>, std::vector<std::string>> value;
 
             if (split_string[0] == "int")
             {
@@ -81,6 +81,18 @@ parse_input(std::string input_file_path)
                 for (int i = 0; i < split_it.size(); i++)
                 {
                     int split_i = std::stoi(split_it[i]);
+                    value_vector.push_back(split_i);
+                }
+                value = value_vector;
+            }
+            else if (split_string[0] == "it_str")
+            {
+                std::vector<std::string> value_vector;
+                std::vector<std::string> split_it = split(split_string[2], ',');
+
+                for (int i = 0; i < split_it.size(); i++)
+                {
+                    std::string split_i = split_it[i];
                     value_vector.push_back(split_i);
                 }
                 value = value_vector;
