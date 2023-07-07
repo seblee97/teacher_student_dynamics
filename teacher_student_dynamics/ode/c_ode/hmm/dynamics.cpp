@@ -91,19 +91,18 @@ public:
         {
             double rho_b_1 = this->state.state["rho_1"](bin);
             double rho_b_2 = this->state.state["rho_2"](bin);
+            // std::cout << "rhob1111" << rho_b_1 << std::endl;
             d_rho_1(0, bin) = pow(b, 2) * rho_b_1 + delta * (c - pow(b, 2));
             d_rho_2(0, bin) = pow(b, 2) * rho_b_2 + delta * (c - pow(b, 2));
-            sigma_rho_1_term(0, bin) = (c - pow(b, 2)) * rho_b_1 + pow(rho_b_1 * b, 2) / delta_frac;
-            sigma_rho_2_term(0, bin) = (c - pow(b, 2)) * rho_b_2 + pow(rho_b_2 * b, 2) / delta_frac;
+            sigma_rho_1_term(0, bin) = (c - pow(b, 2)) * rho_b_1 + pow(rho_b_1 * b, 2) / delta;
+            sigma_rho_2_term(0, bin) = (c - pow(b, 2)) * rho_b_2 + pow(rho_b_2 * b, 2) / delta;
         }
         teacher_1_offset = student_hidden;
         teacher_2_offset = student_hidden + teacher_hidden;
         input_noise_offset = student_hidden + 2 * teacher_hidden;
         set_active_teacher(0);
 
-        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, student_hidden));
-        this->state.set_order_parameter("Q", (c - pow(b, 2)) * this->state.state["W"] + pow(b, 2) * this->state.state["Sigma1"]);
-        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, teacher_hidden));
+        // integrate_order_parameter_densities_etc();
 
         for (auto const &[key, val] : this->state.state)
         {
@@ -128,8 +127,16 @@ public:
         std::cerr << "Output Noise: " << noise_stds[active_teacher] << std::endl;
     }
 
-    std::tuple<double, double> step()
+    void integrate_order_parameter_densities_etc()
     {
+        // this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, student_hidden));
+        this->state.set_order_parameter("Q", (c - pow(b, 2)) * this->state.state["W"] + pow(b, 2) * this->state.state["Sigma1"]);
+        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, teacher_hidden));
+        this->state.set_order_parameter("U", b * this->state.state["u_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, teacher_hidden));
+    }
+
+    std::tuple<double, double> step(std::string step_order_parameter_paths = "")
+    {   
         // std::cout << "Taking ODE Step" << std::endl;
         this->state.step_covariance_matrix();
         // std::cout << "Stepped Cov Matrix" << std::endl;
@@ -143,15 +150,15 @@ public:
         // std::cout << "error 1: " << e1 << std::endl;
         // std::cout << "error 2: " << e2 << std::endl;
 
-        MatrixXd Q_delta = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
+        // MatrixXd Q_delta = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
         MatrixXd W_delta = MatrixXd::Constant(this->state.state["W"].rows(), this->state.state["W"].cols(), 0.0);
-        MatrixXd sigma1_delta = MatrixXd::Constant(this->state.state["Sigma1"].rows(), this->state.state["Sigma1"].cols(), 0.0);
-        MatrixXd sigma2_delta = MatrixXd::Constant(this->state.state["Sigma2"].rows(), this->state.state["Sigma2"].cols(), 0.0);
+        // MatrixXd Sigma1_delta = MatrixXd::Constant(this->state.state["Sigma1"].rows(), this->state.state["Sigma1"].cols(), 0.0);
+        // MatrixXd Sigma2_delta = MatrixXd::Constant(this->state.state["Sigma2"].rows(), this->state.state["Sigma2"].cols(), 0.0);
         MatrixXd r_delta = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
         MatrixXd sigma_1_delta = MatrixXd::Constant(this->state.state["sigma_1_density"].rows(), this->state.state["sigma_1_density"].cols(), 0.0);
-        MatrixXd u_delta = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
+        // MatrixXd u_delta = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
         MatrixXd h1_delta = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        MatrixXd h2_delta = MatrixXd::Constant(this->state.state["h2"].rows(), this->state.state["h2"].cols(), 0.0);
+        // MatrixXd h2_delta = MatrixXd::Constant(this->state.state["h2"].rows(), this->state.state["h2"].cols(), 0.0);
 
         if (train_w_layer)
         {
@@ -161,20 +168,52 @@ public:
         }
         if (train_h_layer)
         {
-            h1_delta += timestep * dh1_dt();
             if (multi_head)
             {
+                h1_delta += timestep * dh1_dt();
             }
         }
 
-        this->state.step_order_parameter("W", W_delta);
-        this->state.step_order_parameter("sigma_1_density", sigma_1_delta);
-        this->state.step_order_parameter("r_density", r_delta);
-        this->state.step_order_parameter("h1", h1_delta);
+        std::vector<std::string> states_read;
 
-        this->state.set_order_parameter("Sigma1", this->state.state["sigma_1_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, student_hidden));
-        this->state.set_order_parameter("Q", (c - pow(b, 2)) * this->state.state["W"] + pow(b, 2) * this->state.state["Sigma1"]);
-        this->state.set_order_parameter("R", b * this->state.state["r_density"].rowwise().mean().reshaped<Eigen::RowMajor>(student_hidden, teacher_hidden));
+        if (step_order_parameter_paths != ""){
+            states_read = this->state.read_state_from_file(step_order_parameter_paths);
+        }
+
+        std::vector<std::string>::iterator state_read;
+
+        for (int i = 0; i < states_read.size(); i++){
+            std::cout << "STATES_REDA" << states_read[i] << std::endl;
+        }
+
+        state_read = std::find(states_read.begin(), states_read.end(), "r_density");
+        if (state_read == states_read.end())
+        {
+            std::cout << "r_dens" << std::endl;
+            this->state.step_order_parameter("r_density", r_delta);
+        }
+        state_read = std::find(states_read.begin(), states_read.end(), "W");
+        if (state_read == states_read.end())
+        {
+            std::cout << "STEPPED_W" << std::endl;
+            this->state.step_order_parameter("W", W_delta);
+        }
+        state_read = std::find(states_read.begin(), states_read.end(), "sigma_1_density");
+        if (state_read == states_read.end())
+        {
+            std::cout << "sig1_dens" << std::endl;
+            this->state.step_order_parameter("sigma_1_density", sigma_1_delta);
+        }
+        state_read = std::find(states_read.begin(), states_read.end(), "h1");
+        if (state_read == states_read.end())
+        {
+            std::cout << "h1_stepped" << std::endl;
+            this->state.step_order_parameter("h1", h1_delta);
+        }
+        
+        integrate_order_parameter_densities_etc();
+
+        // this->state.step_covariance_matrix();
 
         // this->state.integrate_order_parameter_density("Sigma1", "sigma_1_density");
         // this->state.integrate_order_parameter_density("R", "r_density");
@@ -367,7 +406,7 @@ public:
                     nom = teacher_head(n) * this->state.state["T_tilde"](n, m) * (this->state.state["Q"](k, k) * sigmoid_i3(knn_cov) - this->state.state["R"](k, n) * sigmoid_i3(kkn_cov));
                     rkm_derivative -= b * this->state.state["rho_1"] * (nom / den);
                 }
-                rkm_derivative *= (-(w_learning_rate * student_head(k)) / delta);
+                rkm_derivative *= (-1 * (w_learning_rate * student_head(k)) / delta);
                 r_derivative.row(k * teacher_hidden + m) = rkm_derivative;
             }
         }
