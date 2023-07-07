@@ -22,7 +22,7 @@ from teacher_student_dynamics.networks.network_ensembles import (
     node_sharing_ensemble,
     rotation_ensemble,
 )
-from teacher_student_dynamics.utils import decorators
+from teacher_student_dynamics.utils import cpp_utils, decorators, network_configuration
 
 
 class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
@@ -50,6 +50,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._test_frequency = config.test_frequency
         self._total_step_count = 0
         self._overlap_frequency = config.overlap_frequency or np.inf
+        self._save_overlap_frequency = config.save_overlap_frequency or np.inf
         self._multi_head = config.multi_head
         self._replay_schedule = config.schedule
         self._replay_strategy = config.strategy
@@ -60,6 +61,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._num_teachers = len(self._teachers.networks)
         self._student = self._setup_student(config=config)
         # self._logger = self._setup_logger(config=config)
+
+        self._debug_copy = config.debug_copy
 
         self._manage_network_devices()
 
@@ -83,6 +86,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._data_columns = self._setup_data_columns()
         self._log_columns = self._get_data_columns()
 
+        self._ode_file_path = os.path.join(self._checkpoint_path, constants.ODE_FILES)
+        os.makedirs(self._ode_file_path, exist_ok=True)
+
         abc.ABC.__init__(self)
         base_runner.BaseRunner.__init__(self, config=config, unique_id=unique_id)
 
@@ -94,6 +100,11 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         Can be used for both logging purposes and e.g. as input to ODE runner.
         """
+        pass
+
+    @abc.abstractmethod
+    def save_network_configuration(self, network_configuration, step: int):
+        """Save configuration of networks (mostly for use in ODEs)"""
         pass
 
     @decorators.timer
@@ -367,6 +378,13 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             self.get_network_configuration()
             for key, value in self._network_configuration.sub_dictionary.items():
                 self._data_columns[key][self._data_index] = value
+
+        if self._total_step_count % self._save_overlap_frequency == 0:
+            network_configuration = self.get_network_configuration(update=False)
+            self.save_network_configuration(
+                network_configuration=network_configuration,
+                step=self._total_step_count,
+            )
 
         self._data_columns[constants.TEACHER_INDEX][self._data_index] = teacher_index
 
