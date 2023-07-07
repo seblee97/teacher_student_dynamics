@@ -5,11 +5,12 @@
 #include <filesystem>
 #include <chrono>
 // #include <format>
+#include <string>
 
 int main(int argc, char **argv)
 {
     std::string input_file_path = argv[1];
-    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>>> config;
+    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>, std::vector<std::string>>> config;
     config = parse_input(input_file_path);
 
     // config element "order_parameter_paths" is path to txt file
@@ -19,10 +20,13 @@ int main(int argc, char **argv)
     //  R,/path/to/R.csv
     //  etc.
     std::string order_parameter_paths;
+    std::string base_order_parameter_paths;
+    std::string step_order_parameter_paths;
     std::string output_path_str;
     std::string experiment_log_path;
     int stdout_frequency;
     order_parameter_paths = std::get<std::string>(config["order_parameter_paths"]);
+    base_order_parameter_paths = order_parameter_paths.substr(0, order_parameter_paths.length() - 4);
     output_path_str = std::get<std::string>(config["output_path"]);
     experiment_log_path = std::get<std::string>(config["stdout_path"]);
     stdout_frequency = std::get<int>(config["stdout_frequency"]);
@@ -40,7 +44,6 @@ int main(int argc, char **argv)
     //     omp_set_num_threads(omp_num_threads);
     //     std::cout << "OMP Threads: " << omp_num_threads << std::endl;
     // }
-
     int num_steps = std::get<int>(config["num_steps"]);
     int log_frequency = std::get<int>(config["ode_log_frequency"]);
     int switch_step = std::get<int>(config["switch_step"]);
@@ -58,6 +61,7 @@ int main(int argc, char **argv)
     std::vector<float> noise_stds = std::get<std::vector<float>>(config["noise_stds"]);
     std::vector<float> input_noise_stds = std::get<std::vector<float>>(config["input_noise_stds"]);
     std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
+    int debug_frequency = std::get<int>(config["debug_frequency"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
 
@@ -81,9 +85,11 @@ int main(int argc, char **argv)
 
     float time = num_steps / input_dimension;
     float switch_time = switch_step / input_dimension;
+    float debug_time = (float)debug_frequency / (float)input_dimension;
     int num_deltas = static_cast<int>(std::round(time / timestep));
     int num_logs = static_cast<int>(std::round(num_deltas / log_step));
     int switch_delta = static_cast<int>(std::round(switch_time / timestep));
+    int debug_step = static_cast<int>(std::round(debug_time / timestep));
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
@@ -91,6 +97,8 @@ int main(int argc, char **argv)
     std::cout << "num deltas: " << num_deltas << std::endl;
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
+    std::cout << "step_scaling: " << step_scaling << std::endl;
+    std::cout << "debug_step: " << debug_step << std::endl;
 
     HMMODE ODE(
         state,
@@ -171,7 +179,22 @@ int main(int argc, char **argv)
             std::cerr << "Step: " << step_scaling * i << "; Elapsed (s): " << since(start_time).count() << std::endl;
             start_time = std::chrono::steady_clock::now();
         }
-        step_errors = ODE.step();
+
+        std::cout << "Scaled Step " << step_scaling * i << std::endl;
+        std::cout << "MOD Scaled Step " << std::fmod(step_scaling * i, 1.0) << std::endl;
+        if (i % debug_step == 0)
+        {
+            std::cout << "READING STATE FROM FILE" << std::endl;
+            step_order_parameter_paths = base_order_parameter_paths + "_" + std::to_string(static_cast<int>(step_scaling * i)) + ".txt";
+            std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
+            step_errors = ODE.step(step_order_parameter_paths);
+            // ODE.state.read_state_from_file(step_order_parameter_paths);
+            // ODE.integrate_order_parameter_densities_etc();
+        }
+        else
+        {
+            // step_errors = ODE.step();
+        }
 
         if (i % log_step == 0)
         {
@@ -184,6 +207,7 @@ int main(int argc, char **argv)
                 {
                     q_log_map["q_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["Q"](s, s_);
                     w_log_map["w_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["W"](s, s_);
+                    std::cout << "sig1ss_ " << state.state["Sigma1"](s, s_) << std::endl;
                     sigma_1_log_map["sigma_1_" + std::to_string(s) + std::to_string(s_)][log_i] = state.state["Sigma1"](s, s_);
                 }
             }
