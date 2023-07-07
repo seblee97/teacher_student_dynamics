@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -160,6 +161,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 student_teacher_overlap_densities = []
                 student_hidden_dim = student_head_weights[0].shape[0]
                 teacher_hidden_dim = teacher_head_weights[0].shape[0]
+
                 for gamma, w_tilde in zip(gamma_tau_k, w_tilde_tau):
                     r_km = np.zeros(
                         shape=(
@@ -272,8 +274,13 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 #     for weighted_feature_matrix in gamma_tau_k
                 # ]
                 rotated_student_weighted_feature_matrix_self_overlaps = [
-                    density.mean(1).reshape((student_hidden_dim, student_hidden_dim))
-                    for density in student_latent_self_overlap_densities
+                    (
+                        rotated_weighted_feature_matrix.mm(
+                            rotated_weighted_feature_matrix.t()
+                        )
+                        / self._latent_dimension
+                    ).numpy()
+                    for rotated_weighted_feature_matrix in gamma_tau_k
                 ]
             else:
                 rotated_student_teacher_overlaps = [
@@ -294,7 +301,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 # Sigma^{kl} rotated into eigenbasis (B43)
                 rotated_student_weighted_feature_matrix_self_overlaps = [
                     (
-                        overlap.mm(eigenvectors).mm(overlap.mm(eigenvectors).t())
+                        overlap.mm(eigenvectors.T)
+                        .mm(overlap.mm(eigenvectors.T).T)
+                        .cpu()
+                        .numpy()
                         / (self._latent_dimension**2)
                     )
                     for overlap, eigenvectors in zip(
@@ -365,6 +375,84 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             self._network_configuration.student_weighted_feature_matrices = (
                 student_weighted_feature_matrices
             )
+
+    def save_network_configuration(self, network_configuration, step: int):
+
+        if step is not None:
+            step = f"_{step}"
+        else:
+            step = ""
+
+        order_params = {
+            f"W{step}.csv": network_configuration.student_self_overlap,
+            f"Sigma1{step}.csv": network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
+                0
+            ],
+            f"Sigma2{step}.csv": network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
+                1
+            ],
+            f"r_density{step}.csv": network_configuration.student_teacher_overlap_densities[
+                0
+            ],
+            f"u_density{step}.csv": network_configuration.student_teacher_overlap_densities[
+                1
+            ],
+            f"sigma_1_density{step}.csv": network_configuration.student_latent_self_overlap_densities[
+                0
+            ],
+            f"sigma_2_density{step}.csv": network_configuration.student_latent_self_overlap_densities[
+                1
+            ],
+            f"Q{step}.csv": network_configuration.rotated_student_local_field_covariances[
+                0
+            ],
+            f"R{step}.csv": network_configuration.rotated_student_teacher_overlaps[0],
+            f"U{step}.csv": network_configuration.rotated_student_teacher_overlaps[1],
+            f"h1{step}.csv": network_configuration.student_head_weights[0],
+        }
+        if len(network_configuration.student_head_weights) > 1:
+            # multi-head
+            order_params["h2.csv"] = network_configuration.student_head_weights[1]
+
+        if step == "":
+            order_params = {
+                **order_params,
+                **{
+                    f"th1{step}.csv": network_configuration.teacher_head_weights[0],
+                    f"th2{step}.csv": network_configuration.teacher_head_weights[1],
+                    f"T{step}.csv": network_configuration.teacher_self_overlaps[0],
+                    f"H{step}.csv": network_configuration.teacher_self_overlaps[1],
+                    f"T_tilde{step}.csv": network_configuration.projected_teacher_self_overlaps[
+                        0
+                    ],
+                    f"H_tilde{step}.csv": network_configuration.projected_teacher_self_overlaps[
+                        1
+                    ],
+                    f"V{step}.csv": network_configuration.teacher_cross_overlaps[0],
+                    f"rho_1{step}.csv": network_configuration.feature_matrix_overlap_eigenvalues[
+                        0
+                    ],
+                    f"rho_2{step}.csv": network_configuration.feature_matrix_overlap_eigenvalues[
+                        1
+                    ],
+                },
+            }
+
+        order_param_path = os.path.join(
+            self._ode_file_path, f"order_parameter{step}.txt"
+        )
+
+        with open(order_param_path, "+w") as txt_file:
+            for k, v in order_params.items():
+                op_csv_path = os.path.join(self._ode_file_path, k)
+                np.savetxt(op_csv_path, v, delimiter=",")
+                if step == "":
+                    param_name = k.split(".")[0]
+                    txt_file.write(f"{param_name},{op_csv_path}\n")
+                else:
+                    param_name = k.split(".")[0][: -len(step)]
+                    if param_name in self._debug_copy:
+                        txt_file.write(f"{param_name},{op_csv_path}\n")
 
     def _setup_data(
         self, config: experiments.config.Config
