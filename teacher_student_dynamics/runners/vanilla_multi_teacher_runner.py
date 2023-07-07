@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -56,6 +57,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             teacher_cross_overlaps=teacher_cross_overlaps,
             student_teacher_overlaps=student_teacher_overlaps,
         )
+
+    def save_network_configuration(self, network_configuration, step: int):
+        raise NotImplementedError
 
     def _setup_data(
         self, config: experiments.config.Config
