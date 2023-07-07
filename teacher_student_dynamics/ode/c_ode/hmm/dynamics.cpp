@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include "../integrals.cpp"
 #include <tuple>
+#include <algorithm>
 // #include <omp.h>
 
 using Eigen::MatrixXd;
