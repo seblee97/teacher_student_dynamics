@@ -180,8 +180,9 @@ int main(int argc, char **argv)
             start_time = std::chrono::steady_clock::now();
         }
 
-        std::cout << "Scaled Step " << step_scaling * i << std::endl;
-        std::cout << "MOD Scaled Step " << std::fmod(step_scaling * i, 1.0) << std::endl;
+        // std::cout << "Scaled Step " << step_scaling * i << std::endl;
+        // std::cout << "MOD Scaled Step " << std::fmod(step_scaling * i, 1.0) << std::endl;
+        std::cout << "Step: " << i << std::endl;
         if (i % debug_step == 0)
         {
             std::cout << "READING STATE FROM FILE" << std::endl;
@@ -193,7 +194,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            // step_errors = ODE.step();
+            step_errors = ODE.step();
         }
 
         if (i % log_step == 0)
