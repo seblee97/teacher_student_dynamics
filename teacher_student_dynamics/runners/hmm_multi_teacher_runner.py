@@ -120,12 +120,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     # need to be careful here about normalisation/orientation condition
                     # of B17, below too.
                     feature_matrix_eigenvectors.append(
-                        np.sqrt(self._latent_dimension) * eigenvectors.to(torch.float)
+                        np.sqrt(self._latent_dimension) * eigenvectors.T.to(torch.float)
                     )
 
                 # (Eq. B19) student weights projected onto eigenbasis of Omega
                 gamma_tau_k = [
-                    overlap.mm(eigenvectors) / np.sqrt(self._latent_dimension)
+                    overlap.mm(eigenvectors.T) / np.sqrt(self._latent_dimension)
                     for overlap, eigenvectors in zip(
                         student_weighted_feature_matrices,
                         feature_matrix_eigenvectors,
@@ -134,7 +134,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
                 # (Eq. B20) teacher weights projected onto eigenbasis of Omega
                 w_tilde_tau = [
-                    teacher.state_dict()["_layers.0.weight"].mm(eigenvectors)
+                    teacher.state_dict()["_layers.0.weight"].mm(eigenvectors.T)
                     / np.sqrt(self._latent_dimension)
                     for teacher, eigenvectors in zip(
                         self._teachers.networks, feature_matrix_eigenvectors
@@ -286,7 +286,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 rotated_student_teacher_overlaps = [
                     data_module.folding_function_coefficients[1]
                     * overlap.mm(eigenvectors.T)
-                    .mm(teacher.state_dict()["_layers.0.weight"].mm(eigenvectors.T).t())
+                    .mm((teacher.state_dict()["_layers.0.weight"].mm(eigenvectors.T)).T)
                     .cpu()
                     .numpy()
                     / (self._latent_dimension**2)
