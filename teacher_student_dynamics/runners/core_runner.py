@@ -121,3 +121,8 @@ class CoreRunner:
                     },
                 ],
             )
+            plotting_functions.plot_all_common_scalar_diffs(
+                dfs=[network_df, ode_df],
+                path=plot_path,
+                prefix=constants.DIFFS,
+            )
