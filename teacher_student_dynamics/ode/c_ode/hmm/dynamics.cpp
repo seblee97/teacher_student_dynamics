@@ -168,9 +168,9 @@ public:
         }
         if (train_h_layer)
         {
+            h1_delta += timestep * dh1_dt();
             if (multi_head)
             {
-                h1_delta += timestep * dh1_dt();
             }
         }
 
@@ -535,7 +535,7 @@ public:
 
         for (int k = 0; k < student_hidden; k++)
         {
-            for (int l = 0; l < student_hidden; l++)
+            for (int l = k; l < student_hidden; l++)
             {
                 double W_kl_derivative = 0;
                 // first halves of terms 1 & 2
@@ -586,6 +586,7 @@ public:
                 W_derivative(k, l) = W_kl_derivative;
             }
         }
+        W_derivative.triangularView<Eigen::Lower>() = W_derivative.transpose();
         return W_derivative;
     }
 
@@ -751,27 +752,27 @@ public:
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
         if (train_h_layer and (active_teacher == 0) or (not multi_head))
         {
-#pragma omp parallel for
+// #pragma omp parallel for
             for (int k = 0; k < student_hidden; k++)
             {
                 double k_derivative = 0.0;
-#pragma omp parallel sections reduction(+ : i_derivative)
+// #pragma omp parallel sections reduction(+ : k_derivative)
+                // {
+// #pragma omp section
+                for (int n = 0; n < teacher_hidden; n++)
                 {
-#pragma omp section
-                    for (int n = 0; n < teacher_hidden; n++)
-                    {
-                        std::vector<int> indices{k, n + offset};
-                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                        k_derivative += teacher_head(n) * sigmoid_i2(cov);
-                    }
-#pragma omp section
-                    for (int j = 0; j < student_hidden; j++)
-                    {
-                        std::vector<int> indices{k, j};
-                        MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                        k_derivative += -this->state.state["h1"](k) * sigmoid_i2(cov);
-                    }
+                    std::vector<int> indices{k, n + offset};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    k_derivative += teacher_head(n) * sigmoid_i2(cov);
                 }
+// #pragma omp section
+                for (int j = 0; j < student_hidden; j++)
+                {
+                    std::vector<int> indices{k, j};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    k_derivative -= this->state.state["h1"](k) * sigmoid_i2(cov);
+                }
+                // }
                 derivative(k) = h_learning_rate * k_derivative;
             }
         }
