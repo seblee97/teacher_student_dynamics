@@ -6,14 +6,14 @@ import pandas as pd
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.ode import c_ode
 from teacher_student_dynamics.runners import base_ode_runner
-from teacher_student_dynamics.utils import cpp_utils, network_configuration
+from teacher_student_dynamics.utils import cpp_utils, network_configurations
 
 
 class VanillaODERunner(base_ode_runner.BaseODERunner):
     def __init__(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.VanillaNetworkConfiguration,
+        network_configuration: network_configurations.VanillaNetworkConfiguration,
         unique_id: str = "",
     ) -> None:
 
@@ -33,7 +33,7 @@ class VanillaODERunner(base_ode_runner.BaseODERunner):
     def _construct_ode_config(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.VanillaNetworkConfiguration,
+        network_configuration: network_configurations.VanillaNetworkConfiguration,
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
