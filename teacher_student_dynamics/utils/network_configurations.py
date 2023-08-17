@@ -1,4 +1,5 @@
 import os
+import abc
 from typing import Dict, List
 
 import numpy as np
@@ -6,7 +7,22 @@ import numpy as np
 from teacher_student_dynamics import constants
 
 
-class VanillaNetworkConfiguration:
+class BaseNetworkConfiguration(abc.ABC):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def configuration_dictionary(self) -> Dict:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def sub_dictionary(self) -> Dict:
+        pass
+
+
+class VanillaNetworkConfiguration(BaseNetworkConfiguration):
     """object to store configuration of student/teacher networks in unified way."""
 
     def __init__(
@@ -27,71 +43,7 @@ class VanillaNetworkConfiguration:
 
         self._num_teachers = len(self._teacher_head_weights)
 
-    def save(self, path: str) -> Dict[str, str]:
-
-        save_path_map = {}
-
-        np.savetxt(
-            os.path.join(path, f"{constants.STUDENT_SELF_OVERLAP}.csv"),
-            self._student_self_overlap,
-            delimiter=",",
-        )
-        save_path_map[constants.STUDENT_SELF_OVERLAP] = os.path.join(
-            path, f"{constants.STUDENT_SELF_OVERLAP}.csv"
-        )
-        for i, student_teacher_overlap in enumerate(self._student_teacher_overlaps):
-            op_name = f"{constants.STUDENT_TEACHER_OVERLAPS}_{i}"
-            save_path = os.path.join(path, f"{op_name}.csv")
-            np.savetxt(
-                save_path,
-                student_teacher_overlap,
-                delimiter=",",
-            )
-            save_path_map[op_name] = save_path
-        for i, student_head in enumerate(self._student_head_weights):
-            op_name = f"{constants.STUDENT_HEAD_WEIGHTS}_{i}"
-            save_path = os.path.join(path, f"{op_name}.csv")
-            np.savetxt(
-                save_path,
-                student_head,
-                delimiter=",",
-            )
-            save_path_map[op_name] = save_path
-        for i in range(self._num_teachers):
-            op_name = f"{constants.TEACHER_HEAD_WEIGHTS}_{i}"
-            save_path = os.path.join(path, f"{op_name}.csv")
-            np.savetxt(
-                os.path.join(path, f"{constants.TEACHER_HEAD_WEIGHTS}_{i}.csv"),
-                self._teacher_head_weights[i],
-                delimiter=",",
-            )
-            save_path_map[op_name] = save_path
-            op_name = f"{constants.TEACHER_SELF_OVERLAPS}_{i}"
-            save_path = os.path.join(path, f"{op_name}.csv")
-            np.savetxt(
-                os.path.join(path, f"{constants.TEACHER_SELF_OVERLAPS}_{i}.csv"),
-                self._teacher_self_overlaps[i],
-                delimiter=",",
-            )
-            save_path_map[op_name] = save_path
-
-        access_index = 0
-        for i in range(self._num_teachers):
-            for j in range(i, self._num_teachers):
-                if i != j:
-                    op_name = f"{constants.TEACHER_CROSS_OVERLAPS}_{i}_{j}"
-                    save_path = os.path.join(path, f"{op_name}.csv")
-                    np.savetxt(
-                        os.path.join(
-                            path, f"{constants.TEACHER_CROSS_OVERLAPS}_{i}_{j}.csv"
-                        ),
-                        self._teacher_cross_overlaps[access_index],
-                        delimiter=",",
-                    )
-                    save_path_map[op_name] = save_path
-                    access_index += 1
-
-        return save_path_map
+        super().__init__()
 
     @property
     def student_head_weights(self) -> List[np.ndarray]:
@@ -183,6 +135,7 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         student_local_field_covariances: List[np.ndarray],
         rotated_student_local_field_covariances: List[np.ndarray],
         student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
+        w_tilde_tau: List[np.ndarray],
         rotated_student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
         feature_matrix_overlaps: List[np.ndarray],
         feature_matrix_overlap_eigenvalues: List[np.ndarray],
@@ -209,6 +162,7 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         self._student_weighted_feature_matrix_self_overlaps = (
             student_weighted_feature_matrix_self_overlaps
         )
+        self._w_tilde_tau = w_tilde_tau
         self._rotated_student_weighted_feature_matrix_self_overlaps = (
             rotated_student_weighted_feature_matrix_self_overlaps
         )
@@ -256,6 +210,10 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
     def student_weighted_feature_matrix_self_overlaps(self) -> List[np.ndarray]:
         return self._student_weighted_feature_matrix_self_overlaps
 
+    @property
+    def w_tilde_tau(self) -> List[np.ndarray]:
+        return self._w_tilde_tau
+
     @student_weighted_feature_matrix_self_overlaps.setter
     def student_weighted_feature_matrix_self_overlaps(
         self, student_weighted_feature_matrix_self_overlaps
@@ -302,9 +260,23 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
     def student_teacher_overlap_densities(self) -> List[np.ndarray]:
         return self._student_teacher_overlap_densities
 
+    @student_teacher_overlap_densities.setter
+    def student_teacher_overlap_densities(
+        self, student_teacher_overlap_densities
+    ) -> None:
+        self._student_teacher_overlap_densities = student_teacher_overlap_densities
+
     @property
     def student_latent_self_overlap_densities(self) -> List[np.ndarray]:
         return self._student_latent_self_overlap_densities
+
+    @student_latent_self_overlap_densities.setter
+    def student_latent_self_overlap_densities(
+        self, student_latent_self_overlap_densities
+    ) -> None:
+        self._student_latent_self_overlap_densities = (
+            student_latent_self_overlap_densities
+        )
 
     @property
     def projected_teacher_self_overlaps(self) -> List[np.ndarray]:
