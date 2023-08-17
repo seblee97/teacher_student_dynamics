@@ -180,28 +180,8 @@ int main(int argc, char **argv)
             start_time = std::chrono::steady_clock::now();
         }
 
-        // std::cout << "Scaled Step " << step_scaling * i << std::endl;
-        // std::cout << "MOD Scaled Step " << std::fmod(step_scaling * i, 1.0) << std::endl;
-        std::cout << "Step: " << i << std::endl;
-        if (i % debug_step == 0)
-        {
-            std::cout << "READING STATE FROM FILE" << std::endl;
-            step_order_parameter_paths = base_order_parameter_paths + "_" + std::to_string(static_cast<int>(step_scaling * i)) + ".txt";
-            std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
-            step_errors = ODE.step(step_order_parameter_paths);
-            // ODE.state.read_state_from_file(step_order_parameter_paths);
-            // ODE.integrate_order_parameter_densities_etc();
-        }
-        else
-        {
-            step_errors = ODE.step();
-        }
-
         if (i % log_step == 0)
         {
-            error_0_log[log_i] = std::get<0>(step_errors);
-            error_1_log[log_i] = std::get<1>(step_errors);
-
             for (int s = 0; s < student_hidden; s++)
             {
                 for (int s_ = 0; s_ < student_hidden; s_++)
@@ -230,8 +210,30 @@ int main(int argc, char **argv)
                     h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
                 }
             }
+        }
+
+        // std::cout << "Scaled Step " << step_scaling * i << std::endl;
+        // std::cout << "MOD Scaled Step " << std::fmod(step_scaling * i, 1.0) << std::endl;
+        std::cout << "Step: " << i << std::endl;
+        if (i % debug_step == 0)
+        {
+            std::cout << "READING STATE FROM FILE" << std::endl;
+            step_order_parameter_paths = base_order_parameter_paths + "_" + std::to_string(static_cast<int>(step_scaling * i)) + ".txt";
+            std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
+            step_errors = ODE.step(step_order_parameter_paths);
+            // ODE.state.read_state_from_file(step_order_parameter_paths);
+            // ODE.integrate_order_parameter_densities_etc();
+        }
+        else
+        {
+            step_errors = ODE.step();
+        }
+        if (i % log_step == 0){
+            error_0_log[log_i] = std::get<0>(step_errors);
+            error_1_log[log_i] = std::get<1>(step_errors);
             log_i++;
         }
+
     }
 
     std::cout << "Solve complete, saving data..." << std::endl;
