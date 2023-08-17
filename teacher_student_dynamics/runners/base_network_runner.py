@@ -381,26 +381,26 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     def _train_test_step(
         self, teacher_index: int, replaying: Optional[bool] = None
     ) -> Dict[str, Any]:
+
+        if self._total_step_count % self._save_overlap_frequency == 0:
+            if self._total_step_count != 0:
+                self._update_network_configuration()
+            self.save_network_configuration(
+                step=self._total_step_count,
+            )
+
+        if self._total_step_count % self._overlap_frequency == 0:
+            if self._total_step_count != 0:
+                self._update_network_configuration()
+            for key, value in self._network_configuration.sub_dictionary.items():
+                self._data_columns[key][self._data_index] = value
+
         self._training_step(teacher_index=teacher_index, replaying=replaying)
 
         if self._total_step_count % self._test_frequency == 0:
             generalisation_errors = self._compute_generalisation_errors()
         else:
             generalisation_errors = {}
-
-        # if self._total_step_count % self._overlap_frequency == 0:
-        #     self.get_network_configuration()
-        # for key, value in self._network_configuration.sub_dictionary.items():
-        #         self._data_columns[key][self._data_index] = value
-
-        if self._total_step_count % self._save_overlap_frequency == 0:
-            network_configuration = self.get_network_configuration(update=False)
-            self.save_network_configuration(
-                network_configuration=network_configuration,
-                step=self._total_step_count,
-            )
-            for key, value in network_configuration.sub_dictionary.items():
-                self._data_columns[key][self._data_index] = value
 
         self._data_columns[constants.TEACHER_INDEX][self._data_index] = teacher_index
 
