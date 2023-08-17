@@ -770,7 +770,7 @@ public:
                 {
                     std::vector<int> indices{k, j};
                     MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
-                    k_derivative -= this->state.state["h1"](k) * sigmoid_i2(cov);
+                    k_derivative -= this->state.state["h1"](j) * sigmoid_i2(cov);
                 }
                 // }
                 derivative(k) = h_learning_rate * k_derivative;
