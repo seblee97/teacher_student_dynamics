@@ -7,7 +7,7 @@ import torch
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.data_modules import base_data_module, iid_gaussian
 from teacher_student_dynamics.runners import base_network_runner
-from teacher_student_dynamics.utils import network_configuration
+from teacher_student_dynamics.utils import network_configurations
 
 
 class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
@@ -25,23 +25,28 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         super().__init__(config, unique_id)
         self._logger.info("Setting up vanilla teacher-student network runner...")
 
-    def get_network_configuration(self):
+    def get_network_configuration(self, update=True):
         with torch.no_grad():
+
+            if not update:
+                teacher_head_weights = [
+                    teacher.heads[0].weight.data.cpu().numpy().flatten()
+                    for teacher in self._teachers.networks
+                ]
+                teacher_cross_overlaps = [
+                    o.cpu().numpy() for o in self._teachers.cross_overlaps
+                ]
+                teacher_self_overlaps = [
+                    teacher.self_overlap.cpu().numpy()
+                    for teacher in self._teachers.networks
+                ]
+
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
             ]
-            teacher_head_weights = [
-                teacher.heads[0].weight.data.cpu().numpy().flatten()
-                for teacher in self._teachers.networks
-            ]
+
             student_self_overlap = self._student.self_overlap.cpu().numpy()
-            teacher_self_overlaps = [
-                teacher.self_overlap.cpu().numpy()
-                for teacher in self._teachers.networks
-            ]
-            teacher_cross_overlaps = [
-                o.cpu().numpy() for o in self._teachers.cross_overlaps
-            ]
+
             student_layer = self._student.layers[0].weight.data
             student_teacher_overlaps = [
                 student_layer.mm(teacher.layers[0].weight.data.t()).cpu().numpy()
@@ -49,17 +54,31 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 for teacher in self._teachers.networks
             ]
 
-        return network_configuration.VanillaNetworkConfiguration(
-            student_head_weights=student_head_weights,
-            teacher_head_weights=teacher_head_weights,
-            student_self_overlap=student_self_overlap,
-            teacher_self_overlaps=teacher_self_overlaps,
-            teacher_cross_overlaps=teacher_cross_overlaps,
-            student_teacher_overlaps=student_teacher_overlaps,
-        )
+            if not update:
+                return network_configurations.VanillaNetworkConfiguration(
+                    student_head_weights=student_head_weights,
+                    teacher_head_weights=teacher_head_weights,
+                    student_self_overlap=student_self_overlap,
+                    teacher_self_overlaps=teacher_self_overlaps,
+                    teacher_cross_overlaps=teacher_cross_overlaps,
+                    student_teacher_overlaps=student_teacher_overlaps,
+                )
+            else:
+                self._network_configuration.student_head_weights = student_head_weights
+                self._network_configuration.student_self_overlap = student_self_overlap
+                self._network_configuration.teacher_self_overlaps = (
+                    teacher_self_overlaps
+                )
+                self._network_configuration.teacher_cross_overlaps = (
+                    teacher_cross_overlaps
+                )
+                self._network_configuration.student_teacher_overlaps = (
+                    student_teacher_overlaps
+                )
+                self._network_configuration.teacher_head_weights = teacher_head_weights
 
     def save_network_configuration(self, network_configuration, step: int):
-        raise NotImplementedError
+        pass
 
     def _setup_data(
         self, config: experiments.config.Config
