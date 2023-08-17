@@ -155,6 +155,7 @@ public:
         // MatrixXd Sigma1_delta = MatrixXd::Constant(this->state.state["Sigma1"].rows(), this->state.state["Sigma1"].cols(), 0.0);
         // MatrixXd Sigma2_delta = MatrixXd::Constant(this->state.state["Sigma2"].rows(), this->state.state["Sigma2"].cols(), 0.0);
         MatrixXd r_delta = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
+        // MatrixXd r_delta2 = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
         MatrixXd sigma_1_delta = MatrixXd::Constant(this->state.state["sigma_1_density"].rows(), this->state.state["sigma_1_density"].cols(), 0.0);
         // MatrixXd u_delta = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
         MatrixXd h1_delta = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
@@ -163,6 +164,7 @@ public:
         if (train_w_layer)
         {
             r_delta += timestep * dr_dt();
+            // r_delta2 += timestep * dr2_dt();
             W_delta += timestep * dW_dt();
             sigma_1_delta += timestep * dsigma_1_dt();
         }
@@ -173,6 +175,12 @@ public:
             {
             }
         }
+
+        // for (int k=0; k < student_hidden; k++){
+        //     for (int l=0; l < teacher_hidden; l++){
+        //         std::cout << "r_delta: " << r_delta(k,l) << "r_delta2: " << r_delta2(k,l) << std::endl;
+        //     }
+        // }
 
         std::vector<std::string> states_read;
 
@@ -235,10 +243,7 @@ public:
     double error_1()
     {
         double error = 0;
-#pragma omp parallel sections reduction(+ : error)
         {
-#pragma omp section
-#pragma omp parallel for collapse(2)
             for (int k = 0; k < student_hidden; k++)
             {
                 for (int l = 0; l < student_hidden; l++)
@@ -248,9 +253,6 @@ public:
                     error += 0.5 * this->state.state["h1"](k) * this->state.state["h1"](l) * sigmoid_i2(cov);
                 }
             }
-
-#pragma omp section
-#pragma omp parallel for collapse(2)
             for (int n = 0; n < teacher_hidden; n++)
             {
                 for (int m = 0; m < teacher_hidden; m++)
@@ -260,8 +262,6 @@ public:
                     error += 0.5 * this->state.state["th1"](n) * this->state.state["th1"](m) * sigmoid_i2(cov);
                 }
             }
-#pragma omp section
-#pragma omp parallel for collapse(2)
             for (int k = 0; k < student_hidden; k++)
             {
                 for (int n = 0; n < teacher_hidden; n++)
@@ -289,10 +289,10 @@ public:
         }
 
         double error = 0;
-#pragma omp parallel sections reduction(+ : error)
+// #pragma omp parallel sections reduction(+ : error)
         {
-#pragma omp section
-#pragma omp parallel for collapse(2)
+// #pragma omp section
+// #pragma omp parallel for collapse(2)
             for (int i = 0; i < student_hidden; i++)
             {
                 for (int j = 0; j < student_hidden; j++)
@@ -302,8 +302,8 @@ public:
                     error += 0.5 * head(i) * head(j) * sigmoid_i2(cov);
                 }
             }
-#pragma omp section
-#pragma omp parallel for collapse(2)
+// #pragma omp section
+// #pragma omp parallel for collapse(2)
             for (int p = 0; p < teacher_hidden; p++)
             {
                 for (int q = 0; q < teacher_hidden; q++)
@@ -313,8 +313,8 @@ public:
                     error += 0.5 * this->state.state["th2"](p) * this->state.state["th2"](q) * sigmoid_i2(cov);
                 }
             }
-#pragma omp section
-#pragma omp parallel for collapse(2)
+// #pragma omp section
+// #pragma omp parallel for collapse(2)
             for (int i = 0; i < student_hidden; i++)
             {
                 for (int p = 0; p < teacher_hidden; p++)
@@ -750,7 +750,7 @@ public:
             offset = teacher_2_offset;
         }
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        if (train_h_layer and (active_teacher == 0) or (not multi_head))
+        if (train_h_layer and ((active_teacher == 0) or (not multi_head)))
         {
 // #pragma omp parallel for
             for (int k = 0; k < student_hidden; k++)
