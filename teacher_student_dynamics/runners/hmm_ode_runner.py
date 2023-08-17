@@ -8,14 +8,14 @@ import torch
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.ode import c_ode
 from teacher_student_dynamics.runners import base_ode_runner
-from teacher_student_dynamics.utils import cpp_utils, network_configuration
+from teacher_student_dynamics.utils import cpp_utils, network_configurations
 
 
 class HMMODERunner(base_ode_runner.BaseODERunner):
     def __init__(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.HiddenManifoldNetworkConfiguration,
+        network_configuration: network_configurations.HiddenManifoldNetworkConfiguration,
         unique_id: str = "",
     ) -> None:
 
@@ -35,7 +35,7 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
     def _construct_ode_config(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.HiddenManifoldNetworkConfiguration,
+        network_configuration: network_configurations.HiddenManifoldNetworkConfiguration,
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
@@ -93,20 +93,20 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
 
         for i in range(self._student_hidden):
             for j in range(self._student_hidden):
-                qij = np.genfromtxt(os.path.join(self._ode_file_path, f"q_{i}{j}.csv"))
-                df[
-                    f"{constants.AGGREGATE}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
-                ] = qij
+                # qij = np.genfromtxt(os.path.join(self._ode_file_path, f"q_{i}{j}.csv"))
+                # df[
+                #     f"{constants.AGGREGATE}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                # ] = qij
                 wij = np.genfromtxt(os.path.join(self._ode_file_path, f"w_{i}{j}.csv"))
                 df[
                     f"{constants.AMBIENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
                 ] = wij
-                sigma_ij = np.genfromtxt(
-                    os.path.join(self._ode_file_path, f"sigma_1_{i}{j}.csv")
-                )
-                df[
-                    f"{constants.LATENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
-                ] = sigma_ij
+                # sigma_ij = np.genfromtxt(
+                #     os.path.join(self._ode_file_path, f"sigma_1_{i}{j}.csv")
+                # )
+                # df[
+                #     f"{constants.LATENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                # ] = sigma_ij
 
         for i in range(self._student_hidden):
             for j in range(self._teacher_hidden):
@@ -135,6 +135,12 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
                     df[
                         f"{constants.AGGREGATE}_{constants.STUDENT_SELF_OVERLAP}_{t}_{i}_{j}"
                     ] = qij
+                    wij = np.genfromtxt(
+                        os.path.join(self._ode_file_path, f"w_{i}{j}.csv")
+                    )
+                    df[
+                        f"{constants.AMBIENT}_{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+                    ] = wij
                     sigma_ij = np.genfromtxt(
                         os.path.join(self._ode_file_path, f"sigma_1_{i}{j}.csv")
                     )
