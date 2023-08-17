@@ -6,7 +6,7 @@ import time
 from run_modes import base_runner
 
 from teacher_student_dynamics import constants, experiments
-from teacher_student_dynamics.utils import cpp_utils, network_configuration
+from teacher_student_dynamics.utils import network_configurations
 
 
 class BaseODERunner(base_runner.BaseRunner):
@@ -18,7 +18,7 @@ class BaseODERunner(base_runner.BaseRunner):
     def __init__(
         self,
         config: experiments.config.Config,
-        network_configuration: network_configuration.VanillaNetworkConfiguration,
+        network_configuration: network_configurations.VanillaNetworkConfiguration,
         unique_id: str = "",
     ) -> None:
 
