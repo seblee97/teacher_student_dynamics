@@ -22,7 +22,7 @@ from teacher_student_dynamics.networks.network_ensembles import (
     node_sharing_ensemble,
     rotation_ensemble,
 )
-from teacher_student_dynamics.utils import cpp_utils, decorators, network_configuration
+from teacher_student_dynamics.utils import network_configurations, decorators
 
 
 class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
@@ -74,7 +74,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             self._input_noise_modules,
         ) = self._setup_data(config=config)
 
-        self._network_configuration = self.get_network_configuration(update=False)
+        self._network_configuration = self._setup_network_configuration()
 
         self._loss_function = self._setup_loss(config=config)
         self._optimiser = self._setup_optimiser(config=config)
@@ -94,9 +94,23 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         self._logger.info(f"NUM_THREADS: {torch.get_num_threads()}")
 
+    @property
+    def network_configuration(self):
+        return self._network_configuration
+
     @abc.abstractmethod
-    def get_network_configuration(self, update=True):
+    def _setup_network_configuration(
+        self,
+    ) -> network_configurations.BaseNetworkConfiguration:
         """Get configuration of networks e.g. in terms of macroscopic order parameters.
+
+        Can be used for both logging purposes and e.g. as input to ODE runner.
+        """
+        pass
+
+    @abc.abstractmethod
+    def _update_network_configuration(self, update=True) -> None:
+        """Update configuration of networks e.g. in terms of macroscopic order parameters.
 
         Can be used for both logging purposes and e.g. as input to ODE runner.
         """
