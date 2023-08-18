@@ -3,14 +3,15 @@ gpu_id: 0 # None for CPU
 
 runner:
     run_ode: True
-    run_network: False
+    run_network: True
 
 logging:
     checkpoint_frequency: 1000
     stdout_frequency: 1000
 
-    overlap_frequency: 100
-    ode_log_frequency: 1000
+    overlap_frequency: 1000 # save in standard logging format
+    save_overlap_frequency: 10 # save into ode-readable format (for debugging)
+    ode_log_frequency: 10
 
 ode:
     implementation: cpp
@@ -18,6 +19,20 @@ ode:
     omp_num_threads: 0
     eigen_path:
     timestep: 0.001
+
+    debug_copy: []
+        # - "W" # think this works
+        # - "r_density"
+        # - "u_density"
+        # - "sigma_1_density"
+        # - "sigma_2_density"
+        # - "Sigma1"
+        # - "Sigma2"
+        # - "Q"
+        # - "R"
+        # - "U"
+        # - "h1"
+        # - "h2"
 
 data:
     input_source: hidden_manifold # iid_gaussian, hidden_manifold
@@ -33,10 +48,10 @@ data:
         mean: 0
         variance: 1
         latent_dimension: 100
-        activation: scaled_erf
+        activation: sign # scaled_erf or sign
 
         # number of bins for discretising densities
-        num_bins: 200
+        num_bins: 1000
 
         feature_matrix_correlations: [1.]
 
@@ -55,14 +70,14 @@ data:
     - []
 
 testing:
-    test_batch_size: 1000
-    test_frequency: 100
+    test_batch_size: 10000
+    test_frequency: 1000
 
 training:
     train_batch_size: 1
-    total_training_steps: 30000
+    total_training_steps: 1000000
     optimiser: sgd
-    learning_rate: 1.
+    learning_rate: 0.2
     loss_function: mse
     train_hidden_layer: True
     train_head_layer: True
@@ -73,11 +88,11 @@ training:
     freeze_units: [0, 0]
 
 networks:
-    input_dimension: 10000 
+    input_dimension: 10000
     output_dimension: 1
     nonlinearity: scaled_erf
     # student
-    student_hidden: 2
+    student_hidden: 1
     student_bias: False
     student_initialisation_std: 0.001
     multi_head: False
