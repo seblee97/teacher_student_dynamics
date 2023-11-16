@@ -6,18 +6,18 @@ runner:
     run_network: True
 
 logging:
-    checkpoint_frequency: 1000
-    stdout_frequency: 1000
+    checkpoint_frequency: 10000
+    stdout_frequency: 10000
 
-    overlap_frequency: 1000 # save in standard logging format
-    save_overlap_frequency: 10 # save into ode-readable format (for debugging)
-    ode_log_frequency: 10
+    overlap_frequency: 10000 # save in standard logging format
+    save_overlap_frequency: 1000 # save into ode-readable format (for debugging)
+    ode_log_frequency: 1000
 
 ode:
     implementation: cpp
     omp: False
     omp_num_threads: 0
-    eigen_path:
+    eigen_path: 
     timestep: 0.001
 
     debug_copy: []
@@ -71,11 +71,11 @@ data:
 
 testing:
     test_batch_size: 10000
-    test_frequency: 1000
+    test_frequency: 10000
 
 training:
     train_batch_size: 1
-    total_training_steps: 1000000
+    total_training_steps: 100000000
     optimiser: sgd
     learning_rate: 0.2
     loss_function: mse
@@ -92,13 +92,13 @@ networks:
     output_dimension: 1
     nonlinearity: scaled_erf
     # student
-    student_hidden: 1
+    student_hidden: 2
     student_bias: False
     student_initialisation_std: 0.001
     multi_head: False
     # teacher(s)
     num_teachers: 2
-    teacher_hidden: 1
+    teacher_hidden: 2
     teacher_bias: False
     unit_norm_teacher_head: True
     normalise_teachers: True
@@ -117,7 +117,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [15000000]
+    switch_steps: [1500000000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]
