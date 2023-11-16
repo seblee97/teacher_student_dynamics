@@ -61,10 +61,10 @@ parse_input(std::string input_file_path)
             {
                 value = bool(std::stoi(split_string[2]));
             }
-            else if (split_string[0] == "it_empty")
-            {
-                value = false;
-            } 
+            // else if (split_string[0] == "it_empty")
+            // {
+            //     value = false;
+            // } 
             else if (split_string[0] == "it_float")
             {
                 std::vector<float> value_vector;
