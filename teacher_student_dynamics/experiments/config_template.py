@@ -335,6 +335,7 @@ class ConfigTemplate:
                 requirements=[lambda x: x > 0],
             ),
             config_field.Field(name=constants.TEACHER_BIAS, types=[bool]),
+            config_field.Field(name=constants.TEACHER_HEADS_ONE, types=[bool]),
             config_field.Field(name=constants.UNIT_NORM_TEACHER_HEAD, types=[bool]),
             config_field.Field(name=constants.NORMALISE_TEACHERS, types=[bool]),
             config_field.Field(
