@@ -22,6 +22,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         nonlinearity: str,
         initialisation_std: Optional[float],
         normalise_weights: Optional[bool] = False,
+        heads_one: Optional[bool] = False,
         unit_norm_head: Optional[bool] = False,
         train_hidden_layer: Optional[bool] = False,
         train_head_layer: Optional[bool] = False,
@@ -38,6 +39,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._nonlinearity = nonlinearity
         self._initialisation_std = initialisation_std
         self._normalise_weights = normalise_weights
+        self._heads_one = heads_one
         self._unit_norm_head = unit_norm_head
         self._train_hidden_layer = train_hidden_layer
         self._train_head_layer = train_head_layer
@@ -152,7 +154,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             output_layer = nn.Linear(
                 self._layer_dimensions[-1], self._output_dimension, bias=self._bias
             )
-            if self._unit_norm_head:
+            if self._heads_one:
+                output_layer.weight.data = torch.ones_like(output_layer.weight)
+            elif self._unit_norm_head:
                 head_norm = torch.norm(output_layer.weight)
                 normalised_head = output_layer.weight / head_norm
                 output_layer.weight.data = normalised_head
