@@ -100,6 +100,7 @@ networks:
     num_teachers: 2
     teacher_hidden: 2
     teacher_bias: False
+    teacher_heads_one: True # make all teacher head weights 1 (like fig. 3 of paper)
     unit_norm_teacher_head: True
     normalise_teachers: True
     teacher_initialisation_std: 1.
