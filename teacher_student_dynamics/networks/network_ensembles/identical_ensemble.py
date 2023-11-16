@@ -19,6 +19,7 @@ class IdenticalEnsemble(base_ensemble.BaseEnsemble):
         bias: bool,
         nonlinearity: str,
         initialisation_std: float,
+        heads_one: bool,
         unit_norm_head: bool,
         normalise_weights: bool,
     ):
@@ -30,6 +31,7 @@ class IdenticalEnsemble(base_ensemble.BaseEnsemble):
             bias=bias,
             nonlinearity=nonlinearity,
             initialisation_std=initialisation_std,
+            heads_one=heads_one,
             unit_norm_head=unit_norm_head,
             normalise_weights=normalise_weights,
         )

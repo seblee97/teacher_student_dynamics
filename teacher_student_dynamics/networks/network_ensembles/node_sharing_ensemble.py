@@ -22,6 +22,7 @@ class NodeSharingEnsemble(base_ensemble.BaseEnsemble):
         nonlinearity: str,
         initialisation_std: float,
         normalise_weights: bool,
+        heads_one: bool,
         unit_norm_head: bool,
         num_shared_nodes: int,
         feature_rotation_alpha: float,
@@ -37,6 +38,7 @@ class NodeSharingEnsemble(base_ensemble.BaseEnsemble):
             nonlinearity=nonlinearity,
             initialisation_std=initialisation_std,
             normalise_weights=normalise_weights,
+            heads_one=heads_one,
             unit_norm_head=unit_norm_head,
         )
 
