@@ -209,8 +209,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             feature_matrix_overlap_eigenvalues = []
             for overlap in feature_matrix_overlaps:
                 eigenvalues, eigenvectors = torch.linalg.eigh(overlap)
-                eigenvalues = torch.flip(eigenvalues, dims=(0,))
-                eigenvectors = torch.flip(eigenvectors, dims=(1,))
+                # eigenvalues = torch.flip(eigenvalues, dims=(0,))
+                # eigenvectors = torch.flip(eigenvectors, dims=(1,))
 
                 feature_matrix_overlap_eigenvalues.append(eigenvalues.to(torch.float))
 
