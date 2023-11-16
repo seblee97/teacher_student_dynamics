@@ -34,7 +34,10 @@ def params_to_txt(params: Dict[str, Any], output_path: str) -> None:
             elif isinstance(v, float):
                 value_type = "float"
             elif isinstance(v, list):
-                if all([isinstance(vi, float) for vi in v]):
+                if not v: # empty list
+                    value_type = "it_empty"
+                    v = ","
+                elif all([isinstance(vi, float) for vi in v]):
                     value_type = "it_float"
                     v = ",".join([str(vi) for vi in v])
                 elif all([isinstance(vi, int) for vi in v]):
