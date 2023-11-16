@@ -174,6 +174,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             constants.NONLINEARITY: config.nonlinearity,
             constants.INITIALISATION_STD: config.teacher_initialisation_std,
             constants.NORMALISE_WEIGHTS: config.normalise_teachers,
+            constants.HEADS_ONE: config.teacher_heads_one,
             constants.UNIT_NORM_HEAD: config.unit_norm_teacher_head,
         }
         if config.teacher_configuration == constants.ROTATION:
