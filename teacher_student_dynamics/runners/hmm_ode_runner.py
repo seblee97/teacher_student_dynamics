@@ -74,7 +74,7 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
             constants.INPUT_NOISE_STDS: student_input_noises,
             constants.NOISE_STDS: teacher_output_noises,
             constants.FREEZE_UNITS: config.freeze_units,
-            constants.DEBUG_COPY: config.debug_copy,
+            # constants.DEBUG_COPY: config.debug_copy,
             constants.DEBUG_FREQUENCY: config.save_overlap_frequency,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
             constants.OUTPUT_PATH: self._ode_file_path,
