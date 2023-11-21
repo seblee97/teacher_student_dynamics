@@ -80,6 +80,7 @@ class BaseEnsemble(abc.ABC):
             nonlinearity=self._nonlinearity,
             initialisation_std=self._initialisation_std,
             normalise_weights=self._normalise_weights,
+            heads_one=self._heads_one,
             unit_norm_head=self._unit_norm_head,
             freeze=True,
         )
