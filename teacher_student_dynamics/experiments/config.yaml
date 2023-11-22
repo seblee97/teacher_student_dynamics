@@ -10,8 +10,8 @@ logging:
     stdout_frequency: 10000
 
     overlap_frequency: 10000 # save in standard logging format
-    save_overlap_frequency: 1000 # save into ode-readable format (for debugging)
-    ode_log_frequency: 1000
+    save_overlap_frequency: 1000 # save into ode-readable format (for debugging) ensure this is multiple of input_dimension * timestep
+    ode_log_frequency: 1000 # ensure this is multiple of input_dimension * timestep
 
 ode:
     implementation: cpp
