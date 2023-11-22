@@ -83,22 +83,34 @@ int main(int argc, char **argv)
     std::cout << "log time: " << log_time << std::endl;
     std::cout << "log step: " << log_step << std::endl;
 
-    float time = num_steps / input_dimension;
-    float switch_time = switch_step / input_dimension;
+    float time = (float)num_steps / (float)input_dimension;
+    float switch_time = (float)switch_step / (float)input_dimension;
     float debug_time = (float)debug_frequency / (float)input_dimension;
     int num_deltas = static_cast<int>(std::round(time / timestep));
     int num_logs = static_cast<int>(std::round(num_deltas / log_step));
     int switch_delta = static_cast<int>(std::round(switch_time / timestep));
     int debug_step = static_cast<int>(std::round(debug_time / timestep));
+    int num_debugs = static_cast<int>(std::round(num_deltas / debug_step));
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
+    std::cout << "input dimension: " << input_dimension << std::endl;
     std::cout << "time: " << time << std::endl;
     std::cout << "num deltas: " << num_deltas << std::endl;
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
     std::cout << "step_scaling: " << step_scaling << std::endl;
     std::cout << "debug_step: " << debug_step << std::endl;
+    std::cout << "debug_time: " << debug_time << std::endl;
+    std::cerr << "num steps: " << num_steps << std::endl;
+    std::cerr << "input dimension: " << input_dimension << std::endl;
+    std::cerr << "time: " << time << std::endl;
+    std::cerr << "num deltas: " << num_deltas << std::endl;
+    std::cerr << "num logs: " << num_logs << std::endl;
+    std::cerr << "switch_delta: " << switch_delta << std::endl;
+    std::cerr << "step_scaling: " << step_scaling << std::endl;
+    std::cerr << "debug_step: " << debug_step << std::endl;
+    std::cerr << "debug_time: " << debug_time << std::endl;
 
     HMMODE ODE(
         state,
