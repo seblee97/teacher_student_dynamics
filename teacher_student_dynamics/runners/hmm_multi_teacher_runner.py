@@ -81,6 +81,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         return student_teacher_overlap_densities
 
     def _student_latent_self_overlap_densities(self, gamma_tau_k):
+        # import pdb; pdb.set_trace()
         student_latent_self_overlap_densities = []
         for gamma in gamma_tau_k:
             sigma_kl = np.zeros(
@@ -101,9 +102,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _student_weighted_feature_matrix_self_overlaps(
         self, student_weighted_feature_matrices
     ):
+        # import pdb; pdb.set_trace()
         return [
             (
-                weighted_feature_matrix.mm(weighted_feature_matrix.t())
+                weighted_feature_matrix.T.mm(weighted_feature_matrix)
                 / self._latent_dimension
             )
             for weighted_feature_matrix in student_weighted_feature_matrices
@@ -112,6 +114,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _student_local_field_covariances(
         self, student_weighted_feature_matrix_self_overlaps, student_self_overlap
     ):
+        # import pdb; pdb.set_trace()
         student_local_field_covariances = [
             (
                 (
@@ -130,9 +133,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         return student_local_field_covariances
 
     def _student_teacher_overlaps(self, student_weighted_feature_matrices):
+        # import pdb; pdb.set_trace()
         student_teacher_overlaps = [
             data_module.folding_function_coefficients[1]
-            * weighted_feature_matrix.mm(teacher.layers[0].weight.data.t())
+            * teacher.layers[0].weight.data.mm(weighted_feature_matrix)
             .cpu()
             .numpy()
             / self._latent_dimension
@@ -145,6 +149,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         return student_teacher_overlaps
 
     def _rotated_student_teacher_overlaps(self, student_teacher_overlap_densities):
+        # import pdb; pdb.set_trace()
         return [
             data_module.folding_function_coefficients[1]
             * density.mean(1).reshape(
@@ -156,9 +161,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         ]
 
     def _rotated_student_weighted_feature_matrix_self_overlaps(self, gamma_tau_k):
+        # import pdb; pdb.set_trace()
         return [
             (
-                rotated_weighted_feature_matrix.mm(rotated_weighted_feature_matrix.t())
+                rotated_weighted_feature_matrix.T.mm(rotated_weighted_feature_matrix)
                 / self._latent_dimension
             ).numpy()
             for rotated_weighted_feature_matrix in gamma_tau_k
@@ -169,6 +175,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         student_self_overlap,
         rotated_student_weighted_feature_matrix_self_overlaps,
     ):
+        # import pdb; pdb.set_trace()
         return [
             (
                 (
@@ -352,7 +359,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
             # (Eq. B31) density r_km
             student_teacher_overlap_densities = self._student_teacher_overlap_densities(
-                gamma_tau_k, self._network_configuration.w_tilde_tau
+                gamma_tau_k, self._network_configuration.omega_tilde_tau
             )
 
             # (Eq. B47) density sigma_kl
