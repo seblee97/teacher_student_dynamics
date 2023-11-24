@@ -41,8 +41,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._logger.info("Setting up hidden manifold network runner...")
 
     def _student_weighted_feature_matrices(self):
+        # DxN matrix multiplied by NxK matrix -> DxK matrix
         return [
-            self._student.layers[0].weight.data.mm(data_module.feature_matrix)
+            data_module.feature_matrix.mm(self._student.layers[0].weight.data.T)
             / np.sqrt(self._input_dimension)
             for data_module in self._data_module
         ]
@@ -50,18 +51,19 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _gamma_tau_k(
         self, student_weighted_feature_matrices, feature_matrix_overlap_eigenvectors
     ):
+        # DxD multiplied by DxK -> DxK
         return [
-            overlap.mm(eigenvectors.T) / np.sqrt(self._latent_dimension)
+            eigenvectors.mm(overlap) / np.sqrt(self._latent_dimension)
             for overlap, eigenvectors in zip(
                 student_weighted_feature_matrices,
                 feature_matrix_overlap_eigenvectors,
             )
         ]
 
-    def _student_teacher_overlap_densities(self, gamma_tau_k, w_tilde_tau):
+    def _student_teacher_overlap_densities(self, gamma_tau_k, omega_tilde_tau):
         student_teacher_overlap_densities = []
 
-        for gamma, w_tilde in zip(gamma_tau_k, w_tilde_tau):
+        for gamma, omega_tilde in zip(gamma_tau_k, omega_tilde_tau):
             r_km = np.zeros(
                 shape=(
                     self._student_hidden_dim * self._teacher_hidden_dim,
@@ -70,8 +72,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             )
             for k in range(self._student_hidden_dim):
                 for m in range(self._teacher_hidden_dim):
+                    # D multiplied element-wise by D -> D
                     r_km[k * self._teacher_hidden_dim + m, :] = (
-                        gamma[k] * w_tilde[m]
+                        gamma.T[k] * omega_tilde.T[m]
                     ).numpy()
             student_teacher_overlap_densities.append(r_km)
 
@@ -89,7 +92,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             for k in range(self._student_hidden_dim):
                 for l in range(self._student_hidden_dim):
                     sigma_kl[k * self._student_hidden_dim + l] = (
-                        gamma[k] * gamma[l]
+                        gamma.T[k] * gamma.T[l]
                     ).numpy()
 
             student_latent_self_overlap_densities.append(sigma_kl)
@@ -186,20 +189,27 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _setup_network_configuration(self):
 
         with torch.no_grad():
-            ## CONSTANT
-            # T^{mn} and equivalent for second teacher
+            # FIXED QUANTITIES
+            # T^{mn} and equivalent for second teacher (Equation 18)
+            # MxM matrices where M is the teacher hidden dimension
             teacher_self_overlaps = [
                 teacher.self_overlap.cpu().numpy()
                 for teacher in self._teachers.networks
             ]
+            # Also MxM matrices
             teacher_cross_overlaps = [
                 o.cpu().numpy() for o in self._teachers.cross_overlaps
             ]
+            # Omega_{rs} (Eq. 27) [note: we believe there is a typo in the paper, 
+            # should be sum over i F_{ri}F_{si}]
+            # implemented here: DxN matrix multiplied by NxD matrix -> DxD matrix.
             feature_matrix_overlaps = [
-                data_module.feature_matrix.t().mm(data_module.feature_matrix)
+                data_module.feature_matrix.mm(data_module.feature_matrix.T)
                 / self._input_dimension
                 for data_module in self._data_module
             ]
+            
+            # \tilde{v} Mx1 - around eq 5.
             teacher_head_weights = [
                 teacher.heads[0].weight.data.cpu().numpy().flatten()
                 for teacher in self._teachers.networks
@@ -208,21 +218,23 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             feature_matrix_overlap_eigenvectors = []
             feature_matrix_overlap_eigenvalues = []
             for overlap in feature_matrix_overlaps:
+                # overlap is DxD symmetric matrix
+                # eigenvalues are Dx1, eigenvectors are DxD
+                # eigenvalues are ordered in ascending order
                 eigenvalues, eigenvectors = torch.linalg.eigh(overlap)
-                # eigenvalues = torch.flip(eigenvalues, dims=(0,))
-                # eigenvectors = torch.flip(eigenvectors, dims=(1,))
 
                 feature_matrix_overlap_eigenvalues.append(eigenvalues.to(torch.float))
 
                 # need to be careful here about normalisation/orientation condition
                 # of B17, below too.
                 feature_matrix_overlap_eigenvectors.append(
-                    np.sqrt(self._latent_dimension) * eigenvectors.T.to(torch.float)
+                    np.sqrt(self._latent_dimension) * eigenvectors.to(torch.float)
                 )
 
             # (Eq. B20) teacher weights projected onto eigenbasis of Omega
-            w_tilde_tau = [
-                teacher.state_dict()["_layers.0.weight"].mm(eigenvectors.T)
+            # DxM matrices
+            omega_tilde_tau = [
+                eigenvectors.mm(teacher.state_dict()["_layers.0.weight"].T)
                 / np.sqrt(self._latent_dimension)
                 for teacher, eigenvectors in zip(
                     self._teachers.networks, feature_matrix_overlap_eigenvectors
@@ -230,11 +242,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             ]
 
             # (Eq. B29) teacher self-overlap in projected eigenbasis
+            # MxM matrices
             projected_teacher_self_overlaps = [
-                w_tilde.mm(torch.diag(eigenvalues).mm(w_tilde.T)).numpy()
+                omega_tilde.T.mm(torch.diag(eigenvalues).mm(omega_tilde)).numpy()
                 / self._latent_dimension
-                for w_tilde, eigenvalues in zip(
-                    w_tilde_tau, feature_matrix_overlap_eigenvalues
+                for omega_tilde, eigenvalues in zip(
+                    omega_tilde_tau, feature_matrix_overlap_eigenvalues
                 )
             ]
 
@@ -242,13 +255,13 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 e.numpy()[np.newaxis, :] for e in feature_matrix_overlap_eigenvalues
             ]
 
-            ## VARIABLE
-            # S^k_r (student weights projected onto manifold)
+            ## VARIABLE QUANTITIES
+            # (Eq. 20) S^k_r (student weights projected onto manifold)
             student_weighted_feature_matrices = (
                 self._student_weighted_feature_matrices()
             )
 
-            # (Eq. B19) student weights projected onto eigenbasis of Omega
+            # (Eq. B19) student weights projected onto eigenbasis of Omega [DxK]
             gamma_tau_k = self._gamma_tau_k(
                 student_weighted_feature_matrices, feature_matrix_overlap_eigenvectors
             )
@@ -257,9 +270,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
             ]
 
-            # (Eq. B31) density r_km
+            # (Eq. B31) density r_km [MxK, D]
             student_teacher_overlap_densities = self._student_teacher_overlap_densities(
-                gamma_tau_k, w_tilde_tau
+                gamma_tau_k, omega_tilde_tau
             )
 
             # (Eq. B47) density sigma_kl
@@ -311,7 +324,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             student_teacher_overlaps=student_teacher_overlaps,
             rotated_student_teacher_overlaps=rotated_student_teacher_overlaps,
             student_weighted_feature_matrices=student_weighted_feature_matrices,
-            w_tilde_tau=w_tilde_tau,
+            omega_tilde_tau=omega_tilde_tau,
             student_local_field_covariances=student_local_field_covariances,
             rotated_student_local_field_covariances=rotated_student_local_field_covariances,
             student_weighted_feature_matrix_self_overlaps=student_weighted_feature_matrix_self_overlaps,
