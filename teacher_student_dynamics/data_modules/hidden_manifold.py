@@ -37,7 +37,7 @@ class HiddenManifold(base_data_module.BaseData):
 
         self._activation_name = activation
         self._activation = self._get_activation_function()
-        self._feature_matrix = feature_matrix
+        self._feature_matrix = feature_matrix # DxN matrix
 
         self._surrogate_feature_matrices = []
 
@@ -117,12 +117,14 @@ class HiddenManifold(base_data_module.BaseData):
         return activation_function
 
     def _get_fixed_data(self, size: int) -> Dict[str, torch.Tensor]:
+        # PxD matrix
         data_latent = self._latent_distribution.sample(
             (size, self._latent_dimension)
         ).to(self._device)
 
+        # PxD matrix multiplied by DxN matrix -> PxN matrix
         data_inputs = self._activation(
-            torch.matmul(data_latent, self._feature_matrix.T)
+            torch.matmul(data_latent, self._feature_matrix)
             / np.sqrt(self._latent_dimension)
         )
         return {
