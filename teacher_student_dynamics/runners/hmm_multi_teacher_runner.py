@@ -549,10 +549,11 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         This method must be called before training loop is called."""
         # core data module
         if config.input_source == constants.HIDDEN_MANIFOLD:
+            # F matrix (DxN matrix - defined in sec II)
             base_feature_matrix = torch.normal(
                 mean=0.0,
                 std=1.0,
-                size=(self._input_dimension, self._latent_dimension),
+                size=(self._latent_dimension, self._input_dimension),
                 device=self._device,
             )
             data_modules = [
@@ -573,7 +574,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 random_feature_matrix = torch.normal(
                     mean=0.0,
                     std=1.0,
-                    size=(self._input_dimension, self._latent_dimension),
+                    size=(self._latent_dimension, self._input_dimension),
                     device=self._device,
                 )
                 next_feature_matrix = (
