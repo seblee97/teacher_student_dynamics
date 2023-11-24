@@ -135,7 +135,7 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         student_local_field_covariances: List[np.ndarray],
         rotated_student_local_field_covariances: List[np.ndarray],
         student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
-        w_tilde_tau: List[np.ndarray],
+        omega_tilde_tau: List[np.ndarray],
         rotated_student_weighted_feature_matrix_self_overlaps: List[np.ndarray],
         feature_matrix_overlaps: List[np.ndarray],
         feature_matrix_overlap_eigenvalues: List[np.ndarray],
@@ -162,7 +162,7 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         self._student_weighted_feature_matrix_self_overlaps = (
             student_weighted_feature_matrix_self_overlaps
         )
-        self._w_tilde_tau = w_tilde_tau
+        self._omega_tilde_tau = omega_tilde_tau
         self._rotated_student_weighted_feature_matrix_self_overlaps = (
             rotated_student_weighted_feature_matrix_self_overlaps
         )
@@ -211,8 +211,8 @@ class HiddenManifoldNetworkConfiguration(VanillaNetworkConfiguration):
         return self._student_weighted_feature_matrix_self_overlaps
 
     @property
-    def w_tilde_tau(self) -> List[np.ndarray]:
-        return self._w_tilde_tau
+    def omega_tilde_tau(self) -> List[np.ndarray]:
+        return self._omega_tilde_tau
 
     @student_weighted_feature_matrix_self_overlaps.setter
     def student_weighted_feature_matrix_self_overlaps(
