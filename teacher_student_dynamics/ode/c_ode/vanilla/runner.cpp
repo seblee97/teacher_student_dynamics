@@ -9,7 +9,7 @@
 int main(int argc, char **argv)
 {
     std::string input_file_path = argv[1];
-    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>>> config;
+    std::map<std::string, std::variant<int, float, std::string, bool, std::vector<float>, std::vector<int>, std::vector<std::string>>> config;
     config = parse_input(input_file_path);
 
     // config element "order_parameter_paths" is path to txt file
@@ -77,18 +77,20 @@ int main(int argc, char **argv)
     std::cout << "log time: " << log_time << std::endl;
     std::cout << "log step: " << log_step << std::endl;
 
-    float time = num_steps / input_dimension;
-    float switch_time = switch_step / input_dimension;
+    float time = (float)num_steps / (float)input_dimension;
+    float switch_time = (float)switch_step / (float)input_dimension;
     int num_deltas = static_cast<int>(std::round(time / timestep));
     int num_logs = static_cast<int>(std::round(num_deltas / log_step));
     int switch_delta = static_cast<int>(std::round(switch_time / timestep));
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
+    std::cout << "input dimension: " << input_dimension << std::endl;
     std::cout << "time: " << time << std::endl;
     std::cout << "num deltas: " << num_deltas << std::endl;
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
+    std::cout << "step_scaling: " << step_scaling << std::endl;
 
     StudentTeacherODE ODE(
         state,
