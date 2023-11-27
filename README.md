@@ -38,20 +38,25 @@ Below is a summary of the models / experiment configurations that have been impl
 ### Implemented
 
 - Standard teacher-student framework with IID Gaussian inputs.
-- Multi teacher-student framework with IID Gaussian inputs.
+- Hidden Manifold Model (HMM) where input data has non-trivial correlations.
+- Multi teacher extensions of the above.
     - Teachers rotated in feature and/or readout space.
     - Identical teachers.
     - Teachers with fraction of nodes shared and fraction rotated.
+    - Interpolation between different projection matrices for HMM.
 - Interleaved replay of previous teacher during training of second (networks only).
 - Output noise to teachers.
+- Input noise to student only (e.g. for critical learning)
+- Input noise to student only (e.g. for critical learning)
+- Frozen hidden units (e.g. for critical learning)
+
 ### TODOs
 
 #### _Major_
 
-- Data with input correlations (hidden manifold model); network simulations as well as ODEs.
-- *Classification (currently only regression is implemented).
-- *Input noise to student only; network simulations.
-- Input noise to student only; derive ODEs.
+- Classification (currently only regression is implemented).
+- RL Perceptron ()
+
 #### _Minor_
 
 [Some of these are low level and probably not understandable, but I know what I mean!]
@@ -64,7 +69,6 @@ Below is a summary of the models / experiment configurations that have been impl
 - Noise outputs for teacher on runner side.
 - Construct summary plots in addition to separate plots.
 - Interleaving for ODEs.
-- Frozen units (for critical learning experiments).
 - *Option for single head student; ODEs.
 
 ### Not Planned
