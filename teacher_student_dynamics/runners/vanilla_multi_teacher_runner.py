@@ -25,22 +25,23 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         super().__init__(config, unique_id)
         self._logger.info("Setting up vanilla teacher-student network runner...")
 
-    def get_network_configuration(self, update=True):
+    def _setup_network_configuration(self):
         with torch.no_grad():
 
-            if not update:
-                teacher_head_weights = [
-                    teacher.heads[0].weight.data.cpu().numpy().flatten()
-                    for teacher in self._teachers.networks
-                ]
-                teacher_cross_overlaps = [
-                    o.cpu().numpy() for o in self._teachers.cross_overlaps
-                ]
-                teacher_self_overlaps = [
-                    teacher.self_overlap.cpu().numpy()
-                    for teacher in self._teachers.networks
-                ]
+            # FIXED QUANTITIES
+            teacher_head_weights = [
+                teacher.heads[0].weight.data.cpu().numpy().flatten()
+                for teacher in self._teachers.networks
+            ]
+            teacher_cross_overlaps = [
+                o.cpu().numpy() for o in self._teachers.cross_overlaps
+            ]
+            teacher_self_overlaps = [
+                teacher.self_overlap.cpu().numpy()
+                for teacher in self._teachers.networks
+            ]
 
+            # VARIABLE QUANTITIES
             student_head_weights = [
                 head.weight.data.cpu().numpy().flatten() for head in self._student.heads
             ]
@@ -54,30 +55,35 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 for teacher in self._teachers.networks
             ]
 
-            if not update:
-                return network_configurations.VanillaNetworkConfiguration(
-                    student_head_weights=student_head_weights,
-                    teacher_head_weights=teacher_head_weights,
-                    student_self_overlap=student_self_overlap,
-                    teacher_self_overlaps=teacher_self_overlaps,
-                    teacher_cross_overlaps=teacher_cross_overlaps,
-                    student_teacher_overlaps=student_teacher_overlaps,
-                )
-            else:
-                self._network_configuration.student_head_weights = student_head_weights
-                self._network_configuration.student_self_overlap = student_self_overlap
-                self._network_configuration.teacher_self_overlaps = (
-                    teacher_self_overlaps
-                )
-                self._network_configuration.teacher_cross_overlaps = (
-                    teacher_cross_overlaps
-                )
-                self._network_configuration.student_teacher_overlaps = (
-                    student_teacher_overlaps
-                )
-                self._network_configuration.teacher_head_weights = teacher_head_weights
+            return network_configurations.VanillaNetworkConfiguration(
+                student_head_weights=student_head_weights,
+                teacher_head_weights=teacher_head_weights,
+                student_self_overlap=student_self_overlap,
+                teacher_self_overlaps=teacher_self_overlaps,
+                teacher_cross_overlaps=teacher_cross_overlaps,
+                student_teacher_overlaps=student_teacher_overlaps,
 
-    def save_network_configuration(self, network_configuration, step: int):
+            )
+
+    def _update_network_configuration(self):
+        student_head_weights = [
+            head.weight.data.cpu().numpy().flatten() for head in self._student.heads
+        ]
+
+        student_self_overlap = self._student.self_overlap.cpu().numpy()
+
+        student_layer = self._student.layers[0].weight.data
+        student_teacher_overlaps = [
+            student_layer.mm(teacher.layers[0].weight.data.t()).cpu().numpy()
+            / self._input_dimension
+            for teacher in self._teachers.networks
+        ]
+        self._network_configuration.student_head_weights = student_head_weights
+        self._network_configuration.student_self_overlap = student_self_overlap
+        self._network_configuration.student_teacher_overlaps = student_teacher_overlaps
+        
+
+    def save_network_configuration(self, step: int):
         pass
 
     def _setup_data(
