@@ -57,20 +57,6 @@ Below is a summary of the models / experiment configurations that have been impl
 - Classification (currently only regression is implemented).
 - RL Perceptron ([Nish et. al (2023)](https://arxiv.org/abs/2306.10404))
 
-#### _Minor_
-
-[Some of these are low level and probably not understandable, but I know what I mean!]
-
-- *Elastic weight consolidation (EWC); network simulations as well as ODEs.
-- *Python implementation of ODEs.
-- Standardize naming convention from some base reference for ODE and network runner.
-- Consolidate C++ outputs using data logging module from ODE runner class.
-- Logging in network using new numpy array system.
-- Noise outputs for teacher on runner side.
-- Construct summary plots in addition to separate plots.
-- Interleaving for ODEs.
-- *Option for single head student; ODEs.
-
 ### Not Planned
 
 The following features are not planned but are certainly possible:
