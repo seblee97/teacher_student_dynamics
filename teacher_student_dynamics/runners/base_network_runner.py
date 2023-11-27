@@ -117,7 +117,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         pass
 
     @abc.abstractmethod
-    def save_network_configuration(self, network_configuration, step: int):
+    def save_network_configuration(self, step: int):
         """Save configuration of networks (mostly for use in ODEs)"""
         pass
 
