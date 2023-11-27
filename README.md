@@ -55,7 +55,7 @@ Below is a summary of the models / experiment configurations that have been impl
 #### _Major_
 
 - Classification (currently only regression is implemented).
-- RL Perceptron ()
+- RL Perceptron ([Nish et. al (2023)](https://arxiv.org/abs/2306.10404))
 
 #### _Minor_
 
