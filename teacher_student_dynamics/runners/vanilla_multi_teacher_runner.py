@@ -84,7 +84,59 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         
 
     def save_network_configuration(self, step: int):
-        pass
+        
+        if step is not None:
+            step = f"_{step}"
+        else:
+            step = ""
+
+        order_params = {
+            f"Q{step}.csv": self._network_configuration.student_self_overlap[0],
+            f"R{step}.csv": self._network_configuration.student_teacher_overlaps[0],
+            f"U{step}.csv": self._network_configuration.student_teacher_overlaps[1],
+            f"h1{step}.csv": self._network_configuration.student_head_weights[0],
+        }
+        if len(self._network_configuration.student_head_weights) > 1:
+            # multi-head
+            order_params[f"h2{step}.csv"] = self._network_configuration.student_head_weights[1]
+
+        if step == "":
+            order_params = {
+                **order_params,
+                **{
+                    f"th1{step}.csv": self._network_configuration.teacher_head_weights[
+                        0
+                    ],
+                    f"th2{step}.csv": self._network_configuration.teacher_head_weights[
+                        1
+                    ],
+                    f"T{step}.csv": self._network_configuration.teacher_self_overlaps[
+                        0
+                    ],
+                    f"S{step}.csv": self._network_configuration.teacher_self_overlaps[
+                        1
+                    ],
+                    f"V{step}.csv": self._network_configuration.teacher_cross_overlaps[
+                        0
+                    ],
+                },
+            }
+
+        order_param_path = os.path.join(
+            self._ode_file_path, f"order_parameter{step}.txt"
+        )
+
+        with open(order_param_path, "+w") as txt_file:
+            for k, v in order_params.items():
+                op_csv_path = os.path.join(self._ode_file_path, k)
+                np.savetxt(op_csv_path, v, delimiter=",")
+                if step == "":
+                    param_name = k.split(".")[0]
+                    txt_file.write(f"{param_name},{op_csv_path}\n")
+                else:
+                    param_name = k.split(".")[0][: -len(step)]
+                    if param_name in self._debug_copy:
+                        txt_file.write(f"{param_name},{op_csv_path}\n")
 
     def _setup_data(
         self, config: experiments.config.Config
