@@ -34,8 +34,7 @@ class HMMODERunner(base_ode_runner.BaseODERunner):
 
     def _construct_ode_config(
         self,
-        config: experiments.config.Config,
-        network_configuration: network_configurations.HiddenManifoldNetworkConfiguration,
+        config: experiments.config.Config
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
