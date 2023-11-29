@@ -97,6 +97,10 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     @property
     def network_configuration(self):
         return self._network_configuration
+    
+    @property
+    def log_columns(self):
+        return self._log_columns
 
     @abc.abstractmethod
     def _setup_network_configuration(
