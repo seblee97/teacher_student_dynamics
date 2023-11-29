@@ -47,7 +47,7 @@ class BaseODERunner(base_runner.BaseRunner):
 
             self._logger.info("Constructing ODE configuration...")
             self._construct_ode_config(
-                config=config, network_configuration=network_configuration
+                config=config
             )
             self._logger.info("ODE configuration constucted.")
 
