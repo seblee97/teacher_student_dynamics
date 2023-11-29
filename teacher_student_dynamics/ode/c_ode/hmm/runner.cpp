@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     int latent_dimension = std::get<int>(config["latent_dimension"]);
     int teacher_hidden = std::get<int>(config["teacher_hidden"]);
     int student_hidden = std::get<int>(config["student_hidden"]);
+    std::string folding_function_activation = std::get<std::string>(config["folding_function_activation"]);
     float delta = std::get<float>(config["delta"]);
     bool multi_head = std::get<bool>(config["multi_head"]);
     float w_learning_rate = std::get<float>(config["hidden_learning_rate"]);
@@ -116,6 +117,7 @@ int main(int argc, char **argv)
         state,
         teacher_hidden,
         student_hidden,
+        folding_function_activation,
         delta,
         latent_dimension,
         multi_head,
