@@ -62,7 +62,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 teacher_self_overlaps=teacher_self_overlaps,
                 teacher_cross_overlaps=teacher_cross_overlaps,
                 student_teacher_overlaps=student_teacher_overlaps,
-
             )
 
     def _update_network_configuration(self):
