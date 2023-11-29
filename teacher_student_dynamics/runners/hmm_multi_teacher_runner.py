@@ -463,7 +463,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         }
         if len(self._network_configuration.student_head_weights) > 1:
             # multi-head
-            order_params["h2.csv"] = self._network_configuration.student_head_weights[1]
+            order_params[f"h2{step}.csv"] = self._network_configuration.student_head_weights[1]
 
         if step == "":
             order_params = {
