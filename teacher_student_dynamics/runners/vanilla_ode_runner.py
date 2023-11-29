@@ -37,29 +37,7 @@ class VanillaODERunner(base_ode_runner.BaseODERunner):
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
-        order_params = {
-            "Q.csv": network_configuration.student_self_overlap,
-            "R.csv": network_configuration.student_teacher_overlaps[0],
-            "U.csv": network_configuration.student_teacher_overlaps[1],
-            "T.csv": network_configuration.teacher_self_overlaps[0],
-            "S.csv": network_configuration.teacher_self_overlaps[1],
-            "V.csv": network_configuration.teacher_cross_overlaps[0],
-            "h1.csv": network_configuration.student_head_weights[0],
-            "th1.csv": network_configuration.teacher_head_weights[0],
-            "th2.csv": network_configuration.teacher_head_weights[1],
-        }
-
-        if config.multi_head:
-            order_params["h2.csv"] = network_configuration.student_head_weights[1]
-
         order_param_path = os.path.join(self._ode_file_path, "order_parameter.txt")
-
-        with open(order_param_path, "+w") as txt_file:
-            for k, v in order_params.items():
-                op_csv_path = os.path.join(self._ode_file_path, k)
-                np.savetxt(op_csv_path, v, delimiter=",")
-                param_name = k.split(".")[0]
-                txt_file.write(f"{param_name},{op_csv_path}\n")
 
         assert all(
             [not len(n) or (n[0] == 0) for n in config.noise_to_teacher_output]
