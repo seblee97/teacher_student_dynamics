@@ -74,6 +74,11 @@ public:
         std::cerr << "Output Noise: " << noise_stds[active_teacher] << std::endl;
     }
 
+    int get_active_teacher()
+    {
+        return this->active_teacher;
+    }
+
     std::tuple<float, float> step()
     {
         // std::cout << "Taking ODE Step" << std::endl;
