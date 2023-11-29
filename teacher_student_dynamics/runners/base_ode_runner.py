@@ -56,14 +56,6 @@ class BaseODERunner(base_runner.BaseRunner):
 
         self._logger.info("ODE runner setup.")
 
-    # @abc.abstractmethod
-    # def construct_ode_config(
-    #     self,
-    #     config: experiments.config.Config,
-    #     network_configuration: network_configuration.VanillaNetworkConfiguration,
-    # ):
-    #     pass
-
     def compile(self):
         call_list = [
             "g++",
@@ -93,6 +85,13 @@ class BaseODERunner(base_runner.BaseRunner):
 
     def run(self):
         subprocess.call([self._cpp_out_path, self._txt_config_path])
+
+    @abc.abstractmethod
+    def _construct_ode_config(
+        self,
+        config: experiments.config.Config,
+    ):
+        pass
 
     @abc.abstractmethod
     def consolidate_outputs(self):
