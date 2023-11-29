@@ -64,8 +64,7 @@ class BaseODERunner(base_runner.BaseRunner):
     # ):
     #     pass
 
-    def run(self):
-
+    def compile(self):
         call_list = [
             "g++",
             "-pedantic",
@@ -92,6 +91,7 @@ class BaseODERunner(base_runner.BaseRunner):
             f"C++ ODE implementation compiled in {round(time.time() - pre_compile, 3)}s."
         )
 
+    def run(self):
         subprocess.call([self._cpp_out_path, self._txt_config_path])
 
     @abc.abstractmethod
