@@ -31,16 +31,7 @@ class CoreRunner:
 
         self._checkpoint_path = config.checkpoint_path
 
-        if self._run_ode:
-            # time = config.total_training_steps / config.input_dimension
-            # deltas = time / config.timestep
-            # logtime = config.ode_log_frequency / config.input_dimension
-            # logs = logtime / config.timestep
-            if config.input_source == constants.IID_GAUSSIAN:
-                # self._ode_x_scaling = config.input_dimension / (1 / config.timestep)
-                self._ode_x_scaling = config.ode_log_frequency
-            elif config.input_source == constants.HIDDEN_MANIFOLD:
-                self._ode_x_scaling = config.ode_log_frequency
+        self._ode_x_scaling = config.ode_log_frequency
 
         self._setup_runners(config=config, unique_id=unique_id)
 
@@ -80,8 +71,13 @@ class CoreRunner:
                     unique_id=ode_id,
                     network_configuration=network_configuration,
                 )
+            self._ode_runner.compile()
 
     def run(self):
+        """Run network and ode simulations.
+        Begin by running simulations.
+        Next, solve ODEs (C++ code should already be compiled).
+        """ 
         if self._run_network:
             self._network_runner.train()
         if self._run_ode:
