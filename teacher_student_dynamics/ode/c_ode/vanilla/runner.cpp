@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <chrono>
 // #include <format>
+#include <math.h>
 
 int main(int argc, char **argv)
 {
@@ -106,6 +107,7 @@ int main(int argc, char **argv)
         noise_stds,
         freeze_units);
 
+    std::vector<int> teacher_index_log(num_logs);
     std::vector<double> error_0_log(num_logs);
     std::vector<double> error_1_log(num_logs);
 
@@ -167,6 +169,7 @@ int main(int argc, char **argv)
 
         if (i % log_step == 0)
         {
+            teacher_index_log[log_i] = ODE.get_active_teacher();
             error_0_log[log_i] = std::get<0>(step_errors);
             error_1_log[log_i] = std::get<1>(step_errors);
 
@@ -218,8 +221,22 @@ int main(int argc, char **argv)
 
     std::cout << "Solve complete, saving data..." << std::endl;
 
+    std::filesystem::path log_csvs_path = output_path / "log_csvs";
+    std::filesystem::create_directory(log_csvs_path);
+
     std::ofstream file;
-    file.open(output_path / "error_0.csv");
+    file.open(log_csvs_path / "teacher_index.csv");
+    for (int i = 0; i < teacher_index_log.size(); i++)
+    {
+        file << teacher_index_log[i];
+        if (i != teacher_index_log.size() - 1)
+        {
+            file << "\n";
+        }
+    }
+    file.close();
+
+    file.open(log_csvs_path / "generalisation_error_0.csv");
     for (int i = 0; i < error_0_log.size(); i++)
     {
         file << error_0_log[i];
@@ -230,10 +247,32 @@ int main(int argc, char **argv)
     }
     file.close();
 
-    file.open(output_path / "error_1.csv");
+    file.open(log_csvs_path / "generalisation_error_1.csv");
     for (int i = 0; i < error_1_log.size(); i++)
     {
         file << error_1_log[i];
+        if (i < error_1_log.size() - 1)
+        {
+            file << "\n";
+        }
+    }
+    file.close();
+
+    file.open(log_csvs_path / "log_generalisation_error_0.csv");
+    for (int i = 0; i < error_0_log.size(); i++)
+    {
+        file << log10(error_0_log[i]);
+        if (i != error_0_log.size() - 1)
+        {
+            file << "\n";
+        }
+    }
+    file.close();
+
+    file.open(log_csvs_path / "log_generalisation_error_1.csv");
+    for (int i = 0; i < error_1_log.size(); i++)
+    {
+        file << log10(error_1_log[i]);
         if (i < error_1_log.size() - 1)
         {
             file << "\n";
@@ -248,8 +287,8 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < student_hidden; j++)
         {
-            csv_name = "q_" + std::to_string(i) + std::to_string(j) + ".csv";
-            file.open(output_path / csv_name);
+            csv_name = "student_self_overlap_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
                 file << q_log_map["q_" + std::to_string(i) + std::to_string(j)][n];
@@ -267,8 +306,8 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < teacher_hidden; j++)
         {
-            csv_name = "u_" + std::to_string(i) + std::to_string(j) + ".csv";
-            file.open(output_path / csv_name);
+            csv_name = "student_teacher_1_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
                 file << u_log_map["u_" + std::to_string(i) + std::to_string(j)][n];
@@ -278,8 +317,8 @@ int main(int argc, char **argv)
                 }
             }
             file.close();
-            csv_name = "r_" + std::to_string(i) + std::to_string(j) + ".csv";
-            file.open(output_path / csv_name);
+            csv_name = "student_teacher_0_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
                 file << r_log_map["r_" + std::to_string(i) + std::to_string(j)][n];
@@ -296,8 +335,8 @@ int main(int argc, char **argv)
     std::cout << student_hidden << std::endl;
     for (int i = 0; i < student_hidden; i++)
     {
-        csv_name = "h_0" + std::to_string(i) + ".csv";
-        file.open(output_path / csv_name);
+        csv_name = "student_head_0_weight_" + std::to_string(i) + ".csv";
+        file.open(log_csvs_path / csv_name);
         for (int n = 0; n < num_logs; n++)
         {
             file << h_0_log_map["h_0" + std::to_string(i)][n];
@@ -309,8 +348,8 @@ int main(int argc, char **argv)
         file.close();
         if (multi_head)
         {
-            csv_name = "h_1" + std::to_string(i) + ".csv";
-            file.open(output_path / csv_name);
+            csv_name = "student_head_1_weight_" + std::to_string(i) + ".csv";
+            file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
                 file << h_1_log_map["h_1" + std::to_string(i)][n];
