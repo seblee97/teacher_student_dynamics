@@ -32,8 +32,7 @@ class VanillaODERunner(base_ode_runner.BaseODERunner):
 
     def _construct_ode_config(
         self,
-        config: experiments.config.Config,
-        network_configuration: network_configurations.VanillaNetworkConfiguration,
+        config: experiments.config.Config
     ):
         """Method to format/save subset of configuration relevant to ODE."""
 
@@ -84,36 +83,11 @@ class VanillaODERunner(base_ode_runner.BaseODERunner):
 
         df = pd.DataFrame()
 
-        for i in range(self._student_hidden):
-            for j in range(self._student_hidden):
-                qij = np.genfromtxt(os.path.join(self._ode_file_path, f"q_{i}{j}.csv"))
-                df[f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"] = qij
+        log_csvs_path = os.path.join(self._ode_file_path, constants.LOG_CSVS)
 
-        for i in range(self._student_hidden):
-            for j in range(self._teacher_hidden):
-                rij = np.genfromtxt(os.path.join(self._ode_file_path, f"r_{i}{j}.csv"))
-                uij = np.genfromtxt(os.path.join(self._ode_file_path, f"u_{i}{j}.csv"))
-                df[f"{constants.STUDENT_TEACHER}_{0}_{constants.OVERLAP}_{i}_{j}"] = rij
-                df[f"{constants.STUDENT_TEACHER}_{1}_{constants.OVERLAP}_{i}_{j}"] = uij
-
-        for i in range(self._num_teachers):
-
-            ei = np.genfromtxt(os.path.join(self._ode_file_path, f"error_{i}.csv"))
-            df[f"{constants.GENERALISATION_ERROR}_{i}"] = ei
-
-            log_ei = np.log10(ei)
-            df[f"{constants.LOG_GENERALISATION_ERROR}_{i}"] = log_ei
-
-        if self._multi_head:
-            for i in range(self._num_teachers):
-                for j in range(self._student_hidden):
-                    hij = np.genfromtxt(
-                        os.path.join(self._ode_file_path, f"h_{i}{j}.csv")
-                    )
-                    df[f"{constants.STUDENT_HEAD}_{i}_{constants.WEIGHT}_{j}"] = hij
-        else:
-            for j in range(self._student_hidden):
-                h0j = np.genfromtxt(os.path.join(self._ode_file_path, f"h_0{j}.csv"))
-                df[f"{constants.STUDENT_HEAD}_0_{constants.WEIGHT}_{j}"] = h0j
+        for csv_path in os.listdir(log_csvs_path):
+            if csv_path.endswith(".csv"):
+                column = csv_path.split(".")[0]
+                df[column] = np.genfromtxt(os.path.join(log_csvs_path, csv_path))
 
         df.to_csv(self._logfile_path, index=False)
