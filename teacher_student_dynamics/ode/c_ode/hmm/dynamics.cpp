@@ -39,20 +39,19 @@ public:
     Matrix<double, 1, Dynamic> sigma_rho_1_term;
     Matrix<double, 1, Dynamic> sigma_rho_2_term;
 
+    // ufu2 = b^2; fu2 = c in goldt;
+    double b;
+    double c;
+
     // float rho_min;
     // float rho_max;
     // float rho_interval;
-
-    // double b = 1. / pow(M_PI, 0.5); // ufu2 = b^2 in goldt
-    // double c = 1. / 3;              // fu2 = c in goldt
-
-    double b = pow(2. / M_PI, 0.5); // ufu2 = b^2 in goldt
-    double c = 1.;                  // fu2 = c in goldt
 
     HMMODE(
         HMMODEState &ode_state,
         int t_hidden,
         int s_hidden,
+        std::string f_activation,
         float delta_frac,
         int lat_dimension,
         bool multi_h,
@@ -88,6 +87,15 @@ public:
         // rho_min = pow(1 - pow(delta, 0.5), 2);
         // rho_max = pow(1 + pow(delta, 0.5), 2);
         // rho_interval = (rho_max - rho_min) / latent_dimension;
+        if (f_activation == "scaled_erf")
+        {
+            b = 1. / pow(M_PI, 0.5); 
+            c = 1. / 3;              
+        } else if (f_activation == "sign")
+        {
+            b = pow(2. / M_PI, 0.5); 
+            c = 1.;                
+        }
         for (int bin = 0; bin < latent_dimension; bin++)
         {
             double rho_b_1 = this->state.state["rho_1"](bin);
