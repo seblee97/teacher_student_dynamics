@@ -40,6 +40,11 @@ class ConfigTemplate:
             config_field.Field(
                 name=constants.ODE_LOG_FREQUENCY, types=[int, type(None)]
             ),
+            config_field.Field(
+                name=constants.DEBUG_COPY,
+                types=[list],
+                requirements=[lambda x: all(isinstance(y, str) for y in x)],
+            ),
         ],
         level=[constants.LOGGING],
     )
@@ -56,11 +61,6 @@ class ConfigTemplate:
             config_field.Field(name=constants.EIGEN_PATH, types=[str, type(None)]),
             config_field.Field(
                 name=constants.TIMESTEP, types=[float], requirements=[lambda x: x > 0.0]
-            ),
-            config_field.Field(
-                name=constants.DEBUG_COPY,
-                types=[list],
-                requirements=[lambda x: all(isinstance(y, str) for y in x)],
             ),
         ],
         level=[constants.ODE],
