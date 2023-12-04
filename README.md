@@ -70,4 +70,9 @@ The following features are not planned but are certainly possible:
 - *Copying head at switch.
 - *Path integral consolidation (Zenke, Poole).
 
- Code for most exist already but have not been pushed to this repository in an attempt to minimise complexity. 
+Code for most exist already but have not been pushed to this repository in an attempt to minimise complexity. 
+
+## Tests
+
+A limited number of integration tests have been implemented. They can be run with ```python -m unittest``` from the directory root. 
+The idea of these integration tests is primarily to ensure that when new models etc. are implemented that previous use-cases are unaffected. These tests can take some time to complete. 
