@@ -13,26 +13,14 @@ logging:
     save_overlap_frequency: 1000 # save into ode-readable format (for debugging) ensure this is multiple of input_dimension * timestep
     ode_log_frequency: 1000 # ensure this is multiple of input_dimension * timestep
 
+    debug_copy: []
+
 ode:
     implementation: cpp
     omp: False
     omp_num_threads: 0
     eigen_path: 
     timestep: 0.001
-
-    debug_copy: []
-        # - "W" # think this works
-        # - "r_density"
-        # - "u_density"
-        # - "sigma_1_density"
-        # - "sigma_2_density"
-        # - "Sigma1"
-        # - "Sigma2"
-        # - "Q"
-        # - "R"
-        # - "U"
-        # - "h1"
-        # - "h2"
 
 data:
     input_source: hidden_manifold # iid_gaussian, hidden_manifold
