@@ -601,10 +601,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             eigenvalues_1 = all_eigenvalues[self._latent_dimension :]
             eigenvectors_1 = all_eigenvectors[self._latent_dimension :, :]
 
-            import pdb
-
-            pdb.set_trace()
-
             tilde_F_1 = torch.diag(eigenvalues_1.sqrt()).mm(
                 eigenvectors_1.mm(eigenvectors_1.T)
             )
