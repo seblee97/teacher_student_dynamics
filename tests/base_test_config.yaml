@@ -41,6 +41,8 @@ data:
         # number of bins for discretising densities
         num_bins: 1000
 
+        construction: goldt        
+        
         feature_matrix_correlations: [1.]
 
     noise_to_student_input:
