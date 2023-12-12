@@ -41,7 +41,9 @@ data:
         # number of bins for discretising densities
         num_bins: 1000
 
-        feature_matrix_correlations: [1.]
+        construction: domine_ssm # goldt or domine_ssm
+
+        feature_matrix_correlations: [0.6]
 
     noise_to_student_input:
     # list of lists dim 2 (one per teacher)
