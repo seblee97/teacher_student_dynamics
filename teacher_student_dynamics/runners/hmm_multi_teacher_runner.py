@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import torch
+from scipy import stats
 
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.data_modules import (
@@ -21,7 +22,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     """
 
     def __init__(self, config: experiments.config.Config, unique_id: str = "") -> None:
-
         self._teacher_input_dimension = config.latent_dimension
         self._latent_dimension = config.latent_dimension
         self._delta = config.latent_dimension / config.input_dimension
@@ -125,12 +125,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         return student_local_field_covariances
 
     def _student_teacher_overlaps(self, student_weighted_feature_matrices):
-        # MxD matrix 
+        # MxD matrix
         student_teacher_overlaps = [
             data_module.folding_function_coefficients[1]
-            * teacher.layers[0].weight.data.mm(weighted_feature_matrix)
-            .cpu()
-            .numpy()
+            * teacher.layers[0].weight.data.mm(weighted_feature_matrix).cpu().numpy()
             / self._latent_dimension
             for data_module, weighted_feature_matrix, teacher in zip(
                 self._data_module,
@@ -183,7 +181,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         ]
 
     def _setup_network_configuration(self):
-
         with torch.no_grad():
             # FIXED QUANTITIES
             # T^{mn} and equivalent for second teacher (Equation 18)
@@ -196,7 +193,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             teacher_cross_overlaps = [
                 o.cpu().numpy() for o in self._teachers.cross_overlaps
             ]
-            # Omega_{rs} (Eq. 27) [note: we believe there is a typo in the paper, 
+            # Omega_{rs} (Eq. 27) [note: we believe there is a typo in the paper,
             # should be sum over i F_{ri}F_{si}]
             # implemented here: DxN matrix multiplied by NxD matrix -> DxD matrix.
             feature_matrix_overlaps = [
@@ -204,7 +201,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 / self._input_dimension
                 for data_module in self._data_module
             ]
-            
+
             # \tilde{v} Mx1 - around eq 5.
             teacher_head_weights = [
                 teacher.heads[0].weight.data.cpu().numpy().flatten()
@@ -424,7 +421,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         )
 
     def save_network_configuration(self, step: int):
-
         if step is not None:
             step = f"_{step}"
         else:
@@ -463,7 +459,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         }
         if len(self._network_configuration.student_head_weights) > 1:
             # multi-head
-            order_params[f"h2{step}.csv"] = self._network_configuration.student_head_weights[1]
+            order_params[
+                f"h2{step}.csv"
+            ] = self._network_configuration.student_head_weights[1]
 
         if step == "":
             order_params = {
@@ -527,7 +525,10 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         This method must be called before training loop is called."""
         # core data module
-        if config.input_source == constants.HIDDEN_MANIFOLD:
+        if (
+            config.input_source == constants.HIDDEN_MANIFOLD
+            and config.construction == constants.GOLDT
+        ):
             # F matrix (DxN matrix - defined in sec II)
             base_feature_matrix = torch.normal(
                 mean=0.0,
@@ -579,6 +580,114 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 and self._replay_strategy == constants.GAMMA
             ):
                 data_modules[0].surrogate_feature_matrices = [next_feature_matrix]
+        elif (
+            config.input_source == constants.HIDDEN_MANIFOLD
+            and config.construction == constants.DOMINE_SSM
+        ):
+            # \tilde{F} matrix (D(2-\gamma) x D(2-\gamma))
+            tilde_base_feature_matrix = torch.normal(
+                mean=0.0,
+                std=1.0,
+                size=(2 * self._latent_dimension, 2 * self._latent_dimension),
+                device=self._device,
+            )
+            tilde_omega = (
+                tilde_base_feature_matrix.mm(tilde_base_feature_matrix.T)
+                / 2
+                * self._latent_dimension
+            )
+            all_eigenvalues, all_eigenvectors = torch.linalg.eigh(tilde_omega)
+            # subsample d eigenvalues for first task
+            eigenvalues_1 = all_eigenvalues[self._latent_dimension :]
+            eigenvectors_1 = all_eigenvectors[self._latent_dimension :, :]
+
+            import pdb
+
+            pdb.set_trace()
+
+            tilde_F_1 = torch.diag(eigenvalues_1.sqrt()).mm(
+                eigenvectors_1.mm(eigenvectors_1.T)
+            )
+
+            # SO(N) rotation matrix
+            rotation_matrix = torch.from_numpy(
+                stats.ortho_group.rvs(self._input_dimension)
+            ).to(torch.float32)
+
+            zero_matrix = torch.zeros(
+                size=(
+                    self._input_dimension - self._latent_dimension,
+                    self._latent_dimension,
+                )
+            )
+
+            base_feature_matrix = torch.vstack((tilde_F_1, zero_matrix)).T.mm(
+                rotation_matrix
+            )
+
+            data_modules = [
+                hidden_manifold.HiddenManifold(
+                    device=config.experiment_device,
+                    train_batch_size=config.train_batch_size,
+                    test_batch_size=config.test_batch_size,
+                    input_dimension=config.input_dimension,
+                    latent_dimension=config.latent_dimension,
+                    mean=config.mean,
+                    variance=config.variance,
+                    activation=config.activation,
+                    feature_matrix=base_feature_matrix,
+                    precompute_data=config.precompute_data,
+                )
+            ]
+
+            for feature_correlation in config.feature_matrix_correlations:
+                effective_shared_dim = int(self._latent_dimension * feature_correlation)
+                effective_separate_dim = self._latent_dimension - effective_shared_dim
+                eigenvalues_12 = eigenvalues_1[:effective_shared_dim]
+                eigenvectors_12 = eigenvectors_1[:effective_shared_dim, :]
+
+                eigenvalues_2 = torch.concat(
+                    (
+                        eigenvalues_12,
+                        all_eigenvalues[
+                            self._latent_dimension : self._latent_dimension
+                            + effective_separate_dim
+                        ],
+                    )
+                )
+                eigenvectors_2 = torch.vstack(
+                    (
+                        eigenvectors_12,
+                        all_eigenvectors[
+                            self._latent_dimension : self._latent_dimension
+                            + effective_separate_dim,
+                            :,
+                        ],
+                    )
+                )
+
+                tilde_F_2 = torch.diag(eigenvalues_2.sqrt()).mm(
+                    eigenvectors_2.mm(eigenvectors_2.T)
+                )
+
+                next_feature_matrix = torch.vstack((tilde_F_2, zero_matrix)).T.mm(
+                    rotation_matrix
+                )
+                data_modules.append(
+                    hidden_manifold.HiddenManifold(
+                        device=config.experiment_device,
+                        train_batch_size=config.train_batch_size,
+                        test_batch_size=config.test_batch_size,
+                        input_dimension=config.input_dimension,
+                        latent_dimension=config.latent_dimension,
+                        mean=config.mean,
+                        variance=config.variance,
+                        activation=config.activation,
+                        feature_matrix=next_feature_matrix,
+                        precompute_data=config.precompute_data,
+                    )
+                )
+
         else:
             raise ValueError(
                 f"Data module (specified by input source) {config.input_source} not recognised"
