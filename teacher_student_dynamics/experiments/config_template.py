@@ -4,7 +4,6 @@ from teacher_student_dynamics import constants
 
 
 class ConfigTemplate:
-
     _runner_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -113,6 +112,11 @@ class ConfigTemplate:
             ),
             config_field.Field(
                 name=constants.NUM_BINS, types=[int], requirements=[lambda x: x > 0]
+            ),
+            config_field.Field(
+                name=constants.CONSTRUCTION,
+                types=[str],
+                requirements=[lambda x: x in [constants.GOLDT, constants.DOMINE_SSM]],
             ),
             config_field.Field(
                 name=constants.FEATURE_MATRIX_CORRELATIONS,
