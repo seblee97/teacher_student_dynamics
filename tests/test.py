@@ -14,7 +14,6 @@ TEST_CONFIG_PATH = os.path.join(MAIN_FILE_PATH, "base_test_config.yaml")
 
 
 def _test_runner(changes):
-
     results_path = tempfile.mkdtemp()
 
     config_class = config.Config
@@ -35,7 +34,6 @@ def _test_runner(changes):
 
 
 class TestRunner(unittest.TestCase):
-
     def test_base(self):
         _test_runner(changes=[])
 
@@ -44,5 +42,24 @@ class TestRunner(unittest.TestCase):
         _test_runner(changes=changes)
 
     def test_network_only(self):
-        changes=[{"runner": {"run_ode": False}}]
+        changes = [{"runner": {"run_ode": False}}]
+        _test_runner(changes=changes)
+
+    def test_hmm_base(self):
+        changes = [{"data": {"input_source": "hidden_manifold"}}]
+        _test_runner(changes=changes)
+
+    def test_hmm_ode_only(self):
+        changes = [
+            {
+                "runner": {"run_network": False},
+                "data": {"input_source": "hidden_manifold"},
+            }
+        ]
+        _test_runner(changes=changes)
+
+    def test_network_only(self):
+        changes = [
+            {"runner": {"run_ode": False}, "data": {"input_source": "hidden_manifold"}}
+        ]
         _test_runner(changes=changes)
