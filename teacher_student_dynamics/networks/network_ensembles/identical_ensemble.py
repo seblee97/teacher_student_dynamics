@@ -41,14 +41,21 @@ class IdenticalEnsemble(base_ensemble.BaseEnsemble):
 
         networks = [self._init_network() for _ in range(self._ensemble_size)]
 
-        input_hidden_weights_to_be_copied = networks[0].layers[0].weight.data
+        if len(networks[0].layers):
+            input_hidden_weights_to_be_copied = networks[0].layers[0].weight.data
+        else:
+            # if no hidden layer, just copy input-output weights i.e. heads
+            input_hidden_weights_to_be_copied = None
         hidden_output_weights_to_be_copied = networks[0].heads[0].weight.data
 
         with torch.no_grad():
 
             for i in range(1, self._ensemble_size):
 
-                networks[i].layers[0].weight.data = input_hidden_weights_to_be_copied
+                if input_hidden_weights_to_be_copied is not None:
+                    networks[i].layers[
+                        0
+                    ].weight.data = input_hidden_weights_to_be_copied
                 networks[i].heads[0].weight.data = hidden_output_weights_to_be_copied
 
         return networks
