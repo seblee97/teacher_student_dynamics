@@ -61,11 +61,11 @@ testing:
     test_frequency: 10000
 
 training:
-    train_batch_size: 1
+    train_batch_size: 10 # for rl_perceptron, this field specifies T
     total_training_steps: 100000000
     optimiser: sgd
     learning_rate: 0.2
-    loss_function: mse
+    loss_function: rl_perceptron # mse or rl_perceptron
     train_hidden_layer: True
     train_head_layer: True
     copy_head_at_switch: False
@@ -73,6 +73,11 @@ training:
     # list of dim num_teachers. 
     # Each item is number of units to freeze for each teacher.
     freeze_units: [0, 0]
+
+    rl_perceptron:
+        condition: all_correct
+        reward: 1
+        penalty: 0
 
 networks:
     input_dimension: 10000
