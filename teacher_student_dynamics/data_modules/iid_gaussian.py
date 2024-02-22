@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+import collections
 import numpy as np
 import torch
 import torch.distributions as tdist
@@ -77,7 +78,7 @@ class IIDGaussian(base_data_module.BaseData):
     def _get_precomputed_data(self):
         grouped_training_data = self._get_fixed_data(size=self._precompute_data)
         self._precomputed_inputs = grouped_training_data[constants.X]
-        self._training_data = [{constants.X: i} for i in self._precomputed_inputs]
+        self._training_data = collections.deque(self._precomputed_inputs)
         self._precompute_labels = False
 
     def _get_fixed_data(self, size) -> Dict[str, torch.Tensor]:
@@ -94,9 +95,18 @@ class IIDGaussian(base_data_module.BaseData):
         """Returns batch of training data (input only)"""
         if self._dataset_size == constants.INF:
             if self._precompute_data is not None:
-                if not self._training_data:
+                if len(self._training_data) < self._train_batch_size:
                     self._get_precomputed_data()
-                return self._training_data.pop()
+                return {
+                    constants.X: torch.stack(
+                        (
+                            [
+                                self._training_data.popleft()
+                                for _ in range(self._train_batch_size)
+                            ]
+                        )
+                    )
+                }
             batch = self._get_infinite_dataset_batch()
         else:
             batch = self._get_finite_dataset_batch()
