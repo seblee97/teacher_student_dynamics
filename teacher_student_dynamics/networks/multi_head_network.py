@@ -34,7 +34,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._hidden_dimension = hidden_dimension
         self._output_dimension = output_dimension
         self._num_heads = num_heads
-        self._layer_dimensions = [self._input_dimension] + [self._hidden_dimension]
+        self._layer_dimensions = [self._input_dimension]
+        if self._hidden_dimension is not None:
+            self._layer_dimensions.extend(self._hidden_dimension)
         self._bias = bias
         self._nonlinearity = nonlinearity
         self._initialisation_std = initialisation_std
@@ -65,8 +67,12 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
     @property
     def self_overlap(self):
         with torch.no_grad():
-            layer = self._layers[0].weight.data
-            overlap = layer.mm(layer.t()) / self._input_dimension
+            if self._hidden_dimension is not None:
+                layer = self._layers[0].weight.data
+                overlap = layer.mm(layer.t()) / self._input_dimension
+            else:
+                layer = self._heads[0].weight.data
+                overlap = layer.mm(layer.t()) / self._input_dimension
         return overlap
 
     @property
@@ -88,6 +94,8 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             nonlinear_function = custom_activations.ScaledErf()
         elif self._nonlinearity == constants.LINEAR:
             nonlinear_function = custom_activations.linear_activation
+        elif self._nonlinearity is None:
+            nonlinear_function = None
         else:
             raise ValueError(f"Unknown non-linearity: {self._nonlinearity}")
         return nonlinear_function
