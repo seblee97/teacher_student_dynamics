@@ -6,6 +6,13 @@ from teacher_student_dynamics import constants
 class ConfigTemplate:
     _runner_template = config_template.Template(
         fields=[
+            # config_field.Field(
+            #     name=constants.LEARNING_REGIME,
+            #     types=[str],
+            #     requirements=[
+            #         lambda x: x in [constants.SUPERVISED, constants.RL_PERCEPTRON]
+            #     ],
+            # ),
             config_field.Field(
                 name=constants.RUN_ODE,
                 types=[bool],
@@ -195,6 +202,29 @@ class ConfigTemplate:
         level=[constants.DATA],
     )
 
+    _rl_perceptron_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.CONDITION,
+                types=[str],
+                requirements=[lambda x: x in [constants.ALL_CORRECT]],
+            ),
+            config_field.Field(
+                name=constants.REWARD,
+                types=[float, int],
+                requirements=[lambda x: x >= 0],
+            ),
+            config_field.Field(
+                name=constants.PENALTY,
+                types=[float, int],
+                requirements=[lambda x: x >= 0],
+            ),
+        ],
+        level=[constants.TRAINING, constants.RL_PERCEPTRON],
+        dependent_variables=[constants.LOSS_FUNCTION],
+        dependent_variables_required_values=[[constants.RL_PERCEPTRON]],
+    )
+
     _training_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -220,7 +250,7 @@ class ConfigTemplate:
             config_field.Field(
                 name=constants.LOSS_FUNCTION,
                 types=[str],
-                requirements=[lambda x: x in [constants.MSE]],
+                requirements=[lambda x: x in [constants.MSE, constants.RL_PERCEPTRON]],
             ),
             config_field.Field(
                 name=constants.TRAIN_HIDDEN_LAYER,
@@ -241,6 +271,7 @@ class ConfigTemplate:
             ),
         ],
         level=[constants.TRAINING],
+        nested_templates=[_rl_perceptron_template],
     )
 
     _testing_template = config_template.Template(
@@ -309,16 +340,16 @@ class ConfigTemplate:
             ),
             config_field.Field(
                 name=constants.NONLINEARITY,
-                types=[str],
+                types=[str, type(None)],
                 requirements=[
-                    lambda x: x
-                    in [constants.SCALED_ERF, constants.LINEAR, constants.RELU]
+                    lambda x: x is None
+                    or x in [constants.SCALED_ERF, constants.LINEAR, constants.RELU]
                 ],
             ),
             config_field.Field(
                 name=constants.STUDENT_HIDDEN,
-                types=[int],
-                requirements=[lambda x: x > 0],
+                types=[int, type(None)],
+                requirements=[lambda x: x is None or x > 0],
             ),
             config_field.Field(name=constants.STUDENT_BIAS, types=[bool]),
             config_field.Field(
@@ -332,8 +363,8 @@ class ConfigTemplate:
             ),
             config_field.Field(
                 name=constants.TEACHER_HIDDEN,
-                types=[int],
-                requirements=[lambda x: x > 0],
+                types=[int, type(None)],
+                requirements=[lambda x: x is None or x > 0],
             ),
             config_field.Field(name=constants.TEACHER_BIAS, types=[bool]),
             config_field.Field(name=constants.TEACHER_HEADS_ONE, types=[bool]),
