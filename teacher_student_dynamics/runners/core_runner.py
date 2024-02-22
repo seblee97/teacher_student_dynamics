@@ -9,6 +9,7 @@ from teacher_student_dynamics.runners import (
     hmm_ode_runner,
     vanilla_multi_teacher_runner,
     vanilla_ode_runner,
+    rl_perceptron_runner,
 )
 from teacher_student_dynamics.utils import plotting_functions
 
@@ -45,11 +46,16 @@ class CoreRunner:
             ode_id = f"{unique_id}_{constants.ODE}"
 
         if config.input_source == constants.IID_GAUSSIAN:
-            self._network_runner = (
-                vanilla_multi_teacher_runner.VanillaMultiTeacherRunner(
+            if config.loss_function == constants.MSE:
+                self._network_runner = (
+                    vanilla_multi_teacher_runner.VanillaMultiTeacherRunner(
+                        config=config, unique_id=network_id
+                    )
+                )
+            elif config.loss_function == constants.RL_PERCEPTRON:
+                self._network_runner = rl_perceptron_runner.RLPerceptronRunner(
                     config=config, unique_id=network_id
                 )
-            )
         elif config.input_source == constants.HIDDEN_MANIFOLD:
             self._network_runner = hmm_multi_teacher_runner.HMMMultiTeacherRunner(
                 config=config, unique_id=unique_id
@@ -77,7 +83,7 @@ class CoreRunner:
         """Run network and ode simulations.
         Begin by running simulations.
         Next, solve ODEs (C++ code should already be compiled).
-        """ 
+        """
         if self._run_network:
             self._network_runner.train()
         if self._run_ode:
