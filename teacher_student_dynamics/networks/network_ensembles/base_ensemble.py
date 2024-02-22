@@ -50,13 +50,22 @@ class BaseEnsemble(abc.ABC):
             for i in range(len(self._networks)):
                 for j in range(i, len(self._networks)):
                     if i != j:
-                        overlap = (
-                            torch.mm(
-                                self._networks[i].layers[0].weight.data,
-                                self._networks[j].layers[0].weight.data.T,
+                        if self._hidden_dimension is None:
+                            overlap = (
+                                torch.mm(
+                                    self._networks[i].heads[0].weight.data,
+                                    self._networks[j].heads[0].weight.data.T,
+                                )
+                                / self._input_dimension
                             )
-                            / self._input_dimension
-                        )
+                        else:
+                            overlap = (
+                                torch.mm(
+                                    self._networks[i].layers[0].weight.data,
+                                    self._networks[j].layers[0].weight.data.T,
+                                )
+                                / self._input_dimension
+                            )
                         overlaps.append(overlap)
         return overlaps
 
