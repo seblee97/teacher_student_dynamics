@@ -80,10 +80,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._network_configuration.student_head_weights = student_head_weights
         self._network_configuration.student_self_overlap = student_self_overlap
         self._network_configuration.student_teacher_overlaps = student_teacher_overlaps
-        
 
     def save_network_configuration(self, step: int):
-        
+
         if step is not None:
             step = f"_{step}"
         else:
@@ -97,7 +96,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         }
         if len(self._network_configuration.student_head_weights) > 1:
             # multi-head
-            order_params[f"h2{step}.csv"] = self._network_configuration.student_head_weights[1]
+            order_params[f"h2{step}.csv"] = (
+                self._network_configuration.student_head_weights[1]
+            )
 
         if step == "":
             order_params = {
@@ -291,9 +292,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 self._data_columns[f"{constants.LOG_GENERALISATION_ERROR}_{i}"][
                     self._data_index
                 ] = np.log10(loss.item())
-                generalisation_errors[
-                    f"{constants.GENERALISATION_ERROR}_{i}"
-                ] = loss.item()
+                generalisation_errors[f"{constants.GENERALISATION_ERROR}_{i}"] = (
+                    loss.item()
+                )
 
         self._student.train()
 
