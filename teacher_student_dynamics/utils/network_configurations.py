@@ -22,6 +22,75 @@ class BaseNetworkConfiguration(abc.ABC):
         pass
 
 
+class PerceptronNetworkConfiguration(BaseNetworkConfiguration):
+    """object to store configuration of student/teacher perceptron."""
+
+    def __init__(
+        self,
+        student_self_overlap: np.ndarray,
+        teacher_self_overlaps: List[np.ndarray],
+        teacher_cross_overlaps: List[np.ndarray],
+        student_teacher_overlaps: List[np.ndarray],
+    ):
+        self._student_self_overlap = student_self_overlap
+        self._teacher_self_overlaps = teacher_self_overlaps
+        self._teacher_cross_overlaps = teacher_cross_overlaps
+        self._student_teacher_overlaps = student_teacher_overlaps
+
+        self._num_teachers = len(self._teacher_self_overlaps)
+
+        super().__init__()
+
+    @property
+    def student_self_overlap(self) -> np.ndarray:
+        return self._student_self_overlap
+
+    @student_self_overlap.setter
+    def student_self_overlap(self, student_self_overlap) -> None:
+        self._student_self_overlap = student_self_overlap
+
+    @property
+    def teacher_self_overlaps(self) -> List[np.ndarray]:
+        return self._teacher_self_overlaps
+
+    @property
+    def teacher_cross_overlaps(self) -> List[np.ndarray]:
+        return self._teacher_cross_overlaps
+
+    @property
+    def student_teacher_overlaps(self) -> List[np.ndarray]:
+        return self._student_teacher_overlaps
+
+    @student_teacher_overlaps.setter
+    def student_teacher_overlaps(self, student_teacher_overlaps) -> None:
+        self._student_teacher_overlaps = student_teacher_overlaps
+
+    @property
+    def configuration_dictionary(self):
+        return {
+            constants.STUDENT_SELF_OVERLAP: self._student_self_overlap,
+            constants.STUDENT_TEACHER_OVERLAPS: self._student_teacher_overlaps,
+            constants.TEACHER_CROSS_OVERLAPS: self._teacher_cross_overlaps,
+            constants.TEACHER_SELF_OVERLAPS: self._teacher_self_overlaps,
+        }
+
+    @property
+    def sub_dictionary(self):
+        network_configuration_dictionary = {}
+
+        for (i, j), overlap_value in np.ndenumerate(self._student_self_overlap):
+            network_configuration_dictionary[
+                f"{constants.STUDENT_SELF_OVERLAP}_{i}_{j}"
+            ] = overlap_value
+        for t, student_teacher_overlap in enumerate(self._student_teacher_overlaps):
+            for (i, j), overlap_value in np.ndenumerate(student_teacher_overlap):
+                network_configuration_dictionary[
+                    f"{constants.STUDENT_TEACHER}_{t}_{constants.OVERLAP}_{i}_{j}"
+                ] = overlap_value
+
+        return network_configuration_dictionary
+
+
 class VanillaNetworkConfiguration(BaseNetworkConfiguration):
     """object to store configuration of student/teacher networks in unified way."""
 
