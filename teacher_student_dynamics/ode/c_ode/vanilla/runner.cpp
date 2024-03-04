@@ -185,14 +185,9 @@ int main(int argc, char **argv)
             std::cerr << "Step: " << step_scaling * i << "; Elapsed (s): " << since(start_time).count() << std::endl;
             start_time = std::chrono::steady_clock::now();
         }
-        step_errors = ODE.step();
 
         if (i % log_step == 0)
         {
-            teacher_index_log[log_i] = ODE.get_active_teacher();
-            error_0_log[log_i] = std::get<0>(step_errors);
-            error_1_log[log_i] = std::get<1>(step_errors);
-
             for (int s = 0; s < student_hidden; s++)
             {
                 for (int s_ = 0; s_ < student_hidden; s_++)
@@ -218,6 +213,28 @@ int main(int argc, char **argv)
                     h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
                 }
             }
+        }
+
+        std::cout << "Step: " << i << std::endl;
+        // std::cerr << "Step: " << i << debug_step << std::endl;
+        if (i % debug_step == 0)
+        {
+            std::cout << "READING STATE FROM FILE" << std::endl;
+            std::cerr << "READING STATE FROM FILE" << std::endl;
+            step_order_parameter_paths = base_order_parameter_paths + "_" + std::to_string(static_cast<int>(step_scaling * i)) + ".txt";
+            std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
+            std::cerr << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
+            step_errors = ODE.step(step_order_parameter_paths);
+        }
+        else
+        {
+            step_errors = ODE.step();
+        }
+        if (i % log_step == 0)
+        {
+            teacher_index_log[log_i] = ODE.get_active_teacher();
+            error_0_log[log_i] = std::get<0>(step_errors);
+            error_1_log[log_i] = std::get<1>(step_errors);
             log_i++;
         }
 
