@@ -343,7 +343,7 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < teacher_hidden; j++)
         {
-            csv_name = "student_teacher_1_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            csv_name = "student_teacher_1_overlap_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
             file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
@@ -354,7 +354,7 @@ int main(int argc, char **argv)
                 }
             }
             file.close();
-            csv_name = "student_teacher_0_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            csv_name = "student_teacher_0_overlap_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
             file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
