@@ -158,9 +158,11 @@ int main(int argc, char **argv)
     for (int i = 0; i < student_hidden; i++)
     {
         std::vector<double> h_0i_log(num_logs);
-        std::vector<double> h_1i_log(num_logs);
         h_0_log_map["h_0" + std::to_string(i)] = h_0i_log;
-        h_1_log_map["h_1" + std::to_string(i)] = h_1i_log;
+        if (multi_head){
+            std::vector<double> h_1i_log(num_logs);
+            h_1_log_map["h_1" + std::to_string(i)] = h_1i_log;
+        }
     }
 
     std::tuple<float, float> step_errors;
