@@ -20,10 +20,13 @@ int main(int argc, char **argv)
     //  R,/path/to/R.csv
     //  etc.
     std::string order_parameter_paths;
+    std::string base_order_parameter_paths;
+    std::string step_order_parameter_paths;
     std::string output_path_str;
     std::string experiment_log_path;
     int stdout_frequency;
     order_parameter_paths = std::get<std::string>(config["order_parameter_paths"]);
+    base_order_parameter_paths = order_parameter_paths.substr(0, order_parameter_paths.length() - 4);
     output_path_str = std::get<std::string>(config["output_path"]);
     experiment_log_path = std::get<std::string>(config["stdout_path"]);
     stdout_frequency = std::get<int>(config["stdout_frequency"]);
@@ -57,6 +60,7 @@ int main(int argc, char **argv)
     std::vector<float> noise_stds = std::get<std::vector<float>>(config["noise_stds"]);
     std::vector<float> input_noise_stds = std::get<std::vector<float>>(config["input_noise_stds"]);
     std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
+    int debug_frequency = std::get<int>(config["debug_frequency"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
 
@@ -80,9 +84,12 @@ int main(int argc, char **argv)
 
     float time = (float)num_steps / (float)input_dimension;
     float switch_time = (float)switch_step / (float)input_dimension;
+    float debug_time = (float)debug_frequency / (float)input_dimension;
     int num_deltas = static_cast<int>(std::round(time / timestep));
     int num_logs = static_cast<int>(std::round(num_deltas / log_step));
     int switch_delta = static_cast<int>(std::round(switch_time / timestep));
+    int debug_step = static_cast<int>(std::round(debug_time / timestep));
+    int num_debugs = static_cast<int>(std::round(num_deltas / debug_step));
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
@@ -92,6 +99,17 @@ int main(int argc, char **argv)
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
     std::cout << "step_scaling: " << step_scaling << std::endl;
+    std::cout << "debug_step: " << debug_step << std::endl;
+    std::cout << "debug_time: " << debug_time << std::endl;
+    std::cerr << "num steps: " << num_steps << std::endl;
+    std::cerr << "input dimension: " << input_dimension << std::endl;
+    std::cerr << "time: " << time << std::endl;
+    std::cerr << "num deltas: " << num_deltas << std::endl;
+    std::cerr << "num logs: " << num_logs << std::endl;
+    std::cerr << "switch_delta: " << switch_delta << std::endl;
+    std::cerr << "step_scaling: " << step_scaling << std::endl;
+    std::cerr << "debug_step: " << debug_step << std::endl;
+    std::cerr << "debug_time: " << debug_time << std::endl;
 
     StudentTeacherODE ODE(
         state,
