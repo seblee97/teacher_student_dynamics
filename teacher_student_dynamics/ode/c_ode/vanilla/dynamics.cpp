@@ -546,7 +546,7 @@ public:
         // std::cout << "dh1/dt" << std::endl;
         // MatrixXd derivative(this->state.state["h1"].rows(), this->state.state["h1"].cols());
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        if (train_h_layer and (active_teacher == 0) or (not multi_head))
+        if (train_h_layer and ((active_teacher == 0) or (not multi_head)))
         {
 #pragma omp parallel for
             for (int i = 0; i < student_hidden; i++)
@@ -557,7 +557,7 @@ public:
 #pragma omp section
                     for (int m = 0; m < teacher_hidden; m++)
                     {
-                        std::vector<int> indices{i + input_noise_offset, teacher_1_offset + m};
+                        std::vector<int> indices{i + input_noise_offset, offset + m};
                         MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                         i_derivative += teacher_head(m) * sigmoid_i2(cov);
                     }
