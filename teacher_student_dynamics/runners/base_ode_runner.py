@@ -46,7 +46,9 @@ class BaseODERunner(base_runner.BaseRunner):
             self._txt_config_path = os.path.join(self._ode_file_path, "ode_config.txt")
 
             self._logger.info("Constructing ODE configuration...")
-            self._construct_ode_config(config=config)
+            self._construct_ode_config(
+                config=config
+            )
             self._logger.info("ODE configuration constucted.")
 
         else:

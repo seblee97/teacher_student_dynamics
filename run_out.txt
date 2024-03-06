@@ -1,0 +1,1313 @@
+/usr/local/cuda-10.0-alternative
+--xla_gpu_cuda_data_dir=/usr/local/cuda-10.0-alternative
+2024-03-06 21:45:19,042  run_modes.single_run.   INFO  Attempting to find GPU...
+2024-03-06 21:45:19,043  run_modes.single_run.   INFO  GPU not found, reverting to CPU
+2024-03-06 21:46:00,653  run_modes.base_runner   INFO  NUM_THREADS: 16
+2024-03-06 21:46:00,654  run_modes.base_runner   INFO  Setting up hidden manifold network runner...
+2024-03-06 21:46:00,710  run_modes.base_runner.ode   INFO  Setting up ODE runner...
+2024-03-06 21:46:00,710  run_modes.base_runner.ode   INFO  Setting up ODE runner...
+2024-03-06 21:46:00,711  run_modes.base_runner.ode   INFO  Constructing ODE configuration...
+2024-03-06 21:46:00,711  run_modes.base_runner.ode   INFO  Constructing ODE configuration...
+2024-03-06 21:46:00,712  run_modes.base_runner.ode   INFO  ODE configuration constucted.
+2024-03-06 21:46:00,712  run_modes.base_runner.ode   INFO  ODE configuration constucted.
+2024-03-06 21:46:00,712  run_modes.base_runner.ode   INFO  ODE runner setup.
+2024-03-06 21:46:00,712  run_modes.base_runner.ode   INFO  ODE runner setup.
+2024-03-06 21:46:00,712  run_modes.base_runner.ode   INFO  Compiling C++ ODE implementation...
+2024-03-06 21:46:00,712  run_modes.base_runner.ode   INFO  Compiling C++ ODE implementation...
+In file included from /home-mscluster/djarvis/teacher_student_dynamics/teacher_student_dynamics/ode/c_ode/hmm/runner.cpp:1:
+/home-mscluster/djarvis/teacher_student_dynamics/teacher_student_dynamics/ode/c_ode/hmm/state.cpp:7:10: fatal error: Eigen/Dense: No such file or directory
+    7 | #include <Eigen/Dense>
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+2024-03-06 21:46:01,876  run_modes.base_runner.ode   INFO  C++ ODE implementation compiled in 1.164s.
+2024-03-06 21:46:01,876  run_modes.base_runner.ode   INFO  C++ ODE implementation compiled in 1.164s.
+2024-03-06 21:46:02,359  run_modes.base_runner   INFO  Generalisation errors @ (~) step 0 (0'th step training on teacher 0): 
+2024-03-06 21:46:02,359  run_modes.base_runner   INFO      Teacher 0: 0.1667768657207489
+
+2024-03-06 21:46:02,359  run_modes.base_runner   INFO      Teacher 1: 0.16428014636039734
+
+2024-03-06 21:46:13,703  run_modes.base_runner   INFO  Time for last 10000 steps: 11.82572889328003
+2024-03-06 21:46:13,704  run_modes.base_runner   INFO  Generalisation errors @ (~) step 10000 (10000'th step training on teacher 0): 
+2024-03-06 21:46:13,704  run_modes.base_runner   INFO      Teacher 0: 0.16677318513393402
+
+2024-03-06 21:46:13,704  run_modes.base_runner   INFO      Teacher 1: 0.16427791118621826
+
+2024-03-06 21:46:24,979  run_modes.base_runner   INFO  Time for last 10000 steps: 11.27561616897583
+2024-03-06 21:46:24,980  run_modes.base_runner   INFO  Generalisation errors @ (~) step 20000 (20000'th step training on teacher 0): 
+2024-03-06 21:46:24,980  run_modes.base_runner   INFO      Teacher 0: 0.1667647510766983
+
+2024-03-06 21:46:24,980  run_modes.base_runner   INFO      Teacher 1: 0.16427290439605713
+
+2024-03-06 21:46:36,159  run_modes.base_runner   INFO  Time for last 10000 steps: 11.179322481155396
+2024-03-06 21:46:36,160  run_modes.base_runner   INFO  Generalisation errors @ (~) step 30000 (30000'th step training on teacher 0): 
+2024-03-06 21:46:36,160  run_modes.base_runner   INFO      Teacher 0: 0.16674014925956726
+
+2024-03-06 21:46:36,160  run_modes.base_runner   INFO      Teacher 1: 0.16425806283950806
+
+2024-03-06 21:46:47,302  run_modes.base_runner   INFO  Time for last 10000 steps: 11.14221477508545
+2024-03-06 21:46:47,303  run_modes.base_runner   INFO  Generalisation errors @ (~) step 40000 (40000'th step training on teacher 0): 
+2024-03-06 21:46:47,303  run_modes.base_runner   INFO      Teacher 0: 0.1666661649942398
+
+2024-03-06 21:46:47,303  run_modes.base_runner   INFO      Teacher 1: 0.16421400010585785
+
+2024-03-06 21:46:58,406  run_modes.base_runner   INFO  Time for last 10000 steps: 11.103499412536621
+2024-03-06 21:46:58,406  run_modes.base_runner   INFO  Generalisation errors @ (~) step 50000 (50000'th step training on teacher 0): 
+2024-03-06 21:46:58,406  run_modes.base_runner   INFO      Teacher 0: 0.1664515733718872
+
+2024-03-06 21:46:58,407  run_modes.base_runner   INFO      Teacher 1: 0.16408249735832214
+
+2024-03-06 21:47:09,449  run_modes.base_runner   INFO  Time for last 10000 steps: 11.042904376983643
+2024-03-06 21:47:09,450  run_modes.base_runner   INFO  Generalisation errors @ (~) step 60000 (60000'th step training on teacher 0): 
+2024-03-06 21:47:09,450  run_modes.base_runner   INFO      Teacher 0: 0.16579972207546234
+
+2024-03-06 21:47:09,450  run_modes.base_runner   INFO      Teacher 1: 0.1636892855167389
+
+2024-03-06 21:47:20,785  run_modes.base_runner   INFO  Time for last 10000 steps: 11.335192203521729
+2024-03-06 21:47:20,785  run_modes.base_runner   INFO  Generalisation errors @ (~) step 70000 (70000'th step training on teacher 0): 
+2024-03-06 21:47:20,785  run_modes.base_runner   INFO      Teacher 0: 0.16409897804260254
+
+2024-03-06 21:47:20,785  run_modes.base_runner   INFO      Teacher 1: 0.16267021000385284
+
+2024-03-06 21:47:31,858  run_modes.base_runner   INFO  Time for last 10000 steps: 11.07258677482605
+2024-03-06 21:47:31,858  run_modes.base_runner   INFO  Generalisation errors @ (~) step 80000 (80000'th step training on teacher 0): 
+2024-03-06 21:47:31,858  run_modes.base_runner   INFO      Teacher 0: 0.16034667193889618
+
+2024-03-06 21:47:31,858  run_modes.base_runner   INFO      Teacher 1: 0.1603994071483612
+
+2024-03-06 21:47:42,722  run_modes.base_runner   INFO  Time for last 10000 steps: 10.864015817642212
+2024-03-06 21:47:42,722  run_modes.base_runner   INFO  Generalisation errors @ (~) step 90000 (90000'th step training on teacher 0): 
+2024-03-06 21:47:42,722  run_modes.base_runner   INFO      Teacher 0: 0.15385934710502625
+
+2024-03-06 21:47:42,722  run_modes.base_runner   INFO      Teacher 1: 0.15640468895435333
+
+2024-03-06 21:47:53,970  run_modes.base_runner   INFO  Time for last 10000 steps: 11.24816370010376
+2024-03-06 21:47:53,971  run_modes.base_runner   INFO  Generalisation errors @ (~) step 100000 (100000'th step training on teacher 0): 
+2024-03-06 21:47:53,971  run_modes.base_runner   INFO      Teacher 0: 0.14531582593917847
+
+2024-03-06 21:47:53,971  run_modes.base_runner   INFO      Teacher 1: 0.15110158920288086
+
+2024-03-06 21:48:05,249  run_modes.base_runner   INFO  Time for last 10000 steps: 11.277853727340698
+2024-03-06 21:48:05,249  run_modes.base_runner   INFO  Generalisation errors @ (~) step 110000 (110000'th step training on teacher 0): 
+2024-03-06 21:48:05,249  run_modes.base_runner   INFO      Teacher 0: 0.13549360632896423
+
+2024-03-06 21:48:05,249  run_modes.base_runner   INFO      Teacher 1: 0.14499780535697937
+
+2024-03-06 21:48:16,214  run_modes.base_runner   INFO  Time for last 10000 steps: 10.965235471725464
+2024-03-06 21:48:16,215  run_modes.base_runner   INFO  Generalisation errors @ (~) step 120000 (120000'th step training on teacher 0): 
+2024-03-06 21:48:16,215  run_modes.base_runner   INFO      Teacher 0: 0.12601296603679657
+
+2024-03-06 21:48:16,215  run_modes.base_runner   INFO      Teacher 1: 0.1388394683599472
+
+2024-03-06 21:48:27,435  run_modes.base_runner   INFO  Time for last 10000 steps: 11.220664262771606
+2024-03-06 21:48:27,436  run_modes.base_runner   INFO  Generalisation errors @ (~) step 130000 (130000'th step training on teacher 0): 
+2024-03-06 21:48:27,436  run_modes.base_runner   INFO      Teacher 0: 0.11704634130001068
+
+2024-03-06 21:48:27,436  run_modes.base_runner   INFO      Teacher 1: 0.13318002223968506
+
+2024-03-06 21:48:38,254  run_modes.base_runner   INFO  Time for last 10000 steps: 10.818548679351807
+2024-03-06 21:48:38,254  run_modes.base_runner   INFO  Generalisation errors @ (~) step 140000 (140000'th step training on teacher 0): 
+2024-03-06 21:48:38,254  run_modes.base_runner   INFO      Teacher 0: 0.10949625074863434
+
+2024-03-06 21:48:38,255  run_modes.base_runner   INFO      Teacher 1: 0.12842115759849548
+
+2024-03-06 21:48:49,262  run_modes.base_runner   INFO  Time for last 10000 steps: 11.007174968719482
+2024-03-06 21:48:49,262  run_modes.base_runner   INFO  Generalisation errors @ (~) step 150000 (150000'th step training on teacher 0): 
+2024-03-06 21:48:49,262  run_modes.base_runner   INFO      Teacher 0: 0.10302525758743286
+
+2024-03-06 21:48:49,262  run_modes.base_runner   INFO      Teacher 1: 0.12427427619695663
+
+2024-03-06 21:49:00,678  run_modes.base_runner   INFO  Time for last 10000 steps: 11.415528774261475
+2024-03-06 21:49:00,678  run_modes.base_runner   INFO  Generalisation errors @ (~) step 160000 (160000'th step training on teacher 0): 
+2024-03-06 21:49:00,678  run_modes.base_runner   INFO      Teacher 0: 0.09764856100082397
+
+2024-03-06 21:49:00,678  run_modes.base_runner   INFO      Teacher 1: 0.12071479856967926
+
+2024-03-06 21:49:11,889  run_modes.base_runner   INFO  Time for last 10000 steps: 11.210713148117065
+2024-03-06 21:49:11,889  run_modes.base_runner   INFO  Generalisation errors @ (~) step 170000 (170000'th step training on teacher 0): 
+2024-03-06 21:49:11,889  run_modes.base_runner   INFO      Teacher 0: 0.09317078441381454
+
+2024-03-06 21:49:11,889  run_modes.base_runner   INFO      Teacher 1: 0.11793793737888336
+
+2024-03-06 21:49:22,846  run_modes.base_runner   INFO  Time for last 10000 steps: 10.957098722457886
+2024-03-06 21:49:22,846  run_modes.base_runner   INFO  Generalisation errors @ (~) step 180000 (180000'th step training on teacher 0): 
+2024-03-06 21:49:22,847  run_modes.base_runner   INFO      Teacher 0: 0.08978041261434555
+
+2024-03-06 21:49:22,847  run_modes.base_runner   INFO      Teacher 1: 0.11594033241271973
+
+2024-03-06 21:49:33,824  run_modes.base_runner   INFO  Time for last 10000 steps: 10.977126359939575
+2024-03-06 21:49:33,824  run_modes.base_runner   INFO  Generalisation errors @ (~) step 190000 (190000'th step training on teacher 0): 
+2024-03-06 21:49:33,824  run_modes.base_runner   INFO      Teacher 0: 0.08683013170957565
+
+2024-03-06 21:49:33,824  run_modes.base_runner   INFO      Teacher 1: 0.11404545605182648
+
+2024-03-06 21:49:44,991  run_modes.base_runner   INFO  Time for last 10000 steps: 11.167142391204834
+2024-03-06 21:49:44,991  run_modes.base_runner   INFO  Generalisation errors @ (~) step 200000 (200000'th step training on teacher 0): 
+2024-03-06 21:49:44,991  run_modes.base_runner   INFO      Teacher 0: 0.08435464650392532
+
+2024-03-06 21:49:44,991  run_modes.base_runner   INFO      Teacher 1: 0.11236938834190369
+
+2024-03-06 21:49:55,988  run_modes.base_runner   INFO  Time for last 10000 steps: 10.996937036514282
+2024-03-06 21:49:55,989  run_modes.base_runner   INFO  Generalisation errors @ (~) step 210000 (210000'th step training on teacher 0): 
+2024-03-06 21:49:55,989  run_modes.base_runner   INFO      Teacher 0: 0.08247090131044388
+
+2024-03-06 21:49:55,989  run_modes.base_runner   INFO      Teacher 1: 0.11133428663015366
+
+2024-03-06 21:50:06,944  run_modes.base_runner   INFO  Time for last 10000 steps: 10.955520391464233
+2024-03-06 21:50:06,944  run_modes.base_runner   INFO  Generalisation errors @ (~) step 220000 (220000'th step training on teacher 0): 
+2024-03-06 21:50:06,944  run_modes.base_runner   INFO      Teacher 0: 0.08087035268545151
+
+2024-03-06 21:50:06,945  run_modes.base_runner   INFO      Teacher 1: 0.1104477196931839
+
+2024-03-06 21:50:18,097  run_modes.base_runner   INFO  Time for last 10000 steps: 11.152771949768066
+2024-03-06 21:50:18,098  run_modes.base_runner   INFO  Generalisation errors @ (~) step 230000 (230000'th step training on teacher 0): 
+2024-03-06 21:50:18,098  run_modes.base_runner   INFO      Teacher 0: 0.0794188380241394
+
+2024-03-06 21:50:18,098  run_modes.base_runner   INFO      Teacher 1: 0.10986245423555374
+
+2024-03-06 21:50:29,431  run_modes.base_runner   INFO  Time for last 10000 steps: 11.33358883857727
+2024-03-06 21:50:29,432  run_modes.base_runner   INFO  Generalisation errors @ (~) step 240000 (240000'th step training on teacher 0): 
+2024-03-06 21:50:29,432  run_modes.base_runner   INFO      Teacher 0: 0.07830555737018585
+
+2024-03-06 21:50:29,432  run_modes.base_runner   INFO      Teacher 1: 0.10949720442295074
+
+2024-03-06 21:50:40,501  run_modes.base_runner   INFO  Time for last 10000 steps: 11.069312334060669
+2024-03-06 21:50:40,501  run_modes.base_runner   INFO  Generalisation errors @ (~) step 250000 (250000'th step training on teacher 0): 
+2024-03-06 21:50:40,501  run_modes.base_runner   INFO      Teacher 0: 0.07731860131025314
+
+2024-03-06 21:50:40,501  run_modes.base_runner   INFO      Teacher 1: 0.10893759876489639
+
+2024-03-06 21:50:51,792  run_modes.base_runner   INFO  Time for last 10000 steps: 11.290758848190308
+2024-03-06 21:50:51,792  run_modes.base_runner   INFO  Generalisation errors @ (~) step 260000 (260000'th step training on teacher 0): 
+2024-03-06 21:50:51,793  run_modes.base_runner   INFO      Teacher 0: 0.07687650620937347
+
+2024-03-06 21:50:51,793  run_modes.base_runner   INFO      Teacher 1: 0.10876541584730148
+
+2024-03-06 21:51:02,980  run_modes.base_runner   INFO  Time for last 10000 steps: 11.1877760887146
+2024-03-06 21:51:02,980  run_modes.base_runner   INFO  Generalisation errors @ (~) step 270000 (270000'th step training on teacher 0): 
+2024-03-06 21:51:02,981  run_modes.base_runner   INFO      Teacher 0: 0.07615022361278534
+
+2024-03-06 21:51:02,981  run_modes.base_runner   INFO      Teacher 1: 0.10854857414960861
+
+2024-03-06 21:51:14,123  run_modes.base_runner   INFO  Time for last 10000 steps: 11.142281532287598
+2024-03-06 21:51:14,123  run_modes.base_runner   INFO  Generalisation errors @ (~) step 280000 (280000'th step training on teacher 0): 
+2024-03-06 21:51:14,123  run_modes.base_runner   INFO      Teacher 0: 0.07535186409950256
+
+2024-03-06 21:51:14,123  run_modes.base_runner   INFO      Teacher 1: 0.1083131730556488
+
+2024-03-06 21:51:25,242  run_modes.base_runner   INFO  Time for last 10000 steps: 11.119386911392212
+2024-03-06 21:51:25,243  run_modes.base_runner   INFO  Generalisation errors @ (~) step 290000 (290000'th step training on teacher 0): 
+2024-03-06 21:51:25,243  run_modes.base_runner   INFO      Teacher 0: 0.07506245374679565
+
+2024-03-06 21:51:25,243  run_modes.base_runner   INFO      Teacher 1: 0.10824275016784668
+
+2024-03-06 21:51:36,362  run_modes.base_runner   INFO  Time for last 10000 steps: 11.119287490844727
+2024-03-06 21:51:36,362  run_modes.base_runner   INFO  Generalisation errors @ (~) step 300000 (300000'th step training on teacher 0): 
+2024-03-06 21:51:36,362  run_modes.base_runner   INFO      Teacher 0: 0.07445938885211945
+
+2024-03-06 21:51:36,362  run_modes.base_runner   INFO      Teacher 1: 0.10833361744880676
+
+2024-03-06 21:51:46,592  run_modes.base_runner   INFO  Time for last 10000 steps: 10.22962737083435
+2024-03-06 21:51:46,592  run_modes.base_runner   INFO  Generalisation errors @ (~) step 310000 (310000'th step training on teacher 0): 
+2024-03-06 21:51:46,592  run_modes.base_runner   INFO      Teacher 0: 0.07423011213541031
+
+2024-03-06 21:51:46,592  run_modes.base_runner   INFO      Teacher 1: 0.10853707045316696
+
+2024-03-06 21:51:57,810  run_modes.base_runner   INFO  Time for last 10000 steps: 11.217955589294434
+2024-03-06 21:51:57,810  run_modes.base_runner   INFO  Generalisation errors @ (~) step 320000 (320000'th step training on teacher 0): 
+2024-03-06 21:51:57,811  run_modes.base_runner   INFO      Teacher 0: 0.07416325807571411
+
+2024-03-06 21:51:57,811  run_modes.base_runner   INFO      Teacher 1: 0.10842203348875046
+
+2024-03-06 21:52:09,070  run_modes.base_runner   INFO  Time for last 10000 steps: 11.259825229644775
+2024-03-06 21:52:09,071  run_modes.base_runner   INFO  Generalisation errors @ (~) step 330000 (330000'th step training on teacher 0): 
+2024-03-06 21:52:09,071  run_modes.base_runner   INFO      Teacher 0: 0.07371488213539124
+
+2024-03-06 21:52:09,071  run_modes.base_runner   INFO      Teacher 1: 0.10846249759197235
+
+2024-03-06 21:52:20,102  run_modes.base_runner   INFO  Time for last 10000 steps: 11.03077220916748
+2024-03-06 21:52:20,102  run_modes.base_runner   INFO  Generalisation errors @ (~) step 340000 (340000'th step training on teacher 0): 
+2024-03-06 21:52:20,102  run_modes.base_runner   INFO      Teacher 0: 0.07348722219467163
+
+2024-03-06 21:52:20,102  run_modes.base_runner   INFO      Teacher 1: 0.10803396999835968
+
+2024-03-06 21:52:31,270  run_modes.base_runner   INFO  Time for last 10000 steps: 11.167600631713867
+2024-03-06 21:52:31,270  run_modes.base_runner   INFO  Generalisation errors @ (~) step 350000 (350000'th step training on teacher 0): 
+2024-03-06 21:52:31,270  run_modes.base_runner   INFO      Teacher 0: 0.07304082810878754
+
+2024-03-06 21:52:31,270  run_modes.base_runner   INFO      Teacher 1: 0.1080632358789444
+
+2024-03-06 21:52:42,494  run_modes.base_runner   INFO  Time for last 10000 steps: 11.224165678024292
+2024-03-06 21:52:42,494  run_modes.base_runner   INFO  Generalisation errors @ (~) step 360000 (360000'th step training on teacher 0): 
+2024-03-06 21:52:42,494  run_modes.base_runner   INFO      Teacher 0: 0.07332753390073776
+
+2024-03-06 21:52:42,494  run_modes.base_runner   INFO      Teacher 1: 0.10812486708164215
+
+2024-03-06 21:52:53,501  run_modes.base_runner   INFO  Time for last 10000 steps: 11.007166147232056
+2024-03-06 21:52:53,502  run_modes.base_runner   INFO  Generalisation errors @ (~) step 370000 (370000'th step training on teacher 0): 
+2024-03-06 21:52:53,502  run_modes.base_runner   INFO      Teacher 0: 0.07296737283468246
+
+2024-03-06 21:52:53,502  run_modes.base_runner   INFO      Teacher 1: 0.10811416059732437
+
+2024-03-06 21:53:04,634  run_modes.base_runner   INFO  Time for last 10000 steps: 11.132564544677734
+2024-03-06 21:53:04,635  run_modes.base_runner   INFO  Generalisation errors @ (~) step 380000 (380000'th step training on teacher 0): 
+2024-03-06 21:53:04,635  run_modes.base_runner   INFO      Teacher 0: 0.07267466187477112
+
+2024-03-06 21:53:04,635  run_modes.base_runner   INFO      Teacher 1: 0.10843765735626221
+
+2024-03-06 21:53:15,589  run_modes.base_runner   INFO  Time for last 10000 steps: 10.954281568527222
+2024-03-06 21:53:15,589  run_modes.base_runner   INFO  Generalisation errors @ (~) step 390000 (390000'th step training on teacher 0): 
+2024-03-06 21:53:15,589  run_modes.base_runner   INFO      Teacher 0: 0.07219646871089935
+
+2024-03-06 21:53:15,590  run_modes.base_runner   INFO      Teacher 1: 0.10836572200059891
+
+2024-03-06 21:53:26,854  run_modes.base_runner   INFO  Time for last 10000 steps: 11.26418423652649
+2024-03-06 21:53:26,854  run_modes.base_runner   INFO  Generalisation errors @ (~) step 400000 (400000'th step training on teacher 0): 
+2024-03-06 21:53:26,854  run_modes.base_runner   INFO      Teacher 0: 0.0724915862083435
+
+2024-03-06 21:53:26,854  run_modes.base_runner   INFO      Teacher 1: 0.10839051753282547
+
+2024-03-06 21:53:38,107  run_modes.base_runner   INFO  Time for last 10000 steps: 11.252943277359009
+2024-03-06 21:53:38,107  run_modes.base_runner   INFO  Generalisation errors @ (~) step 410000 (410000'th step training on teacher 0): 
+2024-03-06 21:53:38,107  run_modes.base_runner   INFO      Teacher 0: 0.07251019030809402
+
+2024-03-06 21:53:38,107  run_modes.base_runner   INFO      Teacher 1: 0.10833419114351273
+
+2024-03-06 21:53:49,086  run_modes.base_runner   INFO  Time for last 10000 steps: 10.978698968887329
+2024-03-06 21:53:49,086  run_modes.base_runner   INFO  Generalisation errors @ (~) step 420000 (420000'th step training on teacher 0): 
+2024-03-06 21:53:49,086  run_modes.base_runner   INFO      Teacher 0: 0.07221104949712753
+
+2024-03-06 21:53:49,086  run_modes.base_runner   INFO      Teacher 1: 0.1083468347787857
+
+2024-03-06 21:54:00,253  run_modes.base_runner   INFO  Time for last 10000 steps: 11.166916370391846
+2024-03-06 21:54:00,254  run_modes.base_runner   INFO  Generalisation errors @ (~) step 430000 (430000'th step training on teacher 0): 
+2024-03-06 21:54:00,254  run_modes.base_runner   INFO      Teacher 0: 0.0720183476805687
+
+2024-03-06 21:54:00,254  run_modes.base_runner   INFO      Teacher 1: 0.10834623128175735
+
+2024-03-06 21:54:11,349  run_modes.base_runner   INFO  Time for last 10000 steps: 11.095022678375244
+2024-03-06 21:54:11,349  run_modes.base_runner   INFO  Generalisation errors @ (~) step 440000 (440000'th step training on teacher 0): 
+2024-03-06 21:54:11,349  run_modes.base_runner   INFO      Teacher 0: 0.07245141267776489
+
+2024-03-06 21:54:11,349  run_modes.base_runner   INFO      Teacher 1: 0.10816854238510132
+
+2024-03-06 21:54:22,565  run_modes.base_runner   INFO  Time for last 10000 steps: 11.21598768234253
+2024-03-06 21:54:22,565  run_modes.base_runner   INFO  Generalisation errors @ (~) step 450000 (450000'th step training on teacher 0): 
+2024-03-06 21:54:22,565  run_modes.base_runner   INFO      Teacher 0: 0.07181006669998169
+
+2024-03-06 21:54:22,565  run_modes.base_runner   INFO      Teacher 1: 0.10772339999675751
+
+2024-03-06 21:54:33,743  run_modes.base_runner   INFO  Time for last 10000 steps: 11.177686214447021
+2024-03-06 21:54:33,743  run_modes.base_runner   INFO  Generalisation errors @ (~) step 460000 (460000'th step training on teacher 0): 
+2024-03-06 21:54:33,743  run_modes.base_runner   INFO      Teacher 0: 0.07168050110340118
+
+2024-03-06 21:54:33,743  run_modes.base_runner   INFO      Teacher 1: 0.10799314081668854
+
+2024-03-06 21:54:44,788  run_modes.base_runner   INFO  Time for last 10000 steps: 11.044986486434937
+2024-03-06 21:54:44,788  run_modes.base_runner   INFO  Generalisation errors @ (~) step 470000 (470000'th step training on teacher 0): 
+2024-03-06 21:54:44,789  run_modes.base_runner   INFO      Teacher 0: 0.07171269506216049
+
+2024-03-06 21:54:44,789  run_modes.base_runner   INFO      Teacher 1: 0.10784074664115906
+
+2024-03-06 21:54:55,907  run_modes.base_runner   INFO  Time for last 10000 steps: 11.11891794204712
+2024-03-06 21:54:55,908  run_modes.base_runner   INFO  Generalisation errors @ (~) step 480000 (480000'th step training on teacher 0): 
+2024-03-06 21:54:55,908  run_modes.base_runner   INFO      Teacher 0: 0.07139956206083298
+
+2024-03-06 21:54:55,908  run_modes.base_runner   INFO      Teacher 1: 0.10783499479293823
+
+2024-03-06 21:55:07,130  run_modes.base_runner   INFO  Time for last 10000 steps: 11.222597122192383
+2024-03-06 21:55:07,131  run_modes.base_runner   INFO  Generalisation errors @ (~) step 490000 (490000'th step training on teacher 0): 
+2024-03-06 21:55:07,131  run_modes.base_runner   INFO      Teacher 0: 0.0715957060456276
+
+2024-03-06 21:55:07,131  run_modes.base_runner   INFO      Teacher 1: 0.10794579982757568
+
+2024-03-06 21:55:18,330  run_modes.base_runner   INFO  Time for last 10000 steps: 11.199528694152832
+2024-03-06 21:55:18,331  run_modes.base_runner   INFO  Generalisation errors @ (~) step 500000 (500000'th step training on teacher 0): 
+2024-03-06 21:55:18,331  run_modes.base_runner   INFO      Teacher 0: 0.0714474618434906
+
+2024-03-06 21:55:18,331  run_modes.base_runner   INFO      Teacher 1: 0.10784830152988434
+
+2024-03-06 21:55:29,498  run_modes.base_runner   INFO  Time for last 10000 steps: 11.167203426361084
+2024-03-06 21:55:29,498  run_modes.base_runner   INFO  Generalisation errors @ (~) step 510000 (510000'th step training on teacher 0): 
+2024-03-06 21:55:29,498  run_modes.base_runner   INFO      Teacher 0: 0.07122153043746948
+
+2024-03-06 21:55:29,498  run_modes.base_runner   INFO      Teacher 1: 0.1080184355378151
+
+2024-03-06 21:55:40,397  run_modes.base_runner   INFO  Time for last 10000 steps: 10.898648023605347
+2024-03-06 21:55:40,397  run_modes.base_runner   INFO  Generalisation errors @ (~) step 520000 (520000'th step training on teacher 0): 
+2024-03-06 21:55:40,397  run_modes.base_runner   INFO      Teacher 0: 0.07144870609045029
+
+2024-03-06 21:55:40,397  run_modes.base_runner   INFO      Teacher 1: 0.1079411655664444
+
+2024-03-06 21:55:51,581  run_modes.base_runner   INFO  Time for last 10000 steps: 11.1839599609375
+2024-03-06 21:55:51,581  run_modes.base_runner   INFO  Generalisation errors @ (~) step 530000 (530000'th step training on teacher 0): 
+2024-03-06 21:55:51,581  run_modes.base_runner   INFO      Teacher 0: 0.07129032164812088
+
+2024-03-06 21:55:51,581  run_modes.base_runner   INFO      Teacher 1: 0.10826561599969864
+
+2024-03-06 21:56:02,491  run_modes.base_runner   INFO  Time for last 10000 steps: 10.909278631210327
+2024-03-06 21:56:02,491  run_modes.base_runner   INFO  Generalisation errors @ (~) step 540000 (540000'th step training on teacher 0): 
+2024-03-06 21:56:02,491  run_modes.base_runner   INFO      Teacher 0: 0.0713740885257721
+
+2024-03-06 21:56:02,491  run_modes.base_runner   INFO      Teacher 1: 0.10819278657436371
+
+2024-03-06 21:56:13,490  run_modes.base_runner   INFO  Time for last 10000 steps: 10.998882055282593
+2024-03-06 21:56:13,490  run_modes.base_runner   INFO  Generalisation errors @ (~) step 550000 (550000'th step training on teacher 0): 
+2024-03-06 21:56:13,490  run_modes.base_runner   INFO      Teacher 0: 0.07110701501369476
+
+2024-03-06 21:56:13,490  run_modes.base_runner   INFO      Teacher 1: 0.10817955434322357
+
+2024-03-06 21:56:24,565  run_modes.base_runner   INFO  Time for last 10000 steps: 11.075037240982056
+2024-03-06 21:56:24,565  run_modes.base_runner   INFO  Generalisation errors @ (~) step 560000 (560000'th step training on teacher 0): 
+2024-03-06 21:56:24,565  run_modes.base_runner   INFO      Teacher 0: 0.07115522772073746
+
+2024-03-06 21:56:24,566  run_modes.base_runner   INFO      Teacher 1: 0.10823796689510345
+
+2024-03-06 21:56:35,643  run_modes.base_runner   INFO  Time for last 10000 steps: 11.07772421836853
+2024-03-06 21:56:35,643  run_modes.base_runner   INFO  Generalisation errors @ (~) step 570000 (570000'th step training on teacher 0): 
+2024-03-06 21:56:35,644  run_modes.base_runner   INFO      Teacher 0: 0.07119739800691605
+
+2024-03-06 21:56:35,644  run_modes.base_runner   INFO      Teacher 1: 0.10848457366228104
+
+2024-03-06 21:56:46,618  run_modes.base_runner   INFO  Time for last 10000 steps: 10.974429845809937
+2024-03-06 21:56:46,618  run_modes.base_runner   INFO  Generalisation errors @ (~) step 580000 (580000'th step training on teacher 0): 
+2024-03-06 21:56:46,618  run_modes.base_runner   INFO      Teacher 0: 0.07106499373912811
+
+2024-03-06 21:56:46,618  run_modes.base_runner   INFO      Teacher 1: 0.10874508321285248
+
+2024-03-06 21:56:57,932  run_modes.base_runner   INFO  Time for last 10000 steps: 11.313495397567749
+2024-03-06 21:56:57,932  run_modes.base_runner   INFO  Generalisation errors @ (~) step 590000 (590000'th step training on teacher 0): 
+2024-03-06 21:56:57,932  run_modes.base_runner   INFO      Teacher 0: 0.07078183442354202
+
+2024-03-06 21:56:57,932  run_modes.base_runner   INFO      Teacher 1: 0.10874533653259277
+
+2024-03-06 21:57:08,969  run_modes.base_runner   INFO  Time for last 10000 steps: 11.036623239517212
+2024-03-06 21:57:08,969  run_modes.base_runner   INFO  Generalisation errors @ (~) step 600000 (600000'th step training on teacher 0): 
+2024-03-06 21:57:08,969  run_modes.base_runner   INFO      Teacher 0: 0.07107717543840408
+
+2024-03-06 21:57:08,969  run_modes.base_runner   INFO      Teacher 1: 0.10888289660215378
+
+2024-03-06 21:57:20,172  run_modes.base_runner   INFO  Time for last 10000 steps: 11.203254461288452
+2024-03-06 21:57:20,172  run_modes.base_runner   INFO  Generalisation errors @ (~) step 610000 (610000'th step training on teacher 0): 
+2024-03-06 21:57:20,173  run_modes.base_runner   INFO      Teacher 0: 0.07048935443162918
+
+2024-03-06 21:57:20,173  run_modes.base_runner   INFO      Teacher 1: 0.10875306278467178
+
+2024-03-06 21:57:31,130  run_modes.base_runner   INFO  Time for last 10000 steps: 10.957941055297852
+2024-03-06 21:57:31,131  run_modes.base_runner   INFO  Generalisation errors @ (~) step 620000 (620000'th step training on teacher 0): 
+2024-03-06 21:57:31,131  run_modes.base_runner   INFO      Teacher 0: 0.07096442580223083
+
+2024-03-06 21:57:31,131  run_modes.base_runner   INFO      Teacher 1: 0.10946130007505417
+
+2024-03-06 21:57:42,191  run_modes.base_runner   INFO  Time for last 10000 steps: 11.060042381286621
+2024-03-06 21:57:42,191  run_modes.base_runner   INFO  Generalisation errors @ (~) step 630000 (630000'th step training on teacher 0): 
+2024-03-06 21:57:42,191  run_modes.base_runner   INFO      Teacher 0: 0.07069726288318634
+
+2024-03-06 21:57:42,191  run_modes.base_runner   INFO      Teacher 1: 0.10913757234811783
+
+2024-03-06 21:57:53,515  run_modes.base_runner   INFO  Time for last 10000 steps: 11.324189186096191
+2024-03-06 21:57:53,516  run_modes.base_runner   INFO  Generalisation errors @ (~) step 640000 (640000'th step training on teacher 0): 
+2024-03-06 21:57:53,516  run_modes.base_runner   INFO      Teacher 0: 0.07053398340940475
+
+2024-03-06 21:57:53,516  run_modes.base_runner   INFO      Teacher 1: 0.10915353894233704
+
+2024-03-06 21:58:04,749  run_modes.base_runner   INFO  Time for last 10000 steps: 11.233628273010254
+2024-03-06 21:58:04,750  run_modes.base_runner   INFO  Generalisation errors @ (~) step 650000 (650000'th step training on teacher 0): 
+2024-03-06 21:58:04,750  run_modes.base_runner   INFO      Teacher 0: 0.07037853449583054
+
+2024-03-06 21:58:04,750  run_modes.base_runner   INFO      Teacher 1: 0.10897693037986755
+
+2024-03-06 21:58:16,011  run_modes.base_runner   INFO  Time for last 10000 steps: 11.261175394058228
+2024-03-06 21:58:16,011  run_modes.base_runner   INFO  Generalisation errors @ (~) step 660000 (660000'th step training on teacher 0): 
+2024-03-06 21:58:16,011  run_modes.base_runner   INFO      Teacher 0: 0.07044124603271484
+
+2024-03-06 21:58:16,011  run_modes.base_runner   INFO      Teacher 1: 0.108861044049263
+
+2024-03-06 21:58:27,089  run_modes.base_runner   INFO  Time for last 10000 steps: 11.077229022979736
+2024-03-06 21:58:27,089  run_modes.base_runner   INFO  Generalisation errors @ (~) step 670000 (670000'th step training on teacher 0): 
+2024-03-06 21:58:27,089  run_modes.base_runner   INFO      Teacher 0: 0.07067808508872986
+
+2024-03-06 21:58:27,089  run_modes.base_runner   INFO      Teacher 1: 0.10956405103206635
+
+2024-03-06 21:58:38,115  run_modes.base_runner   INFO  Time for last 10000 steps: 11.025652170181274
+2024-03-06 21:58:38,115  run_modes.base_runner   INFO  Generalisation errors @ (~) step 680000 (680000'th step training on teacher 0): 
+2024-03-06 21:58:38,115  run_modes.base_runner   INFO      Teacher 0: 0.07103528082370758
+
+2024-03-06 21:58:38,115  run_modes.base_runner   INFO      Teacher 1: 0.10932954400777817
+
+2024-03-06 21:58:49,331  run_modes.base_runner   INFO  Time for last 10000 steps: 11.216509580612183
+2024-03-06 21:58:49,332  run_modes.base_runner   INFO  Generalisation errors @ (~) step 690000 (690000'th step training on teacher 0): 
+2024-03-06 21:58:49,332  run_modes.base_runner   INFO      Teacher 0: 0.07056357711553574
+
+2024-03-06 21:58:49,332  run_modes.base_runner   INFO      Teacher 1: 0.10961241275072098
+
+2024-03-06 21:59:00,233  run_modes.base_runner   INFO  Time for last 10000 steps: 10.901284456253052
+2024-03-06 21:59:00,233  run_modes.base_runner   INFO  Generalisation errors @ (~) step 700000 (700000'th step training on teacher 0): 
+2024-03-06 21:59:00,234  run_modes.base_runner   INFO      Teacher 0: 0.0709485411643982
+
+2024-03-06 21:59:00,234  run_modes.base_runner   INFO      Teacher 1: 0.10949169844388962
+
+2024-03-06 21:59:11,362  run_modes.base_runner   INFO  Time for last 10000 steps: 11.128809213638306
+2024-03-06 21:59:11,363  run_modes.base_runner   INFO  Generalisation errors @ (~) step 710000 (710000'th step training on teacher 0): 
+2024-03-06 21:59:11,363  run_modes.base_runner   INFO      Teacher 0: 0.07047904282808304
+
+2024-03-06 21:59:11,363  run_modes.base_runner   INFO      Teacher 1: 0.10920455306768417
+
+2024-03-06 21:59:22,537  run_modes.base_runner   INFO  Time for last 10000 steps: 11.174692869186401
+2024-03-06 21:59:22,538  run_modes.base_runner   INFO  Generalisation errors @ (~) step 720000 (720000'th step training on teacher 0): 
+2024-03-06 21:59:22,538  run_modes.base_runner   INFO      Teacher 0: 0.07054699957370758
+
+2024-03-06 21:59:22,538  run_modes.base_runner   INFO      Teacher 1: 0.10890050232410431
+
+2024-03-06 21:59:33,750  run_modes.base_runner   INFO  Time for last 10000 steps: 11.212060689926147
+2024-03-06 21:59:33,750  run_modes.base_runner   INFO  Generalisation errors @ (~) step 730000 (730000'th step training on teacher 0): 
+2024-03-06 21:59:33,750  run_modes.base_runner   INFO      Teacher 0: 0.07032706588506699
+
+2024-03-06 21:59:33,750  run_modes.base_runner   INFO      Teacher 1: 0.10915350168943405
+
+2024-03-06 21:59:44,949  run_modes.base_runner   INFO  Time for last 10000 steps: 11.199245691299438
+2024-03-06 21:59:44,950  run_modes.base_runner   INFO  Generalisation errors @ (~) step 740000 (740000'th step training on teacher 0): 
+2024-03-06 21:59:44,950  run_modes.base_runner   INFO      Teacher 0: 0.07089231163263321
+
+2024-03-06 21:59:44,950  run_modes.base_runner   INFO      Teacher 1: 0.1096910759806633
+
+2024-03-06 21:59:55,943  run_modes.base_runner   INFO  Time for last 10000 steps: 10.993395566940308
+2024-03-06 21:59:55,943  run_modes.base_runner   INFO  Generalisation errors @ (~) step 750000 (750000'th step training on teacher 0): 
+2024-03-06 21:59:55,943  run_modes.base_runner   INFO      Teacher 0: 0.07020068913698196
+
+2024-03-06 21:59:55,944  run_modes.base_runner   INFO      Teacher 1: 0.10915957391262054
+
+2024-03-06 22:00:06,931  run_modes.base_runner   INFO  Time for last 10000 steps: 10.987355947494507
+2024-03-06 22:00:06,931  run_modes.base_runner   INFO  Generalisation errors @ (~) step 760000 (760000'th step training on teacher 0): 
+2024-03-06 22:00:06,931  run_modes.base_runner   INFO      Teacher 0: 0.0702744871377945
+
+2024-03-06 22:00:06,931  run_modes.base_runner   INFO      Teacher 1: 0.1091335341334343
+
+2024-03-06 22:00:17,933  run_modes.base_runner   INFO  Time for last 10000 steps: 11.001866817474365
+2024-03-06 22:00:17,933  run_modes.base_runner   INFO  Generalisation errors @ (~) step 770000 (770000'th step training on teacher 0): 
+2024-03-06 22:00:17,933  run_modes.base_runner   INFO      Teacher 0: 0.07036495208740234
+
+2024-03-06 22:00:17,933  run_modes.base_runner   INFO      Teacher 1: 0.10888174921274185
+
+2024-03-06 22:00:29,072  run_modes.base_runner   INFO  Time for last 10000 steps: 11.138949871063232
+2024-03-06 22:00:29,073  run_modes.base_runner   INFO  Generalisation errors @ (~) step 780000 (780000'th step training on teacher 0): 
+2024-03-06 22:00:29,073  run_modes.base_runner   INFO      Teacher 0: 0.07056823372840881
+
+2024-03-06 22:00:29,073  run_modes.base_runner   INFO      Teacher 1: 0.10883568227291107
+
+2024-03-06 22:00:40,306  run_modes.base_runner   INFO  Time for last 10000 steps: 11.233574390411377
+2024-03-06 22:00:40,307  run_modes.base_runner   INFO  Generalisation errors @ (~) step 790000 (790000'th step training on teacher 0): 
+2024-03-06 22:00:40,307  run_modes.base_runner   INFO      Teacher 0: 0.07019951194524765
+
+2024-03-06 22:00:40,307  run_modes.base_runner   INFO      Teacher 1: 0.1083022803068161
+
+2024-03-06 22:00:51,511  run_modes.base_runner   INFO  Time for last 10000 steps: 11.203900337219238
+2024-03-06 22:00:51,511  run_modes.base_runner   INFO  Generalisation errors @ (~) step 800000 (800000'th step training on teacher 0): 
+2024-03-06 22:00:51,511  run_modes.base_runner   INFO      Teacher 0: 0.07016872614622116
+
+2024-03-06 22:00:51,511  run_modes.base_runner   INFO      Teacher 1: 0.10836756229400635
+
+2024-03-06 22:01:02,474  run_modes.base_runner   INFO  Time for last 10000 steps: 10.963556289672852
+2024-03-06 22:01:02,475  run_modes.base_runner   INFO  Generalisation errors @ (~) step 810000 (810000'th step training on teacher 0): 
+2024-03-06 22:01:02,475  run_modes.base_runner   INFO      Teacher 0: 0.07030809670686722
+
+2024-03-06 22:01:02,475  run_modes.base_runner   INFO      Teacher 1: 0.10852744430303574
+
+2024-03-06 22:01:13,669  run_modes.base_runner   INFO  Time for last 10000 steps: 11.194427490234375
+2024-03-06 22:01:13,669  run_modes.base_runner   INFO  Generalisation errors @ (~) step 820000 (820000'th step training on teacher 0): 
+2024-03-06 22:01:13,669  run_modes.base_runner   INFO      Teacher 0: 0.07014518231153488
+
+2024-03-06 22:01:13,670  run_modes.base_runner   INFO      Teacher 1: 0.1079372838139534
+
+2024-03-06 22:01:24,657  run_modes.base_runner   INFO  Time for last 10000 steps: 10.987804412841797
+2024-03-06 22:01:24,658  run_modes.base_runner   INFO  Generalisation errors @ (~) step 830000 (830000'th step training on teacher 0): 
+2024-03-06 22:01:24,658  run_modes.base_runner   INFO      Teacher 0: 0.07003046572208405
+
+2024-03-06 22:01:24,658  run_modes.base_runner   INFO      Teacher 1: 0.10830897092819214
+
+2024-03-06 22:01:35,666  run_modes.base_runner   INFO  Time for last 10000 steps: 11.007869958877563
+2024-03-06 22:01:35,666  run_modes.base_runner   INFO  Generalisation errors @ (~) step 840000 (840000'th step training on teacher 0): 
+2024-03-06 22:01:35,666  run_modes.base_runner   INFO      Teacher 0: 0.06978576630353928
+
+2024-03-06 22:01:35,666  run_modes.base_runner   INFO      Teacher 1: 0.10815590620040894
+
+2024-03-06 22:01:46,561  run_modes.base_runner   INFO  Time for last 10000 steps: 10.895664691925049
+2024-03-06 22:01:46,562  run_modes.base_runner   INFO  Generalisation errors @ (~) step 850000 (850000'th step training on teacher 0): 
+2024-03-06 22:01:46,562  run_modes.base_runner   INFO      Teacher 0: 0.07014866918325424
+
+2024-03-06 22:01:46,562  run_modes.base_runner   INFO      Teacher 1: 0.10809455811977386
+
+2024-03-06 22:01:57,744  run_modes.base_runner   INFO  Time for last 10000 steps: 11.182009220123291
+2024-03-06 22:01:57,745  run_modes.base_runner   INFO  Generalisation errors @ (~) step 860000 (860000'th step training on teacher 0): 
+2024-03-06 22:01:57,745  run_modes.base_runner   INFO      Teacher 0: 0.06982782483100891
+
+2024-03-06 22:01:57,745  run_modes.base_runner   INFO      Teacher 1: 0.10767801851034164
+
+2024-03-06 22:02:08,906  run_modes.base_runner   INFO  Time for last 10000 steps: 11.16171932220459
+2024-03-06 22:02:08,907  run_modes.base_runner   INFO  Generalisation errors @ (~) step 870000 (870000'th step training on teacher 0): 
+2024-03-06 22:02:08,907  run_modes.base_runner   INFO      Teacher 0: 0.06983815878629684
+
+2024-03-06 22:02:08,907  run_modes.base_runner   INFO      Teacher 1: 0.1079699695110321
+
+2024-03-06 22:02:20,123  run_modes.base_runner   INFO  Time for last 10000 steps: 11.21640419960022
+2024-03-06 22:02:20,123  run_modes.base_runner   INFO  Generalisation errors @ (~) step 880000 (880000'th step training on teacher 0): 
+2024-03-06 22:02:20,124  run_modes.base_runner   INFO      Teacher 0: 0.07010986655950546
+
+2024-03-06 22:02:20,124  run_modes.base_runner   INFO      Teacher 1: 0.10745465010404587
+
+2024-03-06 22:02:31,250  run_modes.base_runner   INFO  Time for last 10000 steps: 11.12631630897522
+2024-03-06 22:02:31,250  run_modes.base_runner   INFO  Generalisation errors @ (~) step 890000 (890000'th step training on teacher 0): 
+2024-03-06 22:02:31,250  run_modes.base_runner   INFO      Teacher 0: 0.07010268419981003
+
+2024-03-06 22:02:31,250  run_modes.base_runner   INFO      Teacher 1: 0.10721459984779358
+
+2024-03-06 22:02:42,524  run_modes.base_runner   INFO  Time for last 10000 steps: 11.273632049560547
+2024-03-06 22:02:42,524  run_modes.base_runner   INFO  Generalisation errors @ (~) step 900000 (900000'th step training on teacher 0): 
+2024-03-06 22:02:42,524  run_modes.base_runner   INFO      Teacher 0: 0.07017738372087479
+
+2024-03-06 22:02:42,524  run_modes.base_runner   INFO      Teacher 1: 0.10750682651996613
+
+2024-03-06 22:02:53,671  run_modes.base_runner   INFO  Time for last 10000 steps: 11.147412061691284
+2024-03-06 22:02:53,672  run_modes.base_runner   INFO  Generalisation errors @ (~) step 910000 (910000'th step training on teacher 0): 
+2024-03-06 22:02:53,672  run_modes.base_runner   INFO      Teacher 0: 0.07015853375196457
+
+2024-03-06 22:02:53,672  run_modes.base_runner   INFO      Teacher 1: 0.10732634365558624
+
+2024-03-06 22:03:04,786  run_modes.base_runner   INFO  Time for last 10000 steps: 11.114418268203735
+2024-03-06 22:03:04,786  run_modes.base_runner   INFO  Generalisation errors @ (~) step 920000 (920000'th step training on teacher 0): 
+2024-03-06 22:03:04,786  run_modes.base_runner   INFO      Teacher 0: 0.07039701193571091
+
+2024-03-06 22:03:04,787  run_modes.base_runner   INFO      Teacher 1: 0.10742457211017609
+
+2024-03-06 22:03:15,870  run_modes.base_runner   INFO  Time for last 10000 steps: 11.083674907684326
+2024-03-06 22:03:15,870  run_modes.base_runner   INFO  Generalisation errors @ (~) step 930000 (930000'th step training on teacher 0): 
+2024-03-06 22:03:15,870  run_modes.base_runner   INFO      Teacher 0: 0.0699767917394638
+
+2024-03-06 22:03:15,870  run_modes.base_runner   INFO      Teacher 1: 0.10748078674077988
+
+2024-03-06 22:03:26,873  run_modes.base_runner   INFO  Time for last 10000 steps: 11.00270390510559
+2024-03-06 22:03:26,873  run_modes.base_runner   INFO  Generalisation errors @ (~) step 940000 (940000'th step training on teacher 0): 
+2024-03-06 22:03:26,873  run_modes.base_runner   INFO      Teacher 0: 0.0703902617096901
+
+2024-03-06 22:03:26,874  run_modes.base_runner   INFO      Teacher 1: 0.10768049210309982
+
+2024-03-06 22:03:37,832  run_modes.base_runner   INFO  Time for last 10000 steps: 10.958173513412476
+2024-03-06 22:03:37,832  run_modes.base_runner   INFO  Generalisation errors @ (~) step 950000 (950000'th step training on teacher 0): 
+2024-03-06 22:03:37,832  run_modes.base_runner   INFO      Teacher 0: 0.06987488269805908
+
+2024-03-06 22:03:37,832  run_modes.base_runner   INFO      Teacher 1: 0.1069248765707016
+
+2024-03-06 22:03:48,982  run_modes.base_runner   INFO  Time for last 10000 steps: 11.150310039520264
+2024-03-06 22:03:48,982  run_modes.base_runner   INFO  Generalisation errors @ (~) step 960000 (960000'th step training on teacher 0): 
+2024-03-06 22:03:48,982  run_modes.base_runner   INFO      Teacher 0: 0.07006940990686417
+
+2024-03-06 22:03:48,983  run_modes.base_runner   INFO      Teacher 1: 0.10763227194547653
+
+2024-03-06 22:04:00,014  run_modes.base_runner   INFO  Time for last 10000 steps: 11.031717538833618
+2024-03-06 22:04:00,014  run_modes.base_runner   INFO  Generalisation errors @ (~) step 970000 (970000'th step training on teacher 0): 
+2024-03-06 22:04:00,014  run_modes.base_runner   INFO      Teacher 0: 0.07005826383829117
+
+2024-03-06 22:04:00,015  run_modes.base_runner   INFO      Teacher 1: 0.10761456191539764
+
+2024-03-06 22:04:11,134  run_modes.base_runner   INFO  Time for last 10000 steps: 11.119869232177734
+2024-03-06 22:04:11,134  run_modes.base_runner   INFO  Generalisation errors @ (~) step 980000 (980000'th step training on teacher 0): 
+2024-03-06 22:04:11,135  run_modes.base_runner   INFO      Teacher 0: 0.0698680579662323
+
+2024-03-06 22:04:11,135  run_modes.base_runner   INFO      Teacher 1: 0.1076798364520073
+
+2024-03-06 22:04:22,198  run_modes.base_runner   INFO  Time for last 10000 steps: 11.063713550567627
+2024-03-06 22:04:22,198  run_modes.base_runner   INFO  Generalisation errors @ (~) step 990000 (990000'th step training on teacher 0): 
+2024-03-06 22:04:22,198  run_modes.base_runner   INFO      Teacher 0: 0.07008380442857742
+
+2024-03-06 22:04:22,199  run_modes.base_runner   INFO      Teacher 1: 0.10716520994901657
+
+2024-03-06 22:04:33,323  run_modes.base_runner   INFO  Time for last 10000 steps: 11.125017404556274
+2024-03-06 22:04:33,324  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1000000 (1000000'th step training on teacher 0): 
+2024-03-06 22:04:33,324  run_modes.base_runner   INFO      Teacher 0: 0.07005132734775543
+
+2024-03-06 22:04:33,324  run_modes.base_runner   INFO      Teacher 1: 0.10754465311765671
+
+2024-03-06 22:04:44,488  run_modes.base_runner   INFO  Time for last 10000 steps: 11.164119720458984
+2024-03-06 22:04:44,488  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1010000 (1010000'th step training on teacher 0): 
+2024-03-06 22:04:44,488  run_modes.base_runner   INFO      Teacher 0: 0.06979794055223465
+
+2024-03-06 22:04:44,488  run_modes.base_runner   INFO      Teacher 1: 0.10750719159841537
+
+2024-03-06 22:04:55,593  run_modes.base_runner   INFO  Time for last 10000 steps: 11.10500979423523
+2024-03-06 22:04:55,593  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1020000 (1020000'th step training on teacher 0): 
+2024-03-06 22:04:55,594  run_modes.base_runner   INFO      Teacher 0: 0.0696968361735344
+
+2024-03-06 22:04:55,594  run_modes.base_runner   INFO      Teacher 1: 0.10742097347974777
+
+2024-03-06 22:05:06,670  run_modes.base_runner   INFO  Time for last 10000 steps: 11.076722145080566
+2024-03-06 22:05:06,671  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1030000 (1030000'th step training on teacher 0): 
+2024-03-06 22:05:06,671  run_modes.base_runner   INFO      Teacher 0: 0.06964952498674393
+
+2024-03-06 22:05:06,671  run_modes.base_runner   INFO      Teacher 1: 0.10765273123979568
+
+2024-03-06 22:05:17,870  run_modes.base_runner   INFO  Time for last 10000 steps: 11.199556112289429
+2024-03-06 22:05:17,870  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1040000 (1040000'th step training on teacher 0): 
+2024-03-06 22:05:17,870  run_modes.base_runner   INFO      Teacher 0: 0.06972017139196396
+
+2024-03-06 22:05:17,871  run_modes.base_runner   INFO      Teacher 1: 0.10733867436647415
+
+2024-03-06 22:05:29,104  run_modes.base_runner   INFO  Time for last 10000 steps: 11.234113454818726
+2024-03-06 22:05:29,105  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1050000 (1050000'th step training on teacher 0): 
+2024-03-06 22:05:29,105  run_modes.base_runner   INFO      Teacher 0: 0.06953372806310654
+
+2024-03-06 22:05:29,105  run_modes.base_runner   INFO      Teacher 1: 0.10780110210180283
+
+2024-03-06 22:05:40,264  run_modes.base_runner   INFO  Time for last 10000 steps: 11.159132242202759
+2024-03-06 22:05:40,264  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1060000 (1060000'th step training on teacher 0): 
+2024-03-06 22:05:40,264  run_modes.base_runner   INFO      Teacher 0: 0.06976249814033508
+
+2024-03-06 22:05:40,264  run_modes.base_runner   INFO      Teacher 1: 0.10799781233072281
+
+2024-03-06 22:05:51,529  run_modes.base_runner   INFO  Time for last 10000 steps: 11.264416456222534
+2024-03-06 22:05:51,529  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1070000 (1070000'th step training on teacher 0): 
+2024-03-06 22:05:51,529  run_modes.base_runner   INFO      Teacher 0: 0.0698634535074234
+
+2024-03-06 22:05:51,529  run_modes.base_runner   INFO      Teacher 1: 0.10784852504730225
+
+2024-03-06 22:06:02,704  run_modes.base_runner   INFO  Time for last 10000 steps: 11.175398111343384
+2024-03-06 22:06:02,705  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1080000 (1080000'th step training on teacher 0): 
+2024-03-06 22:06:02,705  run_modes.base_runner   INFO      Teacher 0: 0.06939098238945007
+
+2024-03-06 22:06:02,705  run_modes.base_runner   INFO      Teacher 1: 0.10797329992055893
+
+2024-03-06 22:06:13,778  run_modes.base_runner   INFO  Time for last 10000 steps: 11.073103904724121
+2024-03-06 22:06:13,778  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1090000 (1090000'th step training on teacher 0): 
+2024-03-06 22:06:13,778  run_modes.base_runner   INFO      Teacher 0: 0.07003552466630936
+
+2024-03-06 22:06:13,778  run_modes.base_runner   INFO      Teacher 1: 0.10830395668745041
+
+2024-03-06 22:06:24,917  run_modes.base_runner   INFO  Time for last 10000 steps: 11.138798952102661
+2024-03-06 22:06:24,917  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1100000 (1100000'th step training on teacher 0): 
+2024-03-06 22:06:24,917  run_modes.base_runner   INFO      Teacher 0: 0.06975448876619339
+
+2024-03-06 22:06:24,917  run_modes.base_runner   INFO      Teacher 1: 0.10779630392789841
+
+2024-03-06 22:06:35,963  run_modes.base_runner   INFO  Time for last 10000 steps: 11.04610562324524
+2024-03-06 22:06:35,964  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1110000 (1110000'th step training on teacher 0): 
+2024-03-06 22:06:35,964  run_modes.base_runner   INFO      Teacher 0: 0.06949182599782944
+
+2024-03-06 22:06:35,964  run_modes.base_runner   INFO      Teacher 1: 0.10720691084861755
+
+2024-03-06 22:06:46,809  run_modes.base_runner   INFO  Time for last 10000 steps: 10.844669103622437
+2024-03-06 22:06:46,809  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1120000 (1120000'th step training on teacher 0): 
+2024-03-06 22:06:46,809  run_modes.base_runner   INFO      Teacher 0: 0.06970350444316864
+
+2024-03-06 22:06:46,809  run_modes.base_runner   INFO      Teacher 1: 0.10759222507476807
+
+2024-03-06 22:06:58,049  run_modes.base_runner   INFO  Time for last 10000 steps: 11.239733934402466
+2024-03-06 22:06:58,049  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1130000 (1130000'th step training on teacher 0): 
+2024-03-06 22:06:58,049  run_modes.base_runner   INFO      Teacher 0: 0.06979482620954514
+
+2024-03-06 22:06:58,049  run_modes.base_runner   INFO      Teacher 1: 0.10811571031808853
+
+2024-03-06 22:07:09,058  run_modes.base_runner   INFO  Time for last 10000 steps: 11.008745431900024
+2024-03-06 22:07:09,058  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1140000 (1140000'th step training on teacher 0): 
+2024-03-06 22:07:09,058  run_modes.base_runner   INFO      Teacher 0: 0.06969922035932541
+
+2024-03-06 22:07:09,058  run_modes.base_runner   INFO      Teacher 1: 0.10722879320383072
+
+2024-03-06 22:07:20,092  run_modes.base_runner   INFO  Time for last 10000 steps: 11.03446888923645
+2024-03-06 22:07:20,093  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1150000 (1150000'th step training on teacher 0): 
+2024-03-06 22:07:20,093  run_modes.base_runner   INFO      Teacher 0: 0.07003118842840195
+
+2024-03-06 22:07:20,093  run_modes.base_runner   INFO      Teacher 1: 0.10743045806884766
+
+2024-03-06 22:07:31,166  run_modes.base_runner   INFO  Time for last 10000 steps: 11.073442220687866
+2024-03-06 22:07:31,166  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1160000 (1160000'th step training on teacher 0): 
+2024-03-06 22:07:31,166  run_modes.base_runner   INFO      Teacher 0: 0.06956520676612854
+
+2024-03-06 22:07:31,167  run_modes.base_runner   INFO      Teacher 1: 0.1076030507683754
+
+2024-03-06 22:07:42,125  run_modes.base_runner   INFO  Time for last 10000 steps: 10.958391666412354
+2024-03-06 22:07:42,125  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1170000 (1170000'th step training on teacher 0): 
+2024-03-06 22:07:42,125  run_modes.base_runner   INFO      Teacher 0: 0.06955704092979431
+
+2024-03-06 22:07:42,125  run_modes.base_runner   INFO      Teacher 1: 0.10676586627960205
+
+2024-03-06 22:07:53,237  run_modes.base_runner   INFO  Time for last 10000 steps: 11.111693620681763
+2024-03-06 22:07:53,237  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1180000 (1180000'th step training on teacher 0): 
+2024-03-06 22:07:53,237  run_modes.base_runner   INFO      Teacher 0: 0.06969977170228958
+
+2024-03-06 22:07:53,237  run_modes.base_runner   INFO      Teacher 1: 0.10725561529397964
+
+2024-03-06 22:08:04,122  run_modes.base_runner   INFO  Time for last 10000 steps: 10.884997606277466
+2024-03-06 22:08:04,123  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1190000 (1190000'th step training on teacher 0): 
+2024-03-06 22:08:04,123  run_modes.base_runner   INFO      Teacher 0: 0.06995312124490738
+
+2024-03-06 22:08:04,123  run_modes.base_runner   INFO      Teacher 1: 0.10720634460449219
+
+2024-03-06 22:08:15,398  run_modes.base_runner   INFO  Time for last 10000 steps: 11.27567720413208
+2024-03-06 22:08:15,398  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1200000 (1200000'th step training on teacher 0): 
+2024-03-06 22:08:15,399  run_modes.base_runner   INFO      Teacher 0: 0.06966184824705124
+
+2024-03-06 22:08:15,399  run_modes.base_runner   INFO      Teacher 1: 0.10753270238637924
+
+2024-03-06 22:08:26,585  run_modes.base_runner   INFO  Time for last 10000 steps: 11.186825037002563
+2024-03-06 22:08:26,586  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1210000 (1210000'th step training on teacher 0): 
+2024-03-06 22:08:26,586  run_modes.base_runner   INFO      Teacher 0: 0.06955228000879288
+
+2024-03-06 22:08:26,586  run_modes.base_runner   INFO      Teacher 1: 0.10776598006486893
+
+2024-03-06 22:08:37,422  run_modes.base_runner   INFO  Time for last 10000 steps: 10.836416721343994
+2024-03-06 22:08:37,422  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1220000 (1220000'th step training on teacher 0): 
+2024-03-06 22:08:37,422  run_modes.base_runner   INFO      Teacher 0: 0.06976161897182465
+
+2024-03-06 22:08:37,423  run_modes.base_runner   INFO      Teacher 1: 0.10816707462072372
+
+2024-03-06 22:08:48,317  run_modes.base_runner   INFO  Time for last 10000 steps: 10.89423155784607
+2024-03-06 22:08:48,317  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1230000 (1230000'th step training on teacher 0): 
+2024-03-06 22:08:48,317  run_modes.base_runner   INFO      Teacher 0: 0.06963817775249481
+
+2024-03-06 22:08:48,317  run_modes.base_runner   INFO      Teacher 1: 0.10838396102190018
+
+2024-03-06 22:08:59,412  run_modes.base_runner   INFO  Time for last 10000 steps: 11.094818353652954
+2024-03-06 22:08:59,412  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1240000 (1240000'th step training on teacher 0): 
+2024-03-06 22:08:59,412  run_modes.base_runner   INFO      Teacher 0: 0.0696776881814003
+
+2024-03-06 22:08:59,412  run_modes.base_runner   INFO      Teacher 1: 0.10820157825946808
+
+2024-03-06 22:09:10,595  run_modes.base_runner   INFO  Time for last 10000 steps: 11.182460069656372
+2024-03-06 22:09:10,595  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1250000 (1250000'th step training on teacher 0): 
+2024-03-06 22:09:10,595  run_modes.base_runner   INFO      Teacher 0: 0.06941859424114227
+
+2024-03-06 22:09:10,595  run_modes.base_runner   INFO      Teacher 1: 0.10767970979213715
+
+2024-03-06 22:09:21,696  run_modes.base_runner   INFO  Time for last 10000 steps: 11.100728988647461
+2024-03-06 22:09:21,696  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1260000 (1260000'th step training on teacher 0): 
+2024-03-06 22:09:21,696  run_modes.base_runner   INFO      Teacher 0: 0.06993580609560013
+
+2024-03-06 22:09:21,696  run_modes.base_runner   INFO      Teacher 1: 0.10767859220504761
+
+2024-03-06 22:09:32,786  run_modes.base_runner   INFO  Time for last 10000 steps: 11.089653730392456
+2024-03-06 22:09:32,786  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1270000 (1270000'th step training on teacher 0): 
+2024-03-06 22:09:32,786  run_modes.base_runner   INFO      Teacher 0: 0.0699794739484787
+
+2024-03-06 22:09:32,786  run_modes.base_runner   INFO      Teacher 1: 0.10701191425323486
+
+2024-03-06 22:09:43,967  run_modes.base_runner   INFO  Time for last 10000 steps: 11.180349826812744
+2024-03-06 22:09:43,967  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1280000 (1280000'th step training on teacher 0): 
+2024-03-06 22:09:43,967  run_modes.base_runner   INFO      Teacher 0: 0.06957404315471649
+
+2024-03-06 22:09:43,967  run_modes.base_runner   INFO      Teacher 1: 0.10685043036937714
+
+2024-03-06 22:09:55,189  run_modes.base_runner   INFO  Time for last 10000 steps: 11.221940279006958
+2024-03-06 22:09:55,189  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1290000 (1290000'th step training on teacher 0): 
+2024-03-06 22:09:55,189  run_modes.base_runner   INFO      Teacher 0: 0.06962524354457855
+
+2024-03-06 22:09:55,189  run_modes.base_runner   INFO      Teacher 1: 0.10705086588859558
+
+2024-03-06 22:10:06,034  run_modes.base_runner   INFO  Time for last 10000 steps: 10.844690799713135
+2024-03-06 22:10:06,034  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1300000 (1300000'th step training on teacher 0): 
+2024-03-06 22:10:06,034  run_modes.base_runner   INFO      Teacher 0: 0.0698927566409111
+
+2024-03-06 22:10:06,034  run_modes.base_runner   INFO      Teacher 1: 0.10656426101922989
+
+2024-03-06 22:10:17,269  run_modes.base_runner   INFO  Time for last 10000 steps: 11.234847068786621
+2024-03-06 22:10:17,269  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1310000 (1310000'th step training on teacher 0): 
+2024-03-06 22:10:17,269  run_modes.base_runner   INFO      Teacher 0: 0.06959562748670578
+
+2024-03-06 22:10:17,269  run_modes.base_runner   INFO      Teacher 1: 0.10697149485349655
+
+2024-03-06 22:10:28,348  run_modes.base_runner   INFO  Time for last 10000 steps: 11.078672885894775
+2024-03-06 22:10:28,348  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1320000 (1320000'th step training on teacher 0): 
+2024-03-06 22:10:28,348  run_modes.base_runner   INFO      Teacher 0: 0.06943150609731674
+
+2024-03-06 22:10:28,348  run_modes.base_runner   INFO      Teacher 1: 0.10667438805103302
+
+2024-03-06 22:10:39,430  run_modes.base_runner   INFO  Time for last 10000 steps: 11.081740379333496
+2024-03-06 22:10:39,430  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1330000 (1330000'th step training on teacher 0): 
+2024-03-06 22:10:39,430  run_modes.base_runner   INFO      Teacher 0: 0.06951437145471573
+
+2024-03-06 22:10:39,430  run_modes.base_runner   INFO      Teacher 1: 0.10705335438251495
+
+2024-03-06 22:10:50,421  run_modes.base_runner   INFO  Time for last 10000 steps: 10.990200996398926
+2024-03-06 22:10:50,421  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1340000 (1340000'th step training on teacher 0): 
+2024-03-06 22:10:50,421  run_modes.base_runner   INFO      Teacher 0: 0.06973637640476227
+
+2024-03-06 22:10:50,421  run_modes.base_runner   INFO      Teacher 1: 0.10734200477600098
+
+2024-03-06 22:11:01,596  run_modes.base_runner   INFO  Time for last 10000 steps: 11.175309181213379
+2024-03-06 22:11:01,596  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1350000 (1350000'th step training on teacher 0): 
+2024-03-06 22:11:01,596  run_modes.base_runner   INFO      Teacher 0: 0.0695379450917244
+
+2024-03-06 22:11:01,596  run_modes.base_runner   INFO      Teacher 1: 0.10726992040872574
+
+2024-03-06 22:11:12,719  run_modes.base_runner   INFO  Time for last 10000 steps: 11.12268352508545
+2024-03-06 22:11:12,719  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1360000 (1360000'th step training on teacher 0): 
+2024-03-06 22:11:12,719  run_modes.base_runner   INFO      Teacher 0: 0.06976821273565292
+
+2024-03-06 22:11:12,720  run_modes.base_runner   INFO      Teacher 1: 0.10787317901849747
+
+2024-03-06 22:11:23,810  run_modes.base_runner   INFO  Time for last 10000 steps: 11.09067988395691
+2024-03-06 22:11:23,810  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1370000 (1370000'th step training on teacher 0): 
+2024-03-06 22:11:23,810  run_modes.base_runner   INFO      Teacher 0: 0.0695098266005516
+
+2024-03-06 22:11:23,810  run_modes.base_runner   INFO      Teacher 1: 0.1079709455370903
+
+2024-03-06 22:11:34,794  run_modes.base_runner   INFO  Time for last 10000 steps: 10.983834505081177
+2024-03-06 22:11:34,794  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1380000 (1380000'th step training on teacher 0): 
+2024-03-06 22:11:34,794  run_modes.base_runner   INFO      Teacher 0: 0.06970277428627014
+
+2024-03-06 22:11:34,795  run_modes.base_runner   INFO      Teacher 1: 0.10730404406785965
+
+2024-03-06 22:11:45,826  run_modes.base_runner   INFO  Time for last 10000 steps: 11.031798601150513
+2024-03-06 22:11:45,827  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1390000 (1390000'th step training on teacher 0): 
+2024-03-06 22:11:45,827  run_modes.base_runner   INFO      Teacher 0: 0.069994255900383
+
+2024-03-06 22:11:45,827  run_modes.base_runner   INFO      Teacher 1: 0.10744038224220276
+
+2024-03-06 22:11:56,821  run_modes.base_runner   INFO  Time for last 10000 steps: 10.994596242904663
+2024-03-06 22:11:56,821  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1400000 (1400000'th step training on teacher 0): 
+2024-03-06 22:11:56,822  run_modes.base_runner   INFO      Teacher 0: 0.06956838071346283
+
+2024-03-06 22:11:56,822  run_modes.base_runner   INFO      Teacher 1: 0.10689433664083481
+
+2024-03-06 22:12:08,044  run_modes.base_runner   INFO  Time for last 10000 steps: 11.222674131393433
+2024-03-06 22:12:08,044  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1410000 (1410000'th step training on teacher 0): 
+2024-03-06 22:12:08,044  run_modes.base_runner   INFO      Teacher 0: 0.07024292647838593
+
+2024-03-06 22:12:08,045  run_modes.base_runner   INFO      Teacher 1: 0.10763903707265854
+
+2024-03-06 22:12:19,018  run_modes.base_runner   INFO  Time for last 10000 steps: 10.973754167556763
+2024-03-06 22:12:19,018  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1420000 (1420000'th step training on teacher 0): 
+2024-03-06 22:12:19,018  run_modes.base_runner   INFO      Teacher 0: 0.06926124542951584
+
+2024-03-06 22:12:19,019  run_modes.base_runner   INFO      Teacher 1: 0.10705792158842087
+
+2024-03-06 22:12:30,218  run_modes.base_runner   INFO  Time for last 10000 steps: 11.199941396713257
+2024-03-06 22:12:30,219  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1430000 (1430000'th step training on teacher 0): 
+2024-03-06 22:12:30,219  run_modes.base_runner   INFO      Teacher 0: 0.06956858187913895
+
+2024-03-06 22:12:30,219  run_modes.base_runner   INFO      Teacher 1: 0.10738669335842133
+
+2024-03-06 22:12:41,580  run_modes.base_runner   INFO  Time for last 10000 steps: 11.361424207687378
+2024-03-06 22:12:41,581  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1440000 (1440000'th step training on teacher 0): 
+2024-03-06 22:12:41,581  run_modes.base_runner   INFO      Teacher 0: 0.0698891282081604
+
+2024-03-06 22:12:41,581  run_modes.base_runner   INFO      Teacher 1: 0.10697625577449799
+
+2024-03-06 22:12:52,583  run_modes.base_runner   INFO  Time for last 10000 steps: 11.002058744430542
+2024-03-06 22:12:52,583  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1450000 (1450000'th step training on teacher 0): 
+2024-03-06 22:12:52,583  run_modes.base_runner   INFO      Teacher 0: 0.06968614459037781
+
+2024-03-06 22:12:52,583  run_modes.base_runner   INFO      Teacher 1: 0.10674767196178436
+
+2024-03-06 22:13:03,762  run_modes.base_runner   INFO  Time for last 10000 steps: 11.17929458618164
+2024-03-06 22:13:03,763  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1460000 (1460000'th step training on teacher 0): 
+2024-03-06 22:13:03,763  run_modes.base_runner   INFO      Teacher 0: 0.06935840845108032
+
+2024-03-06 22:13:03,763  run_modes.base_runner   INFO      Teacher 1: 0.10716237872838974
+
+2024-03-06 22:13:14,945  run_modes.base_runner   INFO  Time for last 10000 steps: 11.18215537071228
+2024-03-06 22:13:14,945  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1470000 (1470000'th step training on teacher 0): 
+2024-03-06 22:13:14,945  run_modes.base_runner   INFO      Teacher 0: 0.06963490694761276
+
+2024-03-06 22:13:14,945  run_modes.base_runner   INFO      Teacher 1: 0.10727812349796295
+
+2024-03-06 22:13:25,894  run_modes.base_runner   INFO  Time for last 10000 steps: 10.948517322540283
+2024-03-06 22:13:25,894  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1480000 (1480000'th step training on teacher 0): 
+2024-03-06 22:13:25,894  run_modes.base_runner   INFO      Teacher 0: 0.06979086995124817
+
+2024-03-06 22:13:25,894  run_modes.base_runner   INFO      Teacher 1: 0.10699329525232315
+
+2024-03-06 22:13:37,267  run_modes.base_runner   INFO  Time for last 10000 steps: 11.372598886489868
+2024-03-06 22:13:37,267  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1490000 (1490000'th step training on teacher 0): 
+2024-03-06 22:13:37,267  run_modes.base_runner   INFO      Teacher 0: 0.06987641751766205
+
+2024-03-06 22:13:37,267  run_modes.base_runner   INFO      Teacher 1: 0.10712486505508423
+
+2024-03-06 22:13:48,264  run_modes.base_runner   INFO  Time for last 10000 steps: 10.997166872024536
+2024-03-06 22:13:48,264  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1500000 (1500000'th step training on teacher 0): 
+2024-03-06 22:13:48,264  run_modes.base_runner   INFO      Teacher 0: 0.06939464062452316
+
+2024-03-06 22:13:48,264  run_modes.base_runner   INFO      Teacher 1: 0.10710235685110092
+
+2024-03-06 22:13:59,360  run_modes.base_runner   INFO  Time for last 10000 steps: 11.095557689666748
+2024-03-06 22:13:59,360  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1510000 (1510000'th step training on teacher 0): 
+2024-03-06 22:13:59,360  run_modes.base_runner   INFO      Teacher 0: 0.06973738968372345
+
+2024-03-06 22:13:59,360  run_modes.base_runner   INFO      Teacher 1: 0.10672561079263687
+
+2024-03-06 22:14:10,661  run_modes.base_runner   INFO  Time for last 10000 steps: 11.300782680511475
+2024-03-06 22:14:10,661  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1520000 (1520000'th step training on teacher 0): 
+2024-03-06 22:14:10,661  run_modes.base_runner   INFO      Teacher 0: 0.06954047083854675
+
+2024-03-06 22:14:10,661  run_modes.base_runner   INFO      Teacher 1: 0.10687997937202454
+
+2024-03-06 22:14:21,658  run_modes.base_runner   INFO  Time for last 10000 steps: 10.996428966522217
+2024-03-06 22:14:21,658  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1530000 (1530000'th step training on teacher 0): 
+2024-03-06 22:14:21,658  run_modes.base_runner   INFO      Teacher 0: 0.06943939626216888
+
+2024-03-06 22:14:21,658  run_modes.base_runner   INFO      Teacher 1: 0.10682743787765503
+
+2024-03-06 22:14:32,655  run_modes.base_runner   INFO  Time for last 10000 steps: 10.997185230255127
+2024-03-06 22:14:32,655  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1540000 (1540000'th step training on teacher 0): 
+2024-03-06 22:14:32,656  run_modes.base_runner   INFO      Teacher 0: 0.06939510256052017
+
+2024-03-06 22:14:32,656  run_modes.base_runner   INFO      Teacher 1: 0.10652358084917068
+
+2024-03-06 22:14:43,954  run_modes.base_runner   INFO  Time for last 10000 steps: 11.298734903335571
+2024-03-06 22:14:43,955  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1550000 (1550000'th step training on teacher 0): 
+2024-03-06 22:14:43,955  run_modes.base_runner   INFO      Teacher 0: 0.06948813796043396
+
+2024-03-06 22:14:43,955  run_modes.base_runner   INFO      Teacher 1: 0.1066569834947586
+
+2024-03-06 22:14:55,287  run_modes.base_runner   INFO  Time for last 10000 steps: 11.33243989944458
+2024-03-06 22:14:55,287  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1560000 (1560000'th step training on teacher 0): 
+2024-03-06 22:14:55,287  run_modes.base_runner   INFO      Teacher 0: 0.06970464438199997
+
+2024-03-06 22:14:55,287  run_modes.base_runner   INFO      Teacher 1: 0.10676120966672897
+
+2024-03-06 22:15:06,288  run_modes.base_runner   INFO  Time for last 10000 steps: 11.000730991363525
+2024-03-06 22:15:06,288  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1570000 (1570000'th step training on teacher 0): 
+2024-03-06 22:15:06,288  run_modes.base_runner   INFO      Teacher 0: 0.06986372172832489
+
+2024-03-06 22:15:06,288  run_modes.base_runner   INFO      Teacher 1: 0.10709551721811295
+
+2024-03-06 22:15:17,454  run_modes.base_runner   INFO  Time for last 10000 steps: 11.165865659713745
+2024-03-06 22:15:17,455  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1580000 (1580000'th step training on teacher 0): 
+2024-03-06 22:15:17,455  run_modes.base_runner   INFO      Teacher 0: 0.06951670348644257
+
+2024-03-06 22:15:17,455  run_modes.base_runner   INFO      Teacher 1: 0.10700991004705429
+
+2024-03-06 22:15:28,661  run_modes.base_runner   INFO  Time for last 10000 steps: 11.206707239151001
+2024-03-06 22:15:28,662  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1590000 (1590000'th step training on teacher 0): 
+2024-03-06 22:15:28,662  run_modes.base_runner   INFO      Teacher 0: 0.06949843466281891
+
+2024-03-06 22:15:28,662  run_modes.base_runner   INFO      Teacher 1: 0.10697135329246521
+
+2024-03-06 22:15:39,618  run_modes.base_runner   INFO  Time for last 10000 steps: 10.956506967544556
+2024-03-06 22:15:39,619  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1600000 (1600000'th step training on teacher 0): 
+2024-03-06 22:15:39,619  run_modes.base_runner   INFO      Teacher 0: 0.06985776126384735
+
+2024-03-06 22:15:39,619  run_modes.base_runner   INFO      Teacher 1: 0.10683198273181915
+
+2024-03-06 22:15:50,989  run_modes.base_runner   INFO  Time for last 10000 steps: 11.370657682418823
+2024-03-06 22:15:50,990  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1610000 (1610000'th step training on teacher 0): 
+2024-03-06 22:15:50,990  run_modes.base_runner   INFO      Teacher 0: 0.06989972293376923
+
+2024-03-06 22:15:50,990  run_modes.base_runner   INFO      Teacher 1: 0.10699592530727386
+
+2024-03-06 22:16:02,200  run_modes.base_runner   INFO  Time for last 10000 steps: 11.21034049987793
+2024-03-06 22:16:02,200  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1620000 (1620000'th step training on teacher 0): 
+2024-03-06 22:16:02,200  run_modes.base_runner   INFO      Teacher 0: 0.06958874315023422
+
+2024-03-06 22:16:02,201  run_modes.base_runner   INFO      Teacher 1: 0.10655605792999268
+
+2024-03-06 22:16:13,395  run_modes.base_runner   INFO  Time for last 10000 steps: 11.19441294670105
+2024-03-06 22:16:13,395  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1630000 (1630000'th step training on teacher 0): 
+2024-03-06 22:16:13,395  run_modes.base_runner   INFO      Teacher 0: 0.0697215348482132
+
+2024-03-06 22:16:13,395  run_modes.base_runner   INFO      Teacher 1: 0.10678733885288239
+
+2024-03-06 22:16:24,490  run_modes.base_runner   INFO  Time for last 10000 steps: 11.094908714294434
+2024-03-06 22:16:24,490  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1640000 (1640000'th step training on teacher 0): 
+2024-03-06 22:16:24,490  run_modes.base_runner   INFO      Teacher 0: 0.06958846747875214
+
+2024-03-06 22:16:24,491  run_modes.base_runner   INFO      Teacher 1: 0.1067645251750946
+
+2024-03-06 22:16:35,658  run_modes.base_runner   INFO  Time for last 10000 steps: 11.167773962020874
+2024-03-06 22:16:35,658  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1650000 (1650000'th step training on teacher 0): 
+2024-03-06 22:16:35,658  run_modes.base_runner   INFO      Teacher 0: 0.06960328668355942
+
+2024-03-06 22:16:35,659  run_modes.base_runner   INFO      Teacher 1: 0.10723653435707092
+
+2024-03-06 22:16:46,774  run_modes.base_runner   INFO  Time for last 10000 steps: 11.115673542022705
+2024-03-06 22:16:46,774  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1660000 (1660000'th step training on teacher 0): 
+2024-03-06 22:16:46,775  run_modes.base_runner   INFO      Teacher 0: 0.06964092701673508
+
+2024-03-06 22:16:46,775  run_modes.base_runner   INFO      Teacher 1: 0.10723962634801865
+
+2024-03-06 22:16:57,773  run_modes.base_runner   INFO  Time for last 10000 steps: 10.998796463012695
+2024-03-06 22:16:57,774  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1670000 (1670000'th step training on teacher 0): 
+2024-03-06 22:16:57,774  run_modes.base_runner   INFO      Teacher 0: 0.06978707760572433
+
+2024-03-06 22:16:57,774  run_modes.base_runner   INFO      Teacher 1: 0.10735335946083069
+
+2024-03-06 22:17:09,044  run_modes.base_runner   INFO  Time for last 10000 steps: 11.270305156707764
+2024-03-06 22:17:09,044  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1680000 (1680000'th step training on teacher 0): 
+2024-03-06 22:17:09,044  run_modes.base_runner   INFO      Teacher 0: 0.06995531916618347
+
+2024-03-06 22:17:09,045  run_modes.base_runner   INFO      Teacher 1: 0.10689970850944519
+
+2024-03-06 22:17:20,209  run_modes.base_runner   INFO  Time for last 10000 steps: 11.164763450622559
+2024-03-06 22:17:20,210  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1690000 (1690000'th step training on teacher 0): 
+2024-03-06 22:17:20,210  run_modes.base_runner   INFO      Teacher 0: 0.06988006830215454
+
+2024-03-06 22:17:20,210  run_modes.base_runner   INFO      Teacher 1: 0.10674480348825455
+
+2024-03-06 22:17:31,094  run_modes.base_runner   INFO  Time for last 10000 steps: 10.8846435546875
+2024-03-06 22:17:31,095  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1700000 (1700000'th step training on teacher 0): 
+2024-03-06 22:17:31,095  run_modes.base_runner   INFO      Teacher 0: 0.06979237496852875
+
+2024-03-06 22:17:31,095  run_modes.base_runner   INFO      Teacher 1: 0.106510691344738
+
+2024-03-06 22:17:42,172  run_modes.base_runner   INFO  Time for last 10000 steps: 11.077574014663696
+2024-03-06 22:17:42,172  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1710000 (1710000'th step training on teacher 0): 
+2024-03-06 22:17:42,172  run_modes.base_runner   INFO      Teacher 0: 0.0692046731710434
+
+2024-03-06 22:17:42,173  run_modes.base_runner   INFO      Teacher 1: 0.10635731369256973
+
+2024-03-06 22:17:53,435  run_modes.base_runner   INFO  Time for last 10000 steps: 11.262616634368896
+2024-03-06 22:17:53,435  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1720000 (1720000'th step training on teacher 0): 
+2024-03-06 22:17:53,436  run_modes.base_runner   INFO      Teacher 0: 0.06960219144821167
+
+2024-03-06 22:17:53,436  run_modes.base_runner   INFO      Teacher 1: 0.10621821135282516
+
+2024-03-06 22:18:04,665  run_modes.base_runner   INFO  Time for last 10000 steps: 11.229178667068481
+2024-03-06 22:18:04,665  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1730000 (1730000'th step training on teacher 0): 
+2024-03-06 22:18:04,665  run_modes.base_runner   INFO      Teacher 0: 0.06941003352403641
+
+2024-03-06 22:18:04,665  run_modes.base_runner   INFO      Teacher 1: 0.10568608343601227
+
+2024-03-06 22:18:15,800  run_modes.base_runner   INFO  Time for last 10000 steps: 11.135159254074097
+2024-03-06 22:18:15,800  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1740000 (1740000'th step training on teacher 0): 
+2024-03-06 22:18:15,800  run_modes.base_runner   INFO      Teacher 0: 0.0695212334394455
+
+2024-03-06 22:18:15,801  run_modes.base_runner   INFO      Teacher 1: 0.10514049977064133
+
+2024-03-06 22:18:26,810  run_modes.base_runner   INFO  Time for last 10000 steps: 11.009794235229492
+2024-03-06 22:18:26,810  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1750000 (1750000'th step training on teacher 0): 
+2024-03-06 22:18:26,811  run_modes.base_runner   INFO      Teacher 0: 0.06943276524543762
+
+2024-03-06 22:18:26,811  run_modes.base_runner   INFO      Teacher 1: 0.10552030056715012
+
+2024-03-06 22:18:38,150  run_modes.base_runner   INFO  Time for last 10000 steps: 11.33936619758606
+2024-03-06 22:18:38,150  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1760000 (1760000'th step training on teacher 0): 
+2024-03-06 22:18:38,150  run_modes.base_runner   INFO      Teacher 0: 0.06944579631090164
+
+2024-03-06 22:18:38,150  run_modes.base_runner   INFO      Teacher 1: 0.105631984770298
+
+2024-03-06 22:18:49,126  run_modes.base_runner   INFO  Time for last 10000 steps: 10.976107120513916
+2024-03-06 22:18:49,126  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1770000 (1770000'th step training on teacher 0): 
+2024-03-06 22:18:49,126  run_modes.base_runner   INFO      Teacher 0: 0.06960831582546234
+
+2024-03-06 22:18:49,127  run_modes.base_runner   INFO      Teacher 1: 0.10556148737668991
+
+2024-03-06 22:19:00,235  run_modes.base_runner   INFO  Time for last 10000 steps: 11.1090726852417
+2024-03-06 22:19:00,236  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1780000 (1780000'th step training on teacher 0): 
+2024-03-06 22:19:00,236  run_modes.base_runner   INFO      Teacher 0: 0.06998582929372787
+
+2024-03-06 22:19:00,236  run_modes.base_runner   INFO      Teacher 1: 0.10623591393232346
+
+2024-03-06 22:19:11,349  run_modes.base_runner   INFO  Time for last 10000 steps: 11.11280369758606
+2024-03-06 22:19:11,349  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1790000 (1790000'th step training on teacher 0): 
+2024-03-06 22:19:11,349  run_modes.base_runner   INFO      Teacher 0: 0.06971975415945053
+
+2024-03-06 22:19:11,349  run_modes.base_runner   INFO      Teacher 1: 0.10571286827325821
+
+2024-03-06 22:19:22,465  run_modes.base_runner   INFO  Time for last 10000 steps: 11.116546154022217
+2024-03-06 22:19:22,466  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1800000 (1800000'th step training on teacher 0): 
+2024-03-06 22:19:22,466  run_modes.base_runner   INFO      Teacher 0: 0.06964902579784393
+
+2024-03-06 22:19:22,466  run_modes.base_runner   INFO      Teacher 1: 0.1055522933602333
+
+2024-03-06 22:19:33,448  run_modes.base_runner   INFO  Time for last 10000 steps: 10.982517004013062
+2024-03-06 22:19:33,448  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1810000 (1810000'th step training on teacher 0): 
+2024-03-06 22:19:33,449  run_modes.base_runner   INFO      Teacher 0: 0.06968265026807785
+
+2024-03-06 22:19:33,449  run_modes.base_runner   INFO      Teacher 1: 0.10595185309648514
+
+2024-03-06 22:19:44,679  run_modes.base_runner   INFO  Time for last 10000 steps: 11.230815649032593
+2024-03-06 22:19:44,680  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1820000 (1820000'th step training on teacher 0): 
+2024-03-06 22:19:44,680  run_modes.base_runner   INFO      Teacher 0: 0.06977194547653198
+
+2024-03-06 22:19:44,680  run_modes.base_runner   INFO      Teacher 1: 0.10572268068790436
+
+2024-03-06 22:19:55,657  run_modes.base_runner   INFO  Time for last 10000 steps: 10.976864337921143
+2024-03-06 22:19:55,657  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1830000 (1830000'th step training on teacher 0): 
+2024-03-06 22:19:55,657  run_modes.base_runner   INFO      Teacher 0: 0.07016247510910034
+
+2024-03-06 22:19:55,657  run_modes.base_runner   INFO      Teacher 1: 0.10552802681922913
+
+2024-03-06 22:20:06,686  run_modes.base_runner   INFO  Time for last 10000 steps: 11.028784275054932
+2024-03-06 22:20:06,686  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1840000 (1840000'th step training on teacher 0): 
+2024-03-06 22:20:06,686  run_modes.base_runner   INFO      Teacher 0: 0.0699283704161644
+
+2024-03-06 22:20:06,686  run_modes.base_runner   INFO      Teacher 1: 0.10542216897010803
+
+2024-03-06 22:20:17,915  run_modes.base_runner   INFO  Time for last 10000 steps: 11.22879433631897
+2024-03-06 22:20:17,915  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1850000 (1850000'th step training on teacher 0): 
+2024-03-06 22:20:17,915  run_modes.base_runner   INFO      Teacher 0: 0.06973818689584732
+
+2024-03-06 22:20:17,915  run_modes.base_runner   INFO      Teacher 1: 0.10627048462629318
+
+2024-03-06 22:20:29,072  run_modes.base_runner   INFO  Time for last 10000 steps: 11.156875610351562
+2024-03-06 22:20:29,072  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1860000 (1860000'th step training on teacher 0): 
+2024-03-06 22:20:29,072  run_modes.base_runner   INFO      Teacher 0: 0.0695071741938591
+
+2024-03-06 22:20:29,072  run_modes.base_runner   INFO      Teacher 1: 0.10595792531967163
+
+2024-03-06 22:20:40,263  run_modes.base_runner   INFO  Time for last 10000 steps: 11.19058609008789
+2024-03-06 22:20:40,263  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1870000 (1870000'th step training on teacher 0): 
+2024-03-06 22:20:40,263  run_modes.base_runner   INFO      Teacher 0: 0.06964743882417679
+
+2024-03-06 22:20:40,263  run_modes.base_runner   INFO      Teacher 1: 0.10612701624631882
+
+2024-03-06 22:20:51,333  run_modes.base_runner   INFO  Time for last 10000 steps: 11.07006311416626
+2024-03-06 22:20:51,333  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1880000 (1880000'th step training on teacher 0): 
+2024-03-06 22:20:51,333  run_modes.base_runner   INFO      Teacher 0: 0.06981560587882996
+
+2024-03-06 22:20:51,334  run_modes.base_runner   INFO      Teacher 1: 0.10664550960063934
+
+2024-03-06 22:21:02,516  run_modes.base_runner   INFO  Time for last 10000 steps: 11.18213939666748
+2024-03-06 22:21:02,516  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1890000 (1890000'th step training on teacher 0): 
+2024-03-06 22:21:02,516  run_modes.base_runner   INFO      Teacher 0: 0.06973663717508316
+
+2024-03-06 22:21:02,516  run_modes.base_runner   INFO      Teacher 1: 0.10649395734071732
+
+2024-03-06 22:21:13,615  run_modes.base_runner   INFO  Time for last 10000 steps: 11.098931789398193
+2024-03-06 22:21:13,615  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1900000 (1900000'th step training on teacher 0): 
+2024-03-06 22:21:13,615  run_modes.base_runner   INFO      Teacher 0: 0.0693168118596077
+
+2024-03-06 22:21:13,615  run_modes.base_runner   INFO      Teacher 1: 0.10576733201742172
+
+2024-03-06 22:21:24,743  run_modes.base_runner   INFO  Time for last 10000 steps: 11.12793779373169
+2024-03-06 22:21:24,743  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1910000 (1910000'th step training on teacher 0): 
+2024-03-06 22:21:24,743  run_modes.base_runner   INFO      Teacher 0: 0.069571353495121
+
+2024-03-06 22:21:24,743  run_modes.base_runner   INFO      Teacher 1: 0.10581620037555695
+
+2024-03-06 22:21:35,905  run_modes.base_runner   INFO  Time for last 10000 steps: 11.161342144012451
+2024-03-06 22:21:35,905  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1920000 (1920000'th step training on teacher 0): 
+2024-03-06 22:21:35,905  run_modes.base_runner   INFO      Teacher 0: 0.0696360319852829
+
+2024-03-06 22:21:35,905  run_modes.base_runner   INFO      Teacher 1: 0.10680800676345825
+
+2024-03-06 22:21:47,069  run_modes.base_runner   INFO  Time for last 10000 steps: 11.164180278778076
+2024-03-06 22:21:47,069  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1930000 (1930000'th step training on teacher 0): 
+2024-03-06 22:21:47,069  run_modes.base_runner   INFO      Teacher 0: 0.06989897787570953
+
+2024-03-06 22:21:47,069  run_modes.base_runner   INFO      Teacher 1: 0.10663320124149323
+
+2024-03-06 22:21:58,174  run_modes.base_runner   INFO  Time for last 10000 steps: 11.104389905929565
+2024-03-06 22:21:58,174  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1940000 (1940000'th step training on teacher 0): 
+2024-03-06 22:21:58,174  run_modes.base_runner   INFO      Teacher 0: 0.06962855905294418
+
+2024-03-06 22:21:58,174  run_modes.base_runner   INFO      Teacher 1: 0.10614925622940063
+
+2024-03-06 22:22:09,465  run_modes.base_runner   INFO  Time for last 10000 steps: 11.291149377822876
+2024-03-06 22:22:09,466  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1950000 (1950000'th step training on teacher 0): 
+2024-03-06 22:22:09,466  run_modes.base_runner   INFO      Teacher 0: 0.06951047480106354
+
+2024-03-06 22:22:09,466  run_modes.base_runner   INFO      Teacher 1: 0.10606512427330017
+
+2024-03-06 22:22:20,634  run_modes.base_runner   INFO  Time for last 10000 steps: 11.168532848358154
+2024-03-06 22:22:20,635  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1960000 (1960000'th step training on teacher 0): 
+2024-03-06 22:22:20,635  run_modes.base_runner   INFO      Teacher 0: 0.06943776458501816
+
+2024-03-06 22:22:20,635  run_modes.base_runner   INFO      Teacher 1: 0.10610021650791168
+
+2024-03-06 22:22:31,946  run_modes.base_runner   INFO  Time for last 10000 steps: 11.311628341674805
+2024-03-06 22:22:31,947  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1970000 (1970000'th step training on teacher 0): 
+2024-03-06 22:22:31,947  run_modes.base_runner   INFO      Teacher 0: 0.06935867667198181
+
+2024-03-06 22:22:31,947  run_modes.base_runner   INFO      Teacher 1: 0.10609627515077591
+
+2024-03-06 22:22:43,134  run_modes.base_runner   INFO  Time for last 10000 steps: 11.187670469284058
+2024-03-06 22:22:43,135  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1980000 (1980000'th step training on teacher 0): 
+2024-03-06 22:22:43,135  run_modes.base_runner   INFO      Teacher 0: 0.07002611458301544
+
+2024-03-06 22:22:43,135  run_modes.base_runner   INFO      Teacher 1: 0.10646367073059082
+
+2024-03-06 22:22:53,985  run_modes.base_runner   INFO  Time for last 10000 steps: 10.850441932678223
+2024-03-06 22:22:53,985  run_modes.base_runner   INFO  Generalisation errors @ (~) step 1990000 (1990000'th step training on teacher 0): 
+2024-03-06 22:22:53,985  run_modes.base_runner   INFO      Teacher 0: 0.06999865174293518
+
+2024-03-06 22:22:53,986  run_modes.base_runner   INFO      Teacher 1: 0.10663032531738281
+
+2024-03-06 22:23:05,279  run_modes.base_runner   INFO  Time for last 10000 steps: 11.293647289276123
+2024-03-06 22:23:05,279  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2000000 (2000000'th step training on teacher 0): 
+2024-03-06 22:23:05,279  run_modes.base_runner   INFO      Teacher 0: 0.06988361477851868
+
+2024-03-06 22:23:05,279  run_modes.base_runner   INFO      Teacher 1: 0.10649865865707397
+
+2024-03-06 22:23:16,446  run_modes.base_runner   INFO  Time for last 10000 steps: 11.16686749458313
+2024-03-06 22:23:16,447  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2010000 (2010000'th step training on teacher 0): 
+2024-03-06 22:23:16,447  run_modes.base_runner   INFO      Teacher 0: 0.06985505670309067
+
+2024-03-06 22:23:16,447  run_modes.base_runner   INFO      Teacher 1: 0.10625805705785751
+
+2024-03-06 22:23:27,584  run_modes.base_runner   INFO  Time for last 10000 steps: 11.137441158294678
+2024-03-06 22:23:27,584  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2020000 (2020000'th step training on teacher 0): 
+2024-03-06 22:23:27,584  run_modes.base_runner   INFO      Teacher 0: 0.06954377144575119
+
+2024-03-06 22:23:27,584  run_modes.base_runner   INFO      Teacher 1: 0.10628090798854828
+
+2024-03-06 22:23:38,627  run_modes.base_runner   INFO  Time for last 10000 steps: 11.043012142181396
+2024-03-06 22:23:38,628  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2030000 (2030000'th step training on teacher 0): 
+2024-03-06 22:23:38,628  run_modes.base_runner   INFO      Teacher 0: 0.06970392912626266
+
+2024-03-06 22:23:38,628  run_modes.base_runner   INFO      Teacher 1: 0.10589389503002167
+
+2024-03-06 22:23:49,905  run_modes.base_runner   INFO  Time for last 10000 steps: 11.277550458908081
+2024-03-06 22:23:49,905  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2040000 (2040000'th step training on teacher 0): 
+2024-03-06 22:23:49,906  run_modes.base_runner   INFO      Teacher 0: 0.07010916620492935
+
+2024-03-06 22:23:49,906  run_modes.base_runner   INFO      Teacher 1: 0.10647668689489365
+
+2024-03-06 22:24:00,829  run_modes.base_runner   INFO  Time for last 10000 steps: 10.9231276512146
+2024-03-06 22:24:00,829  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2050000 (2050000'th step training on teacher 0): 
+2024-03-06 22:24:00,829  run_modes.base_runner   INFO      Teacher 0: 0.06951521337032318
+
+2024-03-06 22:24:00,829  run_modes.base_runner   INFO      Teacher 1: 0.1060396209359169
+
+2024-03-06 22:24:11,838  run_modes.base_runner   INFO  Time for last 10000 steps: 11.00932788848877
+2024-03-06 22:24:11,839  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2060000 (2060000'th step training on teacher 0): 
+2024-03-06 22:24:11,839  run_modes.base_runner   INFO      Teacher 0: 0.06985880434513092
+
+2024-03-06 22:24:11,839  run_modes.base_runner   INFO      Teacher 1: 0.10601527988910675
+
+2024-03-06 22:24:22,931  run_modes.base_runner   INFO  Time for last 10000 steps: 11.092719793319702
+2024-03-06 22:24:22,931  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2070000 (2070000'th step training on teacher 0): 
+2024-03-06 22:24:22,932  run_modes.base_runner   INFO      Teacher 0: 0.0697813630104065
+
+2024-03-06 22:24:22,932  run_modes.base_runner   INFO      Teacher 1: 0.10617795586585999
+
+2024-03-06 22:24:34,222  run_modes.base_runner   INFO  Time for last 10000 steps: 11.290513753890991
+2024-03-06 22:24:34,222  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2080000 (2080000'th step training on teacher 0): 
+2024-03-06 22:24:34,223  run_modes.base_runner   INFO      Teacher 0: 0.06925924867391586
+
+2024-03-06 22:24:34,223  run_modes.base_runner   INFO      Teacher 1: 0.10600981116294861
+
+2024-03-06 22:24:45,358  run_modes.base_runner   INFO  Time for last 10000 steps: 11.135669231414795
+2024-03-06 22:24:45,358  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2090000 (2090000'th step training on teacher 0): 
+2024-03-06 22:24:45,358  run_modes.base_runner   INFO      Teacher 0: 0.06964679807424545
+
+2024-03-06 22:24:45,359  run_modes.base_runner   INFO      Teacher 1: 0.10612230002880096
+
+2024-03-06 22:24:56,436  run_modes.base_runner   INFO  Time for last 10000 steps: 11.07766842842102
+2024-03-06 22:24:56,436  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2100000 (2100000'th step training on teacher 0): 
+2024-03-06 22:24:56,436  run_modes.base_runner   INFO      Teacher 0: 0.06937862932682037
+
+2024-03-06 22:24:56,436  run_modes.base_runner   INFO      Teacher 1: 0.1062488779425621
+
+2024-03-06 22:25:07,481  run_modes.base_runner   INFO  Time for last 10000 steps: 11.04506778717041
+2024-03-06 22:25:07,482  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2110000 (2110000'th step training on teacher 0): 
+2024-03-06 22:25:07,482  run_modes.base_runner   INFO      Teacher 0: 0.06932774931192398
+
+2024-03-06 22:25:07,482  run_modes.base_runner   INFO      Teacher 1: 0.10629129409790039
+
+2024-03-06 22:25:18,524  run_modes.base_runner   INFO  Time for last 10000 steps: 11.041838884353638
+2024-03-06 22:25:18,524  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2120000 (2120000'th step training on teacher 0): 
+2024-03-06 22:25:18,524  run_modes.base_runner   INFO      Teacher 0: 0.06991099566221237
+
+2024-03-06 22:25:18,524  run_modes.base_runner   INFO      Teacher 1: 0.10699678957462311
+
+2024-03-06 22:25:29,689  run_modes.base_runner   INFO  Time for last 10000 steps: 11.165342330932617
+2024-03-06 22:25:29,689  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2130000 (2130000'th step training on teacher 0): 
+2024-03-06 22:25:29,690  run_modes.base_runner   INFO      Teacher 0: 0.06972416490316391
+
+2024-03-06 22:25:29,690  run_modes.base_runner   INFO      Teacher 1: 0.10668278485536575
+
+2024-03-06 22:25:40,670  run_modes.base_runner   INFO  Time for last 10000 steps: 10.980714559555054
+2024-03-06 22:25:40,670  run_modes.base_runner   INFO  Generalisation errors @ (~) step 2140000 (2140000'th step training on teacher 0): 
+2024-03-06 22:25:40,670  run_modes.base_runner   INFO      Teacher 0: 0.0694076269865036
+
+2024-03-06 22:25:40,671  run_modes.base_runner   INFO      Teacher 1: 0.10760689526796341
+
+slurmstepd-mscluster30: error: *** JOB 85029 ON mscluster30 CANCELLED AT 2024-03-06T22:25:48 ***

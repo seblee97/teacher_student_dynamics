@@ -52,7 +52,7 @@ class CoreRunner:
             )
         elif config.input_source == constants.HIDDEN_MANIFOLD:
             self._network_runner = hmm_multi_teacher_runner.HMMMultiTeacherRunner(
-                config=config, unique_id=network_id
+                config=config, unique_id=unique_id
             )
 
         if self._run_ode:
@@ -77,7 +77,7 @@ class CoreRunner:
         """Run network and ode simulations.
         Begin by running simulations.
         Next, solve ODEs (C++ code should already be compiled).
-        """
+        """ 
         if self._run_network:
             self._network_runner.train()
         if self._run_ode:

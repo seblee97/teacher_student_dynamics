@@ -76,23 +76,13 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
             networks[1].layers[0].weight.data = network_1_feature_weights.T
 
             if self._hidden_dimension > 1:
+                (
+                    network_0_readout_weights,
+                    network_1_readout_weights,
+                ) = self._get_rotated_readout_weights(networks=networks)
 
-                if not self._heads_one:
-                    (
-                        network_0_readout_weights,
-                        network_1_readout_weights,
-                    ) = self._get_rotated_readout_weights(networks=networks)
-
-                    networks[0].heads[0].weight.data = network_0_readout_weights
-                    networks[1].heads[0].weight.data = network_1_readout_weights
-
-            else:
-                # if hidden dimension is 1, then the readout is just a scalar.
-                # two options: alpha = 1 -> readout weights the same; alpha = 0 -> readout weights opposite.
-                if self._readout_rotation_alpha == 1:
-                    networks[1].heads[0].weight.data = networks[0].heads[0].weight.data
-                elif self._readout_rotation_alpha == 0:
-                    networks[1].heads[0].weight.data = -networks[0].heads[0].weight.data
+                networks[0].heads[0].weight.data = network_0_readout_weights
+                networks[1].heads[0].weight.data = network_1_readout_weights
 
         return networks
 

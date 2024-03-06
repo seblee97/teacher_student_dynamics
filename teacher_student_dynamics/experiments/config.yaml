@@ -35,7 +35,7 @@ data:
     hidden_manifold:
         mean: 0
         variance: 1
-        latent_dimension: 100
+        latent_dimension: 140 #100
         activation: sign # scaled_erf or sign
 
         construction: domine_ssm # goldt or domine_ssm

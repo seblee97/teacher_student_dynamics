@@ -20,13 +20,10 @@ int main(int argc, char **argv)
     //  R,/path/to/R.csv
     //  etc.
     std::string order_parameter_paths;
-    std::string base_order_parameter_paths;
-    std::string step_order_parameter_paths;
     std::string output_path_str;
     std::string experiment_log_path;
     int stdout_frequency;
     order_parameter_paths = std::get<std::string>(config["order_parameter_paths"]);
-    base_order_parameter_paths = order_parameter_paths.substr(0, order_parameter_paths.length() - 4);
     output_path_str = std::get<std::string>(config["output_path"]);
     experiment_log_path = std::get<std::string>(config["stdout_path"]);
     stdout_frequency = std::get<int>(config["stdout_frequency"]);
@@ -60,7 +57,6 @@ int main(int argc, char **argv)
     std::vector<float> noise_stds = std::get<std::vector<float>>(config["noise_stds"]);
     std::vector<float> input_noise_stds = std::get<std::vector<float>>(config["input_noise_stds"]);
     std::vector<int> freeze_units = std::get<std::vector<int>>(config["freeze_units"]);
-    int debug_frequency = std::get<int>(config["debug_frequency"]);
 
     std::cout << "configuration parsed successfully." << std::endl;
 
@@ -84,12 +80,9 @@ int main(int argc, char **argv)
 
     float time = (float)num_steps / (float)input_dimension;
     float switch_time = (float)switch_step / (float)input_dimension;
-    float debug_time = (float)debug_frequency / (float)input_dimension;
     int num_deltas = static_cast<int>(std::round(time / timestep));
     int num_logs = static_cast<int>(std::round(num_deltas / log_step));
     int switch_delta = static_cast<int>(std::round(switch_time / timestep));
-    int debug_step = static_cast<int>(std::round(debug_time / timestep));
-    int num_debugs = static_cast<int>(std::round(num_deltas / debug_step));
     float step_scaling = input_dimension / (1 / timestep);
 
     std::cout << "num steps: " << num_steps << std::endl;
@@ -99,17 +92,6 @@ int main(int argc, char **argv)
     std::cout << "num logs: " << num_logs << std::endl;
     std::cout << "switch_delta: " << switch_delta << std::endl;
     std::cout << "step_scaling: " << step_scaling << std::endl;
-    std::cout << "debug_step: " << debug_step << std::endl;
-    std::cout << "debug_time: " << debug_time << std::endl;
-    std::cerr << "num steps: " << num_steps << std::endl;
-    std::cerr << "input dimension: " << input_dimension << std::endl;
-    std::cerr << "time: " << time << std::endl;
-    std::cerr << "num deltas: " << num_deltas << std::endl;
-    std::cerr << "num logs: " << num_logs << std::endl;
-    std::cerr << "switch_delta: " << switch_delta << std::endl;
-    std::cerr << "step_scaling: " << step_scaling << std::endl;
-    std::cerr << "debug_step: " << debug_step << std::endl;
-    std::cerr << "debug_time: " << debug_time << std::endl;
 
     StudentTeacherODE ODE(
         state,
@@ -158,11 +140,9 @@ int main(int argc, char **argv)
     for (int i = 0; i < student_hidden; i++)
     {
         std::vector<double> h_0i_log(num_logs);
+        std::vector<double> h_1i_log(num_logs);
         h_0_log_map["h_0" + std::to_string(i)] = h_0i_log;
-        if (multi_head){
-            std::vector<double> h_1i_log(num_logs);
-            h_1_log_map["h_1" + std::to_string(i)] = h_1i_log;
-        }
+        h_1_log_map["h_1" + std::to_string(i)] = h_1i_log;
     }
 
     std::tuple<float, float> step_errors;
@@ -185,9 +165,14 @@ int main(int argc, char **argv)
             std::cerr << "Step: " << step_scaling * i << "; Elapsed (s): " << since(start_time).count() << std::endl;
             start_time = std::chrono::steady_clock::now();
         }
+        step_errors = ODE.step();
 
         if (i % log_step == 0)
         {
+            teacher_index_log[log_i] = ODE.get_active_teacher();
+            error_0_log[log_i] = std::get<0>(step_errors);
+            error_1_log[log_i] = std::get<1>(step_errors);
+
             for (int s = 0; s < student_hidden; s++)
             {
                 for (int s_ = 0; s_ < student_hidden; s_++)
@@ -213,28 +198,6 @@ int main(int argc, char **argv)
                     h_1_log_map["h_1" + std::to_string(s)][log_i] = state.state["h2"](s);
                 }
             }
-        }
-
-        std::cout << "Step: " << i << std::endl;
-        // std::cerr << "Step: " << i << debug_step << std::endl;
-        if (i % debug_step == 0)
-        {
-            std::cout << "READING STATE FROM FILE" << std::endl;
-            std::cerr << "READING STATE FROM FILE" << std::endl;
-            step_order_parameter_paths = base_order_parameter_paths + "_" + std::to_string(static_cast<int>(step_scaling * i)) + ".txt";
-            std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
-            std::cerr << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
-            step_errors = ODE.step(step_order_parameter_paths);
-        }
-        else
-        {
-            step_errors = ODE.step();
-        }
-        if (i % log_step == 0)
-        {
-            teacher_index_log[log_i] = ODE.get_active_teacher();
-            error_0_log[log_i] = std::get<0>(step_errors);
-            error_1_log[log_i] = std::get<1>(step_errors);
             log_i++;
         }
 
@@ -343,7 +306,7 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < teacher_hidden; j++)
         {
-            csv_name = "student_teacher_1_overlap_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            csv_name = "student_teacher_1_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
             file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {
@@ -354,7 +317,7 @@ int main(int argc, char **argv)
                 }
             }
             file.close();
-            csv_name = "student_teacher_0_overlap_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
+            csv_name = "student_teacher_0_" + std::to_string(i) + "_" + std::to_string(j) + ".csv";
             file.open(log_csvs_path / csv_name);
             for (int n = 0; n < num_logs; n++)
             {

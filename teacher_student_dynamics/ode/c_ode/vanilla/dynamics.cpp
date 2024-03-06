@@ -79,7 +79,7 @@ public:
         return this->active_teacher;
     }
 
-    std::tuple<float, float> step(std::string step_order_parameter_paths = "")
+    std::tuple<float, float> step()
     {
         // std::cout << "Taking ODE Step" << std::endl;
         this->state.step_covariance_matrix(input_noise_stds[active_teacher]);
@@ -115,64 +115,14 @@ public:
             }
         }
 
-        std::vector<std::string> states_read;
-
-        if (step_order_parameter_paths != ""){
-            states_read = this->state.read_state_from_file(step_order_parameter_paths);
-        }
-
-        std::cout << step_order_parameter_paths << std::endl;
-
-        std::vector<std::string>::iterator state_read;
-
-        for (int i = 0; i < states_read.size(); i++){
-            std::cout << "STATES_REDA" << states_read[i] << std::endl;
-            std::cerr << "STATES_REDA" << states_read[i] << std::endl;
-        }
-
-        state_read = std::find(states_read.begin(), states_read.end(), "Q");
-        if (state_read == states_read.end())
-        {
-            // std::cout << "stepped Q" << std::endl;
-            // std::cerr << "stepped Q" << std::endl;
-            this->state.step_order_parameter("Q", q_delta);
-        }
-        state_read = std::find(states_read.begin(), states_read.end(), "R");
-        if (state_read == states_read.end())
-        {
-            // std::cout << "stepped R" << std::endl;
-            // std::cerr << "stepped R" << std::endl;
-            this->state.step_order_parameter("R", r_delta);
-        }
-        state_read = std::find(states_read.begin(), states_read.end(), "U");
-        if (state_read == states_read.end())
-        {
-            // std::cout << "stepped U" << std::endl;
-            // std::cerr << "stepped U" << std::endl;
-            this->state.step_order_parameter("U", u_delta);
-        }
-        state_read = std::find(states_read.begin(), states_read.end(), "h1");
-        if (state_read == states_read.end())
-        {
-            std::cout << "h1_stepped" << std::endl;
-            std::cerr << "h1_stepped" << std::endl;
-            this->state.step_order_parameter("h1", h1_delta);
-        }
-        else
-        {
-            std::cout << "h1_not_stepped" << std::endl;
-            std::cerr << "h1_not_stepped" << std::endl;
-        }
+        this->state.step_order_parameter("Q", q_delta);
+        this->state.step_order_parameter("R", r_delta);
+        this->state.step_order_parameter("U", u_delta);
+        this->state.step_order_parameter("h1", h1_delta);
 
         if (multi_head)
         {
-            state_read = std::find(states_read.begin(), states_read.end(), "h2");
-            if (state_read == states_read.end())
-            {
-                std::cout << "h2_stepped" << std::endl;
-                std::cerr << "h2_stepped" << std::endl;
-                this->state.step_order_parameter("h2", h2_delta);
-            }
+            this->state.step_order_parameter("h2", h2_delta);
         }
 
         std::tuple<float, float> step_errors;
@@ -546,7 +496,7 @@ public:
         // std::cout << "dh1/dt" << std::endl;
         // MatrixXd derivative(this->state.state["h1"].rows(), this->state.state["h1"].cols());
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        if (train_h_layer and ((active_teacher == 0) or (not multi_head)))
+        if (train_h_layer and (active_teacher == 0) or (not multi_head))
         {
 #pragma omp parallel for
             for (int i = 0; i < student_hidden; i++)
@@ -557,7 +507,7 @@ public:
 #pragma omp section
                     for (int m = 0; m < teacher_hidden; m++)
                     {
-                        std::vector<int> indices{i + input_noise_offset, offset + m};
+                        std::vector<int> indices{i + input_noise_offset, teacher_1_offset + m};
                         MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
                         i_derivative += teacher_head(m) * sigmoid_i2(cov);
                     }

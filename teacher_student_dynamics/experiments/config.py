@@ -5,6 +5,7 @@ from config_manager import base_configuration
 from teacher_student_dynamics import constants
 from teacher_student_dynamics.experiments.config_template import ConfigTemplate
 
+import numpy as np
 
 class Config(base_configuration.BaseConfiguration):
     def __init__(self, config: Union[str, Dict], changes: List[Dict] = []) -> None:
@@ -15,10 +16,12 @@ class Config(base_configuration.BaseConfiguration):
         )
         self._validate_configuration()
 
-    def _validate_configuration(self):
+    def _validate_configuration(self): #TODO: int try catch in here for HMM
         """Method to check for non-trivial associations
         in the configuration.
         """
+        num_tasks = len(self.feature_matrix_correlations)+1
+        d = self.latent_dimension/(num_tasks - np.sum(self.feature_matrix_correlations))
         if self.run_ode:
             assert (
                 self.implementation == constants.CPP
@@ -53,3 +56,6 @@ class Config(base_configuration.BaseConfiguration):
                 not self.student_bias and not self.teacher_bias
             ), "ODEs implemented for networks without bias only."
             assert self.schedule is None, "Interleaved replay not implemented for ODEs."
+            assert (
+               float(int(d)) - d == 0
+            ), "Latent Dimension should be chosen such that task dimension is an integer."

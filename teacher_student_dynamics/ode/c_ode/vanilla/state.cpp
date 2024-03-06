@@ -135,11 +135,11 @@ public:
         this->state[order_parameter] = this->state[order_parameter] + delta;
     }
 
-    std::vector<std::string> read_state_from_file(std::string order_parameter_paths)
+private:
+    void read_state_from_file(std::string order_parameter_paths)
     {
         std::string line;
         std::ifstream file(order_parameter_paths);
-        std::vector<std::string> states_read;
 
         if (file.is_open())
         {
@@ -153,16 +153,11 @@ public:
                     tokens.push_back(token);
                 }
                 read_order_parameter_from_file(tokens[1], tokens[0]);
-                states_read.push_back(tokens[0]);
             }
             file.close();
         }
-
-        std::cout << "state read from files." << std::endl;
-        return states_read;
     }
 
-private:
     void read_order_parameter_from_file(std::string path, std::string order_parameter_name)
     {
         std::string line;
@@ -191,7 +186,5 @@ private:
         {
             std::cout << "Unable to open file" << std::endl;
         }
-        std::cout << "order parameter " << order_parameter_name << " read from file." << std::endl;
-        std::cerr << "order parameter " << order_parameter_name << " read from file." << std::endl;
     }
 };

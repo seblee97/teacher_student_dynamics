@@ -30,7 +30,10 @@ class VanillaODERunner(base_ode_runner.BaseODERunner):
     def _get_data_columns(self):
         return []
 
-    def _construct_ode_config(self, config: experiments.config.Config):
+    def _construct_ode_config(
+        self,
+        config: experiments.config.Config
+    ):
         """Method to format/save subset of configuration relevant to ODE."""
 
         order_param_path = os.path.join(self._ode_file_path, "order_parameter.txt")
@@ -65,7 +68,6 @@ class VanillaODERunner(base_ode_runner.BaseODERunner):
             constants.INPUT_NOISE_STDS: student_input_noises,
             constants.NOISE_STDS: teacher_output_noises,
             constants.FREEZE_UNITS: config.freeze_units,
-            constants.DEBUG_FREQUENCY: config.save_overlap_frequency,
             constants.ORDER_PARAMETER_PATHS: order_param_path,
             constants.OUTPUT_PATH: self._ode_file_path,
             constants.OMP_NUM_THREADS: config.omp_num_threads,
