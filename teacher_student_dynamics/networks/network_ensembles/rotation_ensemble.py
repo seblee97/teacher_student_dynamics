@@ -115,7 +115,15 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
         normalisation: Union[None, int],
     ):
         return custom_functions.generate_rotated_matrices(
-            unrotated_weights=unrotated_weights, alpha=alpha, orthogonalise=False
+            unrotated_weights=unrotated_weights,
+            alpha=alpha,
+            orthogonalise=False,
+            normalisation=normalisation,
+        )
+        return custom_functions.generate_rotated_vectors(
+            dimension=self._input_dimension,
+            theta=np.arccos(alpha),
+            normalisation=100,
         )
         # if normalisation is not None:
         #     # orthonormalise input to hidden weights of first network
