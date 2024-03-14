@@ -546,7 +546,7 @@ public:
         // std::cout << "dh1/dt" << std::endl;
         // MatrixXd derivative(this->state.state["h1"].rows(), this->state.state["h1"].cols());
         MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        if (train_h_layer and ((active_teacher == 0) or (not multi_head)))
+        if (train_h_layer and (active_teacher == 0) or (not multi_head))
         {
 #pragma omp parallel for
             for (int i = 0; i < student_hidden; i++)
