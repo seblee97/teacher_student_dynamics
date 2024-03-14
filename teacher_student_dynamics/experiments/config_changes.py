@@ -1,11 +1,12 @@
 import itertools
+import numpy as np
 
-param_config_changes = {
-    f"param_{h}": [{"networks": {"student_hidden": h, "teacher_hidden": h}}]
-    for h in [1, 2, 4]
+CONFIG_CHANGES = {
+    f"steps_{s}_alpha_{a}": [
+        {
+            "curriculum": {"switch_steps": [int(s)]},
+            "networks": {"rotation_teachers": {"feature_rotation_alpha": a}},
+        }
+    ]
+    for s, a in itertools.product(np.linspace(200000, 400000, 3), [1.0])
 }
-oparam_config_changes = {
-    f"oparam_{h}": [{"networks": {"student_hidden": 2 * h, "teacher_hidden": h}}]
-    for h in [1, 2, 4]
-}
-CONFIG_CHANGES = {**param_config_changes, **oparam_config_changes}
