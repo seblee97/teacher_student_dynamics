@@ -32,8 +32,12 @@ def generate_rotated_vectors(
     x_2 = np.array([np.sin(theta), np.cos(theta)])
 
     # generate rotated vectors
-    y_1 = np.dot(stacked_orthonormal, x_1)
-    y_2 = np.dot(stacked_orthonormal, x_2)
+    y_1 = torch.unsqueeze(torch.from_numpy(np.dot(stacked_orthonormal, x_1)), 1).to(
+        torch.float32
+    )
+    y_2 = torch.unsqueeze(torch.from_numpy(np.dot(stacked_orthonormal, x_2)), 1).to(
+        torch.float32
+    )
 
     return y_1, y_2
 
