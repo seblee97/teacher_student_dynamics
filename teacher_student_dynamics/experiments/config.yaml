@@ -1,17 +1,17 @@
-seed: 0
+seed: 10
 gpu_id: 0 # None for CPU
 
 runner:
     run_ode: True
-    run_network: True
+    run_network: False
 
 logging:
     checkpoint_frequency: 10000
     stdout_frequency: 10000
 
     overlap_frequency: 10000 # save in standard logging format
-    save_overlap_frequency: 1000 # save into ode-readable format (for debugging) ensure this is multiple of input_dimension * timestep
-    ode_log_frequency: 1000 # ensure this is multiple of input_dimension * timestep
+    save_overlap_frequency: 10000 # save into ode-readable format (for debugging) ensure this is multiple of input_dimension * timestep
+    ode_log_frequency: 10000 # ensure this is multiple of input_dimension * timestep
 
     debug_copy: []
 
@@ -19,13 +19,13 @@ ode:
     implementation: cpp
     omp: False
     omp_num_threads: 0
-    eigen_path: 
+    eigen_path: /Users/sebastianlee/Dropbox/Documents/Research/Projects/tsd/teacher_student_dynamics/experiments/
     timestep: 0.001
 
 data:
-    input_source: hidden_manifold # iid_gaussian, hidden_manifold
+    input_source: iid_gaussian # iid_gaussian, hidden_manifold
 
-    precompute_data: 1000
+    precompute_data: 10000
 
     iid_gaussian:
         mean: 0
@@ -62,9 +62,9 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 100000000
+    total_training_steps: 2000000
     optimiser: sgd
-    learning_rate: 0.2
+    learning_rate: 1.
     loss_function: mse
     train_hidden_layer: True
     train_head_layer: True
@@ -82,19 +82,19 @@ networks:
     student_hidden: 2
     student_bias: False
     student_initialisation_std: 0.001
-    multi_head: False
+    multi_head: True
     # teacher(s)
     num_teachers: 2
-    teacher_hidden: 2
+    teacher_hidden: 1
     teacher_bias: False
     teacher_heads_one: False # make all teacher head weights 1 (like fig. 3 of HMM paper)
     unit_norm_teacher_head: True
     normalise_teachers: True
     teacher_initialisation_std: 1.
-    teacher_configuration: identical # rotation, identical, node_sharing
+    teacher_configuration: rotation # rotation, identical, node_sharing
 
     rotation_teachers:
-        feature_rotation_alpha: 0.
+        feature_rotation_alpha: 1.
         readout_rotation_alpha: 0.
 
     node_sharing_teachers:
@@ -105,7 +105,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [1500000000]
+    switch_steps: [500000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]
