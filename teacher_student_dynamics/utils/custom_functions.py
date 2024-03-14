@@ -76,16 +76,27 @@ def generate_rotated_matrices(
     else:
         first_matrix = unrotated_weights
 
+    from scipy.stats import ortho_group
+
+    # m = 100 * ortho_group.rvs(dim=unrotated_weights.shape[0])
+
     first_matrix_norms = torch.norm(first_matrix, dim=1)
 
     random_matrix = torch.randn(unrotated_weights.shape)
 
+    # first_matrix = torch.from_numpy(m[:, 0:1]).to(torch.float32)
+    # random_matrix = torch.from_numpy(m[:, 1:2]).to(torch.float32)
+
     second_matrix = alpha * first_matrix + np.sqrt(1 - alpha**2) * random_matrix
 
-    for node_index, node in enumerate(second_matrix):
-        node_norm = torch.norm(node)
-        scaling = first_matrix_norms[node_index] / node_norm
-        second_matrix[node_index] = scaling * node
+    # for node_index, node in enumerate(second_matrix):
+    #     node_norm = torch.norm(node)
+    #     scaling = first_matrix_norms[node_index] / node_norm
+    #     second_matrix[node_index] = scaling * node
+
+    # import pdb
+
+    # pdb.set_trace()
 
     return first_matrix, second_matrix
 
