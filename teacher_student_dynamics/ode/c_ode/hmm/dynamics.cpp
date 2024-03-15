@@ -537,19 +537,25 @@ public:
         // std::cout << "dR/dt" << std::endl;
         MatrixXd teacher_head(teacher_hidden, 1);
         MatrixXd student_head(student_hidden, 1);
+        MatrixXd T_matrix(teacher_hidden, teacher_hidden);
+        MatrixXd T_tilde_matrix(teacher_hidden, teacher_hidden);
         int offset;
         if (active_teacher == 0)
         {
             teacher_head << this->state.state["th1"];
             student_head << this->state.state["h1"];
+            T_matrix << this->state.state["T"];
+            T_tilde_matrix << this->state.state["T_tilde"];
             offset = teacher_1_offset;
         }
         else
         {
             teacher_head << this->state.state["th2"];
+            T_matrix << this->state.state["H"];
+            T_tilde_matrix << this->state.state["H_tilde"];
             offset = teacher_2_offset;
             if (multi_head)
-            {
+            {   
                 student_head << this->state.state["h2"];
             }
             else
@@ -594,20 +600,20 @@ public:
                 ukp_derivative -= d_rho_1.cwiseProduct(ukp) * student_head(k) * student_head(k) * sigmoid_i3(kkk_cov) / this->state.state["Q"](k, k);
 
                 for (int o = 0; o < teacher_hidden; o++) {
-                    double den = this->state.state["Q"](k, k) * this->state.state["H"](o, o) - pow(this->state.state["U"](k, o), 2);
+                    double den = this->state.state["Q"](k, k) * T_matrix(o, o) - pow(this->state.state["U"](k, o), 2);
 
                     // fourth line
                     std::vector<int> kko_indices{k, k, o + offset};
                     MatrixXd kko_cov = this->state.generate_sub_covariance_matrix(kko_indices);
-                    ukp_derivative += d_rho_1.cwiseProduct(ukp) * student_head(k) * teacher_head(o) * this->state.state["H"](o, o) * sigmoid_i3(kko_cov) / den;
+                    ukp_derivative += d_rho_1.cwiseProduct(ukp) * student_head(k) * teacher_head(o) * T_matrix(o, o) * sigmoid_i3(kko_cov) / den;
 
                     std::vector<int> koo_indices{k, o + offset, o + offset};
                     MatrixXd koo_cov = this->state.generate_sub_covariance_matrix(koo_indices);
                     ukp_derivative -= d_rho_1.cwiseProduct(ukp) * student_head(k) * teacher_head(o) * this->state.state["U"](k, o) * sigmoid_i3(koo_cov) / den;
 
                     // fifth line
-                    ukp_derivative += b * this->state.state["rho_1"] * student_head(k) * teacher_head(o) * this->state.state["H_tilde"](o, p) * this->state.state["Q"](k, k) * sigmoid_i3(koo_cov) / den;
-                    ukp_derivative -= b * this->state.state["rho_1"] * student_head(k) * teacher_head(o) * this->state.state["H_tilde"](o, p) * this->state.state["R"](k, o) * sigmoid_i3(kko_cov) / den;
+                    ukp_derivative += b * this->state.state["rho_1"] * student_head(k) * teacher_head(o) * T_tilde_matrix(o, p) * this->state.state["Q"](k, k) * sigmoid_i3(koo_cov) / den;
+                    ukp_derivative -= b * this->state.state["rho_1"] * student_head(k) * teacher_head(o) * T_tilde_matrix(o, p) * this->state.state["R"](k, o) * sigmoid_i3(kko_cov) / den;
                 }
                 u_derivative.row(k * teacher_hidden + p) = w_learning_rate * ukp_derivative / delta;
             }
