@@ -162,21 +162,17 @@ public:
         // std::cout << "error 1: " << e1 << std::endl;
         // std::cout << "error 2: " << e2 << std::endl;
 
-        // MatrixXd Q_delta = MatrixXd::Constant(this->state.state["Q"].rows(), this->state.state["Q"].cols(), 0.0);
         MatrixXd W_delta = MatrixXd::Constant(this->state.state["W"].rows(), this->state.state["W"].cols(), 0.0);
-        // MatrixXd Sigma1_delta = MatrixXd::Constant(this->state.state["Sigma1"].rows(), this->state.state["Sigma1"].cols(), 0.0);
-        // MatrixXd Sigma2_delta = MatrixXd::Constant(this->state.state["Sigma2"].rows(), this->state.state["Sigma2"].cols(), 0.0);
         MatrixXd r_delta = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
-        // MatrixXd r_delta2 = MatrixXd::Constant(this->state.state["r_density"].rows(), this->state.state["r_density"].cols(), 0.0);
         MatrixXd sigma_1_delta = MatrixXd::Constant(this->state.state["sigma_1_density"].rows(), this->state.state["sigma_1_density"].cols(), 0.0);
-        // MatrixXd u_delta = MatrixXd::Constant(this->state.state["U"].rows(), this->state.state["U"].cols(), 0.0);
+        MatrixXd u_delta = MatrixXd::Constant(this->state.state["u_density"].rows(), this->state.state["u_density"].cols(), 0.0);
         MatrixXd h1_delta = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
-        // MatrixXd h2_delta = MatrixXd::Constant(this->state.state["h2"].rows(), this->state.state["h2"].cols(), 0.0);
+        MatrixXd h2_delta = MatrixXd::Constant(this->state.state["h2"].rows(), this->state.state["h2"].cols(), 0.0);
 
         if (train_w_layer)
         {
             r_delta += timestep * dr_dt();
-            // r_delta2 += timestep * dr2_dt();
+            u_delta += timestep * du_dt();
             W_delta += timestep * dW_dt();
             sigma_1_delta += timestep * dsigma_1_dt();
         }
@@ -185,6 +181,7 @@ public:
             h1_delta += timestep * dh1_dt();
             if (multi_head)
             {
+                h2_delta += timestep * dh2_dt();
             }
         }
 
@@ -213,6 +210,12 @@ public:
         {
             std::cout << "r_dens" << std::endl;
             this->state.step_order_parameter("r_density", r_delta);
+        }
+        state_read = std::find(states_read.begin(), states_read.end(), "u_density");
+        if (state_read == states_read.end())
+        {
+            std::cout << "u_dens" << std::endl;
+            this->state.step_order_parameter("u_density", u_delta);
         }
         state_read = std::find(states_read.begin(), states_read.end(), "W");
         if (state_read == states_read.end())
@@ -244,7 +247,12 @@ public:
 
         if (multi_head)
         {
-            // this->state.step_order_parameter("h2", h2_delta);
+            state_read = std::find(states_read.begin(), states_read.end(), "h2");
+            if (state_read == states_read.end())
+            {
+                std::cout << "h2_stepped" << std::endl;
+                this->state.step_order_parameter("h2", h2_delta);
+            }
         }
 
         std::tuple<double, double> step_errors;
@@ -432,16 +440,22 @@ public:
         // std::cout << "dR/dt" << std::endl;
         MatrixXd teacher_head(teacher_hidden, 1);
         MatrixXd student_head(student_hidden, 1);
+        MatrixXd T_matrix(teacher_hidden, teacher_hidden);
+        MatrixXd T_tilde_matrix(teacher_hidden, teacher_hidden);
         int offset;
         if (active_teacher == 0)
         {
             teacher_head << this->state.state["th1"];
+            T_matrix << this->state.state["T"];
+            T_tilde_matrix << this->state.state["T_tilde"];
             student_head << this->state.state["h1"];
             offset = teacher_1_offset;
         }
         else
         {
             teacher_head << this->state.state["th2"];
+            T_matrix << this->state.state["H"];
+            T_tilde_matrix << this->state.state["H_tilde"];
             offset = teacher_2_offset;
             if (multi_head)
             {
@@ -497,25 +511,108 @@ public:
                 rkm_derivative -= d_rho_1.cwiseProduct(rkm) * student_head(k) * student_head(k) * sigmoid_i3(kkk_cov) / this->state.state["Q"](k, k);
 
                 for (int n = 0; n < teacher_hidden; n++) {
-                    double den = this->state.state["Q"](k, k) * this->state.state["T"](n, n) - pow(this->state.state["R"](k, n), 2);
+                    double den = this->state.state["Q"](k, k) * T_matrix(n, n) - pow(this->state.state["R"](k, n), 2);
 
                     // fourth line
                     std::vector<int> kkn_indices{k, k, n + offset};
                     MatrixXd kkn_cov = this->state.generate_sub_covariance_matrix(kkn_indices);
-                    rkm_derivative += d_rho_1.cwiseProduct(rkm) * student_head(k) * teacher_head(n) * this->state.state["T"](n, n) * sigmoid_i3(kkn_cov) / den;
+                    rkm_derivative += d_rho_1.cwiseProduct(rkm) * student_head(k) * teacher_head(n) * T_matrix(n, n) * sigmoid_i3(kkn_cov) / den;
 
                     std::vector<int> knn_indices{k, n + offset, n + offset};
                     MatrixXd knn_cov = this->state.generate_sub_covariance_matrix(knn_indices);
                     rkm_derivative -= d_rho_1.cwiseProduct(rkm) * student_head(k) * teacher_head(n) * this->state.state["R"](k, n) * sigmoid_i3(knn_cov) / den;
 
                     // fifth line
-                    rkm_derivative += b * this->state.state["rho_1"] * student_head(k) * teacher_head(n) * this->state.state["T_tilde"](n, m) * this->state.state["Q"](k, k) * sigmoid_i3(knn_cov) / den;
-                    rkm_derivative -= b * this->state.state["rho_1"] * student_head(k) * teacher_head(n) * this->state.state["T_tilde"](n, m) * this->state.state["R"](k, n) * sigmoid_i3(kkn_cov) / den;
+                    rkm_derivative += b * this->state.state["rho_1"] * student_head(k) * teacher_head(n) * T_tilde_matrix(n, m) * this->state.state["Q"](k, k) * sigmoid_i3(knn_cov) / den;
+                    rkm_derivative -= b * this->state.state["rho_1"] * student_head(k) * teacher_head(n) * T_tilde_matrix(n, m) * this->state.state["R"](k, n) * sigmoid_i3(kkn_cov) / den;
                 }
                 r_derivative.row(k * teacher_hidden + m) = w_learning_rate * rkm_derivative / delta;
             }
         }
         return r_derivative;
+    }
+
+    MatrixXd du_dt()
+    {
+        // std::cout << "dR/dt" << std::endl;
+        MatrixXd teacher_head(teacher_hidden, 1);
+        MatrixXd student_head(student_hidden, 1);
+        int offset;
+        if (active_teacher == 0)
+        {
+            teacher_head << this->state.state["th1"];
+            student_head << this->state.state["h1"];
+            offset = teacher_1_offset;
+        }
+        else
+        {
+            teacher_head << this->state.state["th2"];
+            offset = teacher_2_offset;
+            if (multi_head)
+            {
+                student_head << this->state.state["h2"];
+            }
+            else
+            {
+                student_head << this->state.state["h1"];
+            }
+        }
+
+        MatrixXd u_derivative = MatrixXd::Constant(this->state.state["u_density"].rows(), this->state.state["u_density"].cols(), 0.0);
+
+        for (int k = 0; k < student_hidden; k++)
+        {
+            std::vector<int> kkk_indices{k, k, k};
+            MatrixXd kkk_cov = this->state.generate_sub_covariance_matrix(kkk_indices);
+            for (int p = 0; p < teacher_hidden; p++)
+            {
+                std::cout << "shape " << this->state.state["u_density"].rows() << this->state.state["u_density"].cols() << std::endl;
+                MatrixXd ukp = this->state.state["u_density"].row(k * teacher_hidden + p);
+                MatrixXd ukp_derivative = MatrixXd::Constant(ukp.rows(), ukp.cols(), 0.0);
+
+                for (int j = 0; j < student_hidden; j++) {
+                    if (j == k)
+                        continue;
+                    
+                    double den = this->state.state["Q"](j, j) * this->state.state["Q"](k, k) - pow(this->state.state["Q"](k, j), 2);
+
+                    // first line
+                    std::vector<int> kkj_indices{k, k, j};
+                    MatrixXd kkj_cov = this->state.generate_sub_covariance_matrix(kkj_indices);
+                    ukp_derivative -= d_rho_1.cwiseProduct(ukp) * student_head(k) * student_head(j) * this->state.state["Q"](j, j) * sigmoid_i3(kkj_cov) / den;
+                    std::vector<int> kjj_indices{k, j, j};
+                    MatrixXd kjj_cov = this->state.generate_sub_covariance_matrix(kjj_indices);
+                    ukp_derivative += d_rho_1.cwiseProduct(ukp) * student_head(k) * student_head(j) * this->state.state["Q"](k, j) * sigmoid_i3(kjj_cov) / den;
+
+                    // second line
+                    MatrixXd ujp = this->state.state["u_density"].row(j * teacher_hidden + p);
+                    ukp_derivative -= d_rho_1.cwiseProduct(ujp) * student_head(k) * student_head(j) * this->state.state["Q"](k, k) * sigmoid_i3(kjj_cov) / den;
+                    ukp_derivative += d_rho_1.cwiseProduct(ujp) * student_head(k) * student_head(j) * this->state.state["Q"](k, j) * sigmoid_i3(kkj_cov) / den;
+                }
+
+                // third line
+                ukp_derivative -= d_rho_1.cwiseProduct(ukp) * student_head(k) * student_head(k) * sigmoid_i3(kkk_cov) / this->state.state["Q"](k, k);
+
+                for (int o = 0; o < teacher_hidden; o++) {
+                    double den = this->state.state["Q"](k, k) * this->state.state["H"](o, o) - pow(this->state.state["U"](k, o), 2);
+
+                    // fourth line
+                    std::vector<int> kko_indices{k, k, o + offset};
+                    MatrixXd kko_cov = this->state.generate_sub_covariance_matrix(kko_indices);
+                    ukp_derivative += d_rho_1.cwiseProduct(ukp) * student_head(k) * teacher_head(o) * this->state.state["H"](o, o) * sigmoid_i3(kko_cov) / den;
+
+                    std::vector<int> koo_indices{k, o + offset, o + offset};
+                    MatrixXd koo_cov = this->state.generate_sub_covariance_matrix(koo_indices);
+                    ukp_derivative -= d_rho_1.cwiseProduct(ukp) * student_head(k) * teacher_head(o) * this->state.state["U"](k, o) * sigmoid_i3(koo_cov) / den;
+
+                    // fifth line
+                    ukp_derivative += b * this->state.state["rho_1"] * student_head(k) * teacher_head(o) * this->state.state["H_tilde"](o, p) * this->state.state["Q"](k, k) * sigmoid_i3(koo_cov) / den;
+                    ukp_derivative -= b * this->state.state["rho_1"] * student_head(k) * teacher_head(o) * this->state.state["H_tilde"](o, p) * this->state.state["R"](k, o) * sigmoid_i3(kko_cov) / den;
+                }
+                u_derivative.row(k * teacher_hidden + p) = w_learning_rate * ukp_derivative / delta;
+            }
+        }
+        return u_derivative;
     }
 
     MatrixXd dW_dt()
@@ -790,4 +887,37 @@ public:
         }
         return derivative;
     }
+
+    MatrixXd dh2_dt()
+    {
+        MatrixXd derivative = MatrixXd::Constant(this->state.state["h1"].rows(), this->state.state["h1"].cols(), 0.0);
+        if (train_h_layer and active_teacher == 1)
+        {
+// #pragma omp parallel for
+            for (int k = 0; k < student_hidden; k++)
+            {
+                double k_derivative = 0.0;
+// #pragma omp parallel sections reduction(+ : k_derivative)
+                // {
+// #pragma omp section
+                for (int p = 0; p < teacher_hidden; p++)
+                {
+                    std::vector<int> indices{k, p + teacher_2_offset};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    k_derivative += this->state.state["th2"](p) * sigmoid_i2(cov);
+                }
+// #pragma omp section
+                for (int j = 0; j < student_hidden; j++)
+                {
+                    std::vector<int> indices{k, j};
+                    MatrixXd cov = this->state.generate_sub_covariance_matrix(indices);
+                    k_derivative -= this->state.state["h2"](j) * sigmoid_i2(cov);
+                }
+                // }
+                derivative(k) = h_learning_rate * k_derivative;
+            }
+        }
+        return derivative;
+    }
+
 };
