@@ -22,17 +22,11 @@ private:
 
     Matrix<double, Dynamic, Dynamic> W;
     Matrix<double, Dynamic, Dynamic> Sigma1;
-    Matrix<double, Dynamic, Dynamic> Sigma2;
-    // Matrix<double, Dynamic, Dynamic> Omega1;
-    // Matrix<double, Dynamic, Dynamic> Omega2;
-    // Matrix<double, Dynamic, Dynamic> S1;
-    // Matrix<double, Dynamic, Dynamic> S2;
     Matrix<double, Dynamic, Dynamic> r_density;
     Matrix<double, Dynamic, Dynamic> u_density;
     Matrix<double, Dynamic, Dynamic> rho_1;
     Matrix<double, Dynamic, Dynamic> rho_2;
     Matrix<double, Dynamic, Dynamic> sigma_1_density;
-    Matrix<double, Dynamic, Dynamic> sigma_2_density;
     Matrix<double, Dynamic, Dynamic> Q;
     Matrix<double, Dynamic, Dynamic> R;
     Matrix<double, Dynamic, Dynamic> U;
@@ -77,12 +71,8 @@ public:
         this->rho_1.resize(1, latent_dimension);
         this->rho_2.resize(1, latent_dimension);
         this->sigma_1_density.resize(student_hidden * student_hidden, latent_dimension);
-        this->sigma_2_density.resize(student_hidden * student_hidden, latent_dimension);
         this->W.resize(student_hidden, student_hidden);
         this->Sigma1.resize(student_hidden, student_hidden);
-        this->Sigma2.resize(student_hidden, student_hidden);
-        // this->S1.resize(student_hidden, latent_dim);
-        // this->S2.resize(student_hidden, latent_dim);
         this->Q.resize(student_hidden, student_hidden);
         this->R.resize(student_hidden, teacher_hidden);
         this->U.resize(student_hidden, teacher_hidden);
@@ -113,10 +103,8 @@ public:
         this->state.insert({"r_density", this->r_density});
         this->state.insert({"u_density", this->u_density});
         this->state.insert({"sigma_1_density", this->sigma_1_density});
-        this->state.insert({"sigma_2_density", this->sigma_2_density});
         this->state.insert({"W", this->W});
         this->state.insert({"Sigma1", this->Sigma1});
-        this->state.insert({"Sigma2", this->Sigma2});
         this->state.insert({"rho_1", this->rho_1});
         this->state.insert({"rho_2", this->rho_2});
         this->state.insert({"Q", this->Q});
