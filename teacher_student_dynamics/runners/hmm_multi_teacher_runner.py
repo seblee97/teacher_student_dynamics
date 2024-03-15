@@ -431,9 +431,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             f"Sigma1{step}.csv": self._network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
                 0
             ],
-            f"Sigma2{step}.csv": self._network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
-                1
-            ],
+            # f"Sigma2{step}.csv": self._network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
+            #     1
+            # ],
             f"r_density{step}.csv": self._network_configuration.student_teacher_overlap_densities[
                 0
             ],
@@ -443,9 +443,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             f"sigma_1_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
                 0
             ],
-            f"sigma_2_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
-                1
-            ],
+            # f"sigma_2_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
+            #     1
+            # ],
             f"Q{step}.csv": self._network_configuration.rotated_student_local_field_covariances[
                 0
             ],
@@ -459,9 +459,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         }
         if len(self._network_configuration.student_head_weights) > 1:
             # multi-head
-            order_params[
-                f"h2{step}.csv"
-            ] = self._network_configuration.student_head_weights[1]
+            order_params[f"h2{step}.csv"] = (
+                self._network_configuration.student_head_weights[1]
+            )
 
         if step == "":
             order_params = {
@@ -814,9 +814,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 self._data_columns[f"{constants.LOG_GENERALISATION_ERROR}_{i}"][
                     self._data_index
                 ] = np.log10(loss.item())
-                generalisation_errors[
-                    f"{constants.GENERALISATION_ERROR}_{i}"
-                ] = loss.item()
+                generalisation_errors[f"{constants.GENERALISATION_ERROR}_{i}"] = (
+                    loss.item()
+                )
 
         self._student.train()
 
