@@ -2,7 +2,7 @@ seed: 0
 gpu_id: 0 # None for CPU
 
 runner:
-    run_ode: True
+    run_ode: False
     run_network: True
 
 logging:
@@ -40,7 +40,7 @@ data:
 
         construction: domine_ssm # goldt or domine_ssm
 
-        feature_matrix_correlations: [0.6]
+        feature_matrix_correlations: [0.6,0.4] #[0.6]
 
     noise_to_student_input:
     # list of lists dim 2 (one per teacher)
@@ -62,7 +62,7 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 100000000
+    total_training_steps: 10000000 #1000000 #100000000
     optimiser: sgd
     learning_rate: 0.2
     loss_function: mse
@@ -79,7 +79,7 @@ networks:
     output_dimension: 1
     nonlinearity: scaled_erf
     # student
-    student_hidden: 2
+    student_hidden: 4
     student_bias: False
     student_initialisation_std: 0.001
     multi_head: False
@@ -105,7 +105,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [1500000000]
+    switch_steps: [5000000] #[500000] #[1500000000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]

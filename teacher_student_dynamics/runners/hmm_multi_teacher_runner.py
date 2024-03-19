@@ -674,9 +674,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 print('Task Gamma: ', config.feature_matrix_correlations[i-1])
                 feature_correlation = config.feature_matrix_correlations[i-1]
                 print('Quantity from Each Partition Are:')
-                print('From Shared Partition: ', int(num_common_dims*(feature_correlation/max_overlap)))
-                print('From Split Partition:  ', int((i+1)*d*(1 - max_overlap)) - int(i*d*(1 - max_overlap)))
-                if total_spare_gamma > 0:
+                if max_overlap > 0 and total_spare_gamma > 0:
+                    print('From Shared Partition: ', int(num_common_dims*(feature_correlation/max_overlap)))
+                    print('From Split Partition:  ', int((i+1)*d*(1 - max_overlap)) - int(i*d*(1 - max_overlap)))
                     print('From Spare Partition:  ', int(num_excess_dims*(cumulative_gamma+(max_overlap-config.feature_matrix_correlations[i-1]))/total_spare_gamma)\
                                                    - int(num_excess_dims*cumulative_gamma/total_spare_gamma))
                     # i-th task takes as many shared dims as necessary in order and then appended with it's own independent partition plus enough spare
@@ -696,7 +696,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                                                +num_excess_dims*(cumulative_gamma+(max_overlap-config.feature_matrix_correlations[i-1]))/total_spare_gamma)]
                                  ]))
                                  )
-                else:
+                elif max_overlap > 0 and total_spare_gamma == 0:
+                    print('From Shared Partition: ', int(num_common_dims*(feature_correlation/max_overlap)))
+                    print('From Split Partition:  ', int((i+1)*d*(1 - max_overlap)) - int(i*d*(1 - max_overlap)))
                     print('From Spare Partition:  ', 0)
                     Fi_tilde_part = (torch.from_numpy(np.concatenate([
                                  eig_vals[:int(num_common_dims*(feature_correlation/max_overlap))],\
@@ -707,6 +709,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                  eig_vecs[:,int(num_common_dims+i*d*(1 - max_overlap)):int(num_common_dims+(i+1)*d*(1 - max_overlap))]
                                  ]))
                                  )
+                else:
+                    print('From Shared Partition: ', 0)
+                    print('From Split Partition:  ', int((i+1)*d*(1 - max_overlap)) - int(i*d*(1 - max_overlap)))
+                    print('From Spare Partition:  ', 0)
+                    Fi_tilde_part = (torch.from_numpy(eig_vals[int(num_common_dims+i*d*(1 - max_overlap)):int(num_common_dims+(i+1)*d*(1 - max_overlap))]),
+                                     torch.from_numpy(eig_vecs[:,int(num_common_dims+i*d*(1 - max_overlap)):int(num_common_dims+(i+1)*d*(1 - max_overlap))]))
                 cumulative_gamma = cumulative_gamma + (max_overlap - config.feature_matrix_correlations[i-1])
                 print('Eigen Decomp Steps')
                 print('Vecs: ', Fi_tilde_part[1].shape)
