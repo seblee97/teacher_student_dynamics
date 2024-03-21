@@ -3,7 +3,11 @@
 *.vscode
 *.egg-info
 teacher_student_dynamics/experiments/results/
+*.swp
 *.png
 *.pdf
 *.ipynb
 *.ipynb_checkpoints
+*.out
+eigen*
+run.sh

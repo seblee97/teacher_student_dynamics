@@ -82,7 +82,7 @@ networks:
     student_hidden: 2
     student_bias: False
     student_initialisation_std: 0.001
-    multi_head: False
+    multi_head: True #False
     # teacher(s)
     num_teachers: 2
     teacher_hidden: 2
