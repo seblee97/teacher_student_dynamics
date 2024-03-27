@@ -120,10 +120,13 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
             orthogonalise=False,
             normalisation=normalisation,
         )
-        return custom_functions.generate_rotated_vectors(
-            dimension=self._input_dimension,
-            theta=np.arccos(alpha),
-            normalisation=100,
+        return (
+            unrotated_weights,
+            custom_functions.generate_rotated_vectors(
+                dimension=self._input_dimension,
+                theta=np.arccos(alpha),
+                normalisation=100,
+            )[1],
         )
         # if normalisation is not None:
         #     # orthonormalise input to hidden weights of first network
