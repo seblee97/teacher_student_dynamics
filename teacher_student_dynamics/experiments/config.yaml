@@ -35,7 +35,7 @@ data:
     hidden_manifold:
         mean: 0
         variance: 1
-        latent_dimension: 100
+        latent_dimension: 200
         activation: sign # scaled_erf or sign
 
         construction: domine_ssm # goldt or domine_ssm
@@ -62,7 +62,7 @@ testing:
 
 training:
     train_batch_size: 1
-    total_training_steps: 100000000
+    total_training_steps: 1000000
     optimiser: sgd
     learning_rate: 0.2
     loss_function: mse
@@ -79,10 +79,10 @@ networks:
     output_dimension: 1
     nonlinearity: scaled_erf
     # student
-    student_hidden: 2
+    student_hidden: 4
     student_bias: False
     student_initialisation_std: 0.001
-    multi_head: False
+    multi_head: True #False
     # teacher(s)
     num_teachers: 2
     teacher_hidden: 2
@@ -105,7 +105,7 @@ curriculum:
     # condition on which to switch task (fixed_period, switch_steps, or loss_thresholds)
     stopping_condition: switch_steps              
   
-    switch_steps: [1500000000]
+    switch_steps: [500000]
     fixed_period: 1
     # loss threshold under which teacher is changed
     loss_thresholds: [0.0001]

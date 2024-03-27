@@ -264,12 +264,12 @@ class ConfigTemplate:
             config_field.Field(
                 name=constants.FEATURE_ROTATION_ALPHA,
                 types=[float],
-                requirements=[lambda x: x <= 0.0 and x >= 0],
+                requirements=[lambda x: x <= 1.0 and x >= 0],
             ),
             config_field.Field(
                 name=constants.READOUT_ROTATION_ALPHA,
                 types=[float],
-                requirements=[lambda x: x <= 0.0 and x >= 0],
+                requirements=[lambda x: x <= 1.0 and x >= 0],
             ),
         ],
         level=[constants.NETWORKS, constants.ROTATION_TEACHERS],
