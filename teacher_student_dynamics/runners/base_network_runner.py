@@ -150,6 +150,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             columns.extend(list(self._network_configuration.sub_dictionary.keys()))
         return columns
 
+
+
     def _setup_data_columns(self):
         data_columns = {}
         for key in self._get_data_columns():

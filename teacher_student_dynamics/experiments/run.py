@@ -20,7 +20,7 @@ parser.add_argument(
     "--config_path",
     metavar="-C",
     type=str,
-    default="config.yaml",
+    default="experiment1.yaml",
     help="path to configuration yaml file.",
 )
 parser.add_argument(

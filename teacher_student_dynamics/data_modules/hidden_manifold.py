@@ -152,13 +152,8 @@ class HiddenManifold(base_data_module.BaseData):
         latent = self._latent_distribution.sample(
             (self._train_batch_size, self._latent_dimension)
         ).to(self._device)
-        mixed_feature_matrix = (
-            gamma**2 * self._feature_matrix
-            + np.sqrt(1 - gamma**2)
-            * self._surrogate_feature_matrices[surrogate_index]
-        )
         batch = self._activation(
-            torch.matmul(latent, mixed_feature_matrix.T)
+            torch.matmul(latent, self._surrogate_feature_matrices[surrogate_index])
             / np.sqrt(self._latent_dimension)
         ).to(self._device)
         return {constants.X: batch, constants.LATENT: latent}
