@@ -413,8 +413,10 @@ class ConfigTemplate:
         fields=[
             config_field.Field(
                 name=constants.GAMMA,
-                types=[float],
-                requirements=[lambda x: x >= 0 and x <= 1],
+                types=[list],
+                requirements=[lambda x: all(
+                        [isinstance(y, float) and y >= 0.0 and y <= 1.0 for y in x]
+                    )],
             )
         ],
         dependent_variables=[constants.STRATEGY],
