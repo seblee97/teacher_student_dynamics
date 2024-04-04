@@ -14,8 +14,8 @@ oparam_config_changes = {
 CONFIG_CHANGES = {
     f"replay_gamma_{a}": [
         {
-            "replay": {"gamma_replay": {"gamma": [float(a)]}},
+            "replay": {"gamma_replay": {"gamma": float(a)}},
         }
     ]
-    for a in np.linspace(0, 1, 21)
+    for a in np.linspace(0, 1, 3)
 }
