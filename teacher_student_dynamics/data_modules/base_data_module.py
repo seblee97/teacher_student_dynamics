@@ -15,7 +15,6 @@ class BaseData(abc.ABC):
     - get_batch
     - signal_task_bounary_to_data_generator
     """
-
     def __init__(
         self,
         device: str,

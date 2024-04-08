@@ -17,5 +17,5 @@ CONFIG_CHANGES = {
             "replay": {"gamma_replay": {"gamma": float(a)}},
         }
     ]
-    for a in np.linspace(0, 1, 3)
+    for a in np.linspace(0, 1, 2)
 }
