@@ -683,6 +683,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     print('From Shared Partition: ', int(num_common_dims*(feature_correlation/max_overlap)))
                     print('Intermediate Zeros: ', num_interm_zeros)
                     print('From Split Partition:  ', unshared_task_boundaries[i] - unshared_task_boundaries[i-1])
+
                     # i-th task takes as many shared dims as necessary in order and then appended with it's own independent partition plus enough spare
                     # to make sure it has the correct dimension = d
                     #task_sample = np.zeros(self._latent_dimension)
@@ -693,7 +694,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     #plt.savefig('task'+str(i)+'_sample.png', dpi=400)
                     #plt.close()
 
-                    Fi_tilde_part_2 = (torch.from_numpy(np.concatenate([
+                    Fi_tilde_part = (torch.from_numpy(np.concatenate([
                                  eig_vals[:int(num_common_dims*(feature_correlation/max_overlap))],\
                                  np.zeros(num_interm_zeros),\
                                  eig_vals[unshared_task_boundaries[i-1]:unshared_task_boundaries[i]],\
@@ -706,16 +707,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                  np.zeros((self._latent_dimension, self._latent_dimension - unshared_task_boundaries[i]))
                                  ]))
                                  )
-
-                    Fi_tilde_part = (torch.from_numpy(np.concatenate([
-                        eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
-                        np.zeros(self._latent_dimension - int(num_common_dims * (feature_correlation / max_overlap)))
-                    ])),
-                            torch.from_numpy(np.hstack([
-                                         eig_vecs[:, :int(num_common_dims * (feature_correlation / max_overlap))], \
-                                         np.zeros((self._latent_dimension,
-                                                   int(self._latent_dimension -num_common_dims * (feature_correlation / max_overlap)))), \
-                                     ])))
 
                 else:
                     task_sample = np.zeros(self._latent_dimension)
@@ -777,7 +768,21 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                             print('Bounds on split part: ', unshared_task_boundaries[i - 1], ' ',
                                   unshared_task_boundaries[i])
                             task_sample[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]] = 1
+
                             Fi_tilde_part = (torch.from_numpy(np.concatenate([
+                                eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
+                                np.zeros(
+                                    self._latent_dimension - int(num_common_dims * (feature_correlation / max_overlap)))
+                            ])),
+                                             torch.from_numpy(np.hstack([
+                                                 eig_vecs[:,
+                                                 :int(num_common_dims * (feature_correlation / max_overlap))], \
+                                                 np.zeros((self._latent_dimension,
+                                                           int(self._latent_dimension - num_common_dims * (
+                                                                       feature_correlation / max_overlap)))), \
+                                                 ])))
+
+                            Fi_tilde_part_2 = (torch.from_numpy(np.concatenate([
                                 eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
                                 np.zeros(num_interm_zeros), \
                                 eig_vals[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]], \
