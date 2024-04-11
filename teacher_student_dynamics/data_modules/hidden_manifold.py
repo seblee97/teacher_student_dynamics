@@ -154,6 +154,6 @@ class HiddenManifold(base_data_module.BaseData):
         ).to(self._device)
         batch = self._activation(
             torch.matmul(latent, self._surrogate_feature_matrices[surrogate_index])
-            / (np.sqrt(self._latent_dimension)*gamma)
+            / (np.sqrt(self._latent_dimension))
         ).to(self._device)
         return {constants.X: batch, constants.LATENT: latent}
