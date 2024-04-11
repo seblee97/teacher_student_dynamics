@@ -769,7 +769,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                   unshared_task_boundaries[i])
                             task_sample[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]] = 1
 
-                            Fi_tilde_part = (torch.from_numpy(np.concatenate([
+                            Fi_tilde_part_2 = (torch.from_numpy(np.concatenate([
                                 eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
                                 np.zeros(
                                     self._latent_dimension - int(num_common_dims * (feature_correlation / max_overlap)))
@@ -798,6 +798,22 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                                            self._latent_dimension - unshared_task_boundaries[i]))
                                              ]))
                             )
+                            # This is for any dimension number
+                            Fi_tilde_part = (torch.from_numpy(np.concatenate([
+                                np.zeros(int(num_common_dims * (feature_correlation / max_overlap))),
+                                eig_vals[int(num_common_dims * (feature_correlation / max_overlap)):d],
+                                np.zeros(d) ])),
+
+                                torch.from_numpy(np.hstack([
+                                    np.zeros((self._latent_dimension, int(num_common_dims * (feature_correlation / max_overlap)))),
+
+                                        eig_vecs[:,int(num_common_dims * (feature_correlation / max_overlap)):d],
+
+                                                   np.zeros((self._latent_dimension,d ))
+                                              ])
+                                               ))
+
+
 
                         else:
                             task_sample = np.zeros(self._latent_dimension)
