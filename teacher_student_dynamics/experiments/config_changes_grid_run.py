@@ -17,5 +17,8 @@ CONFIG_CHANGES = {
             "replay": {"gamma_replay": {"gamma": float(a)}},
         }
     ]
-    for a,b in zip(np.linspace(0, 1, 21)
+    for a, b, in itertools.product(
+        [0.0,1.0],[0.0,0.1,0.2,]
+    )
 }
+
