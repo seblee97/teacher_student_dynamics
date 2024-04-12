@@ -12,13 +12,14 @@ oparam_config_changes = {
 #CONFIG_CHANGES = {**param_config_changes, **oparam_config_changes}
 
 CONFIG_CHANGES = {
-    f"replay_gamma_{a}_{b}": [
-{           "data": {"hidden_manifold": {"feature_matrix_correlations": [float(b)]}},
-            "replay": {"gamma_replay": {"gamma": float(a)}},
+    f"feature_matrix_correlations_{a}_replay_gamma_{b}": [
+{           "data": {"hidden_manifold": {"feature_matrix_correlations": [float(a)]}},
+            "replay": {"gamma_replay": {"gamma": float(b)}},
         }
     ]
     for a, b, in itertools.product(
-        [0.0,1.0],[0.0,0.1,0.2,]
+        [0.0,0.2,0.6,0.8,1.0],[0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
     )
 }
+
 

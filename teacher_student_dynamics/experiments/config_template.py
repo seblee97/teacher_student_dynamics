@@ -2,7 +2,6 @@ from config_manager import config_field, config_template
 
 from teacher_student_dynamics import constants
 
-
 class ConfigTemplate:
     _runner_template = config_template.Template(
         fields=[
@@ -445,6 +444,11 @@ class ConfigTemplate:
                         constants.GAMMA,
                     ]
                 ],
+            ),
+            config_field.Field(
+                name=constants.STRATEGY_NUM,
+                types=[int],
+                requirements=[lambda x: x > 0],
             ),
         ],
         level=[constants.REPLAY],

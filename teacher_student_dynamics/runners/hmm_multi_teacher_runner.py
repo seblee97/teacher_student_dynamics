@@ -32,6 +32,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
+            self._strategy_num = config.strategy_num
 
         super().__init__(config, unique_id)
         self._logger.info("Setting up hidden manifold network runner...")
@@ -769,20 +770,22 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                   unshared_task_boundaries[i])
                             task_sample[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]] = 1
 
-                            Fi_tilde_part = (torch.from_numpy(np.concatenate([
-                                eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
-                                np.zeros(
-                                    self._latent_dimension - int(num_common_dims * (feature_correlation / max_overlap)))
-                            ])),
-                                             torch.from_numpy(np.hstack([
-                                                 eig_vecs[:,
-                                                 :int(num_common_dims * (feature_correlation / max_overlap))], \
-                                                 np.zeros((self._latent_dimension,
-                                                           int(self._latent_dimension - num_common_dims * (
-                                                                       feature_correlation / max_overlap)))), \
-                                                 ])))
+                            if self._strategy_num == 1:
+                                Fi_tilde_part = (torch.from_numpy(np.concatenate([
+                                    eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
+                                    np.zeros(
+                                        self._latent_dimension - int(num_common_dims * (feature_correlation / max_overlap)))
+                                ])),
+                                                 torch.from_numpy(np.hstack([
+                                                     eig_vecs[:,
+                                                     :int(num_common_dims * (feature_correlation / max_overlap))], \
+                                                     np.zeros((self._latent_dimension,
+                                                               int(self._latent_dimension - num_common_dims * (
+                                                                           feature_correlation / max_overlap)))), \
+                                                     ])))
 
-                            Fi_tilde_part_2 = (torch.from_numpy(np.concatenate([
+                            if self._strategy_num== 2:
+                                Fi_tilde_part = (torch.from_numpy(np.concatenate([
                                 eig_vals[:int(num_common_dims * (feature_correlation / max_overlap))], \
                                 np.zeros(num_interm_zeros), \
                                 eig_vals[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]], \
@@ -798,20 +801,22 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                                            self._latent_dimension - unshared_task_boundaries[i]))
                                              ]))
                             )
-                            # This is for any dimension number
-                            Fi_tilde_part_3 = (torch.from_numpy(np.concatenate([
-                                np.zeros(int(num_common_dims * (feature_correlation / max_overlap))),
-                                eig_vals[int(num_common_dims * (feature_correlation / max_overlap)):d],
-                                np.zeros(d) ])),
 
-                                torch.from_numpy(np.hstack([
-                                    np.zeros((self._latent_dimension, int(num_common_dims * (feature_correlation / max_overlap)))),
+                            if self._strategy_num == 3:
+                                # This is for any dimension number
+                                Fi_tilde_part = (torch.from_numpy(np.concatenate([
+                                    np.zeros(int(num_common_dims * (feature_correlation / max_overlap))),
+                                    eig_vals[int(num_common_dims * (feature_correlation / max_overlap)):d],
+                                    np.zeros(d) ])),
 
-                                        eig_vecs[:,int(num_common_dims * (feature_correlation / max_overlap)):d],
+                                    torch.from_numpy(np.hstack([
+                                        np.zeros((self._latent_dimension, int(num_common_dims * (feature_correlation / max_overlap)))),
 
-                                                   np.zeros((self._latent_dimension,d ))
-                                              ])
-                                               ))
+                                            eig_vecs[:,int(num_common_dims * (feature_correlation / max_overlap)):d],
+
+                                                       np.zeros((self._latent_dimension,d ))
+                                                  ])
+                                                   ))
 
 
 
