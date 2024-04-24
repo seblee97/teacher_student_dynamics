@@ -55,6 +55,12 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._replay_schedule = config.schedule
         self._replay_strategy = config.strategy
 
+        (
+            self._data_module,
+            self._label_noise_modules,
+            self._input_noise_modules,
+        ) = self._setup_data(config=config)
+
         # initialise student, teachers, logger_module,
         # data_module, loss_module, torch optimiser, and curriculum object
         self._teachers = self._setup_teachers(config=config)
@@ -66,13 +72,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         self._manage_network_devices()
 
-        (
-            self._data_module,
-            self._test_data_inputs,
-            self._test_teacher_outputs,
-            self._label_noise_modules,
-            self._input_noise_modules,
-        ) = self._setup_data(config=config)
+        self._test_data_inputs, self._test_teacher_outputs = self._setup_test_data()
 
         self._network_configuration = self._setup_network_configuration()
 
@@ -97,7 +97,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     @property
     def network_configuration(self):
         return self._network_configuration
-    
+
     @property
     def log_columns(self):
         return self._log_columns
@@ -128,7 +128,13 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     @decorators.timer
     @abc.abstractmethod
     def _setup_data(self, config: experiments.config.Config):
-        """Prepare aspects related to the data e.g. train/test data."""
+        """Prepare aspects related to the data e.g. train data loader."""
+        pass
+
+    @decorators.timer
+    @abc.abstractmethod
+    def _setup_test_data(self):
+        """Prepare aspects related to the test data specifically."""
         pass
 
     @abc.abstractmethod
