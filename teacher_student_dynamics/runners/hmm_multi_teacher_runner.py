@@ -592,27 +592,18 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 len(config.feature_matrix_correlations) + 1
             )  # Number of gammas given plus 1 for the first task
             max_overlap = np.max(config.feature_matrix_correlations)
-            d = int(
-                self._latent_dimension / (1 + len(config.feature_matrix_correlations))
-            )
-            # d = int(self._latent_dimension/(num_tasks - np.sum(config.feature_matrix_correlations)))
+            d = int(self._latent_dimension / num_tasks)
             # Set up the size of the three large partitions of the eigenspace
             num_common_dims = int(d * max_overlap)  # maximum number of overlap dims
-            num_partition_dims = int(
-                num_tasks * d * (1 - max_overlap)
-            )  # A set of dims independent on the others - one for each task as if they all have the max gamma
-            num_excess_dims = int(
-                np.sum(max_overlap - config.feature_matrix_correlations) * d
-            )  # Spare dims to make up for where a task doesn't have max gamma
-            print("Task Latent: ")
-            print(d)
-            print("Total Latent: ")
-            print(self._latent_dimension)
+
+            print(f"Task Latent: {d}")
+            print(f"Total Latent: {self._latent_dimension}")
+
             # SO(N) rotation matrix
             rotation_matrix = torch.from_numpy(
                 stats.ortho_group.rvs(self._input_dimension)
             ).to(torch.float32)
-            # Zero matrix used to pad the eigenspace into the desire dimension. Will then be rotated to fill the space using the above matrix
+            # Zero matrix used to pad the eigenspace into the desire dimension. Will then be rotated to fill the space using the above matrix.
             zero_matrix = torch.zeros(
                 size=(
                     self._input_dimension - self._latent_dimension,
@@ -627,15 +618,11 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 size=(self._latent_dimension, self._latent_dimension),
                 device=self._device,
             )
-            print("Orig F tilde")
-            print(base_feature_matrix.shape)
             # Covariance matrix of base features
             Ω_tilde = base_feature_matrix.mm(base_feature_matrix.T) / (
                 int(self._latent_dimension)
             )
-            print("Omega tilde")
-            print(Ω_tilde.shape)
-            # Eigendecomp pf covariance matrix of base features, them consistently shuffle the dimensions since eigenvecs are by default ordered
+            # Eigendecomp of covariance matrix of base features, consistently shuffle the dimensions since eigenvecs are by default ordered
             eig_vals, eig_vecs = np.linalg.eig(Ω_tilde)
             shuffle_indices = np.arange(len(eig_vals))
             np.random.shuffle(shuffle_indices)
@@ -680,16 +667,14 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             print("Vecs: ", F1_tilde_part[1].shape)
             print("Vals: ", F1_tilde_part[0].shape)
             # Reconstruct the task 1 covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-            F1 = (
+            F1_tilde = (
                 F1_tilde_part[1]
                 .mm(torch.diag(torch.sqrt(F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
             )
-            print("After Low Rank Approx", F1.shape)
-            F1 = torch.vstack((F1, zero_matrix))
-            print("Append 0s", F1.shape)
-            F1 = F1.to(torch.float32).T.mm(rotation_matrix)
-            print("Transpose and Rotate", F1.shape)
+            print("After Low Rank Approx", F1_tilde.shape)
+            # F1_tilde = torch.vstack((F1_tilde, zero_matrix)).to(torch.float32)
+            # print("Append 0s", F1_tilde.shape)
             data_modules = [
                 hidden_manifold.HiddenManifold(
                     device=config.experiment_device,
@@ -700,7 +685,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     mean=config.mean,
                     variance=config.variance,
                     activation=config.activation,
-                    feature_matrix=F1,
+                    zero_matrix=zero_matrix,
+                    rotation_matrix=rotation_matrix,
+                    feature_matrix=F1_tilde,
                     precompute_data=config.precompute_data,
                 )
             ]
@@ -803,7 +790,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                             )
                         ),
                     )
-                    hjkhjk
+                    # hjkhjk
                 else:
                     task_sample = np.zeros(self._latent_dimension)
                     print(
@@ -839,21 +826,18 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                             ]
                         ),
                     )
-                    hkjhkjhk
                 print("Eigen Decomp Steps")
                 print("Vecs: ", Fi_tilde_part[1].shape)
                 print("Vals: ", Fi_tilde_part[0].shape)
                 # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-                Fi = (
+                Fi_tilde = (
                     Fi_tilde_part[1]
                     .mm(torch.diag(torch.sqrt(Fi_tilde_part[0])))
                     .mm(Fi_tilde_part[1].T)
                 )
-                print("After Low Rank Approx", Fi.shape)
-                Fi = torch.vstack((Fi, zero_matrix))
-                print("Append 0s", Fi.shape)
-                Fi = Fi.to(torch.float32).T.mm(rotation_matrix)
-                print("Transpose and Rotate", Fi.shape)
+                print("After Low Rank Approx", Fi_tilde.shape)
+                # Fi_tilde = torch.vstack((Fi_tilde, zero_matrix)).to(torch.float32)
+                # print("Append 0s", Fi_tilde.shape)
                 data_modules.append(
                     hidden_manifold.HiddenManifold(
                         device=config.experiment_device,
@@ -864,7 +848,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         mean=config.mean,
                         variance=config.variance,
                         activation=config.activation,
-                        feature_matrix=Fi,
+                        zero_matrix=zero_matrix,
+                        rotation_matrix=rotation_matrix,
+                        feature_matrix=Fi_tilde,
                         precompute_data=config.precompute_data,
                     )
                 )
@@ -921,6 +907,14 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         test_teacher_outputs = self._teachers.forward_all_batches(test_data_latents)
         return test_data_inputs, test_teacher_outputs
+
+    def _project_networks(self):
+        # Project the student and teacher networks onto the hidden manifold
+        with torch.no_grad():
+            # Project the teacher networks
+            self._teachers.project_networks(
+                [d.unrotated_feature_matrix for d in self._data_module]
+            )
 
     def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""
