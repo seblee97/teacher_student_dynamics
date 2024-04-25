@@ -85,6 +85,20 @@ class BaseEnsemble(abc.ABC):
             freeze=True,
         )
 
+    def project_networks(self, projections: List[List[torch.Tensor]]) -> None:
+        with torch.no_grad():
+
+            for i in range(self._ensemble_size):
+
+                # MxD
+                unprojected_weights = self._networks[i].layers[0].weight.data
+                # DxD
+                projection = projections[i]
+
+                self._networks[i].layers[0].weight.data = unprojected_weights.mm(
+                    projection.T
+                ).mm(projection)
+
     def save_all_network_weights(self, save_path: str) -> None:
         """Save weights associated with each network.
 
