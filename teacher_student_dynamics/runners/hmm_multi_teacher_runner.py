@@ -434,19 +434,19 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 0
             ],
             f"Sigma2{step}.csv": self._network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
-                1
+                0
             ],
             f"r_density{step}.csv": self._network_configuration.student_teacher_overlap_densities[
                 0
             ],
             f"u_density{step}.csv": self._network_configuration.student_teacher_overlap_densities[
-                1
+                0
             ],
             f"sigma_1_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
                 0
             ],
             f"sigma_2_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
-                1
+                0
             ],
             f"Q{step}.csv": self._network_configuration.rotated_student_local_field_covariances[
                 0
@@ -455,7 +455,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 0
             ],
             f"U{step}.csv": self._network_configuration.rotated_student_teacher_overlaps[
-                1
+                0
             ],
             f"h1{step}.csv": self._network_configuration.student_head_weights[0],
         }
@@ -534,7 +534,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             base_feature_matrix = torch.normal(
                 mean=0.0,
                 std=1.0,
-                size=(self._latent_dimension, self._latent_dimension),
+                size=(self._latent_dimension, self._input_dimension),
                 device=self._device,
             )
             data_modules = [
@@ -589,13 +589,16 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             # This is to try and keep consistent with the original HMM paper where you specify D, not d which we use in
             # our setup. So D = d(T - sum_i gamma_i) where T is num of tasks and gamma_i is the games for all tasks after the first.
             num_tasks = len(config.feature_matrix_correlations)+1 # Number of gammas given plus 1 for the first task
-            max_overlap = np.max(config.feature_matrix_correlations)
+            #max_overlap = np.max(config.feature_matrix_correlations)
+            max_overlap = np.max([0.0, *config.feature_matrix_correlations])
             d = int( self._latent_dimension/(1+len(config.feature_matrix_correlations)) )
             #d = int(self._latent_dimension/(num_tasks - np.sum(config.feature_matrix_correlations)))
             # Set up the size of the three large partitions of the eigenspace
+            
             num_common_dims = int(d*max_overlap) # maximum number of overlap dims
-            num_partition_dims = int(num_tasks*d*(1-max_overlap)) # A set of dims independent on the others - one for each task as if they all have the max gamma
-            num_excess_dims = int(np.sum(max_overlap - config.feature_matrix_correlations)*d) # Spare dims to make up for where a task doesn't have max gamma
+            num_partition_dims = int(num_tasks*d*(1-max_overlap)) 
+            num_excess_dims = int(np.sum(max_overlap - np.array(config.feature_matrix_correlations))*d)# A set of dims independent on the others - one for each task as if they all have the max gamma
+            # num_excess_dims = int(np.sum(max_overlap - config.feature_matrix_correlations)*d) # Spare dims to make up for where a task doesn't have max gamma
             print("Task Latent: ")
             print(d)
             print("Total Latent: ")
