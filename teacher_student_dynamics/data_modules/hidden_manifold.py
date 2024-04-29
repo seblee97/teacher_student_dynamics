@@ -1,5 +1,6 @@
 from typing import Callable, Dict, List, Union, Optional
 
+import copy
 import numpy as np
 import torch
 import torch.distributions as tdist
@@ -41,7 +42,9 @@ class HiddenManifold(base_data_module.BaseData):
         self._activation = self._get_activation_function()
 
         if rotation_matrix is not None:
-            self._unrotated_feature_matrix = feature_matrix.to(torch.float32)
+            self._unrotated_feature_matrix = copy.deepcopy(
+                feature_matrix.to(torch.float32)
+            )
             if zero_matrix is not None:
                 feature_matrix = torch.vstack((feature_matrix, zero_matrix)).to(
                     torch.float32
