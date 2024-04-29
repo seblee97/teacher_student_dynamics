@@ -96,8 +96,8 @@ class BaseEnsemble(abc.ABC):
                 projection = projections[i]
 
                 self._networks[i].layers[0].weight.data = unprojected_weights.mm(
-                    projection.T
-                ).mm(projection)
+                    projection
+                ).mm(projection.T)
 
     def save_all_network_weights(self, save_path: str) -> None:
         """Save weights associated with each network.
