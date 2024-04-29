@@ -6,6 +6,7 @@ import torch
 
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.data_modules import base_data_module, iid_gaussian
+from teacher_student_dynamics.experiments.config import Config
 from teacher_student_dynamics.runners import base_network_runner
 from teacher_student_dynamics.utils import network_configurations
 
@@ -212,6 +213,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         test_data_inputs = self._data_module.get_test_data()[constants.X]
         test_teacher_outputs = self._teachers.forward_all(test_data_inputs)
         return test_data_inputs, test_teacher_outputs
+
+    def _project_networks(self):
+        pass
 
     def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""

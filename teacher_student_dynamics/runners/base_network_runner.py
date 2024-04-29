@@ -68,6 +68,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         self._student = self._setup_student(config=config)
         # self._logger = self._setup_logger(config=config)
 
+        # project network weights if applicable
+        self._project_networks()
+
         self._debug_copy = config.debug_copy
 
         self._manage_network_devices()
@@ -135,6 +138,12 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     @abc.abstractmethod
     def _setup_test_data(self):
         """Prepare aspects related to the test data specifically."""
+        pass
+
+    @decorators.timer
+    @abc.abstractmethod
+    def _project_networks(self):
+        """Project network weights if applicable."""
         pass
 
     @abc.abstractmethod

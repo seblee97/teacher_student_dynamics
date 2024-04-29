@@ -85,6 +85,24 @@ class BaseEnsemble(abc.ABC):
             freeze=True,
         )
 
+    def project_networks(self, projections: List[List[torch.Tensor]]) -> None:
+        with torch.no_grad():
+
+            for i in range(self._ensemble_size):
+
+                # MxD
+                unprojected_weights = self._networks[i].layers[0].weight.data
+                # DxD
+                projection = projections[i]
+
+                # first find contribution coefficients: each row in original teacher weights
+                # corresponds to a feature, and columns of projections give eigenvectors.
+                # MxD * DxD = MxD
+                coefficients = unprojected_weights.mm(projection)
+
+                # finally, get linear combos of eigenvectors according to above coefficients.
+                self._networks[i].layers[0].weight.data = coefficients.mm(projection.T)
+
     def save_all_network_weights(self, save_path: str) -> None:
         """Save weights associated with each network.
 

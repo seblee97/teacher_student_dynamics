@@ -1,5 +1,6 @@
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union, Optional
 
+import copy
 import numpy as np
 import torch
 import torch.distributions as tdist
@@ -26,6 +27,8 @@ class HiddenManifold(base_data_module.BaseData):
         activation: str,
         feature_matrix: torch.Tensor,
         precompute_data: Union[None, int],
+        zero_matrix: Optional[torch.Tensor] = None,
+        rotation_matrix: Optional[torch.Tensor] = None,
     ):
 
         self._latent_dimension = latent_dimension
@@ -37,7 +40,19 @@ class HiddenManifold(base_data_module.BaseData):
 
         self._activation_name = activation
         self._activation = self._get_activation_function()
-        self._feature_matrix = feature_matrix # DxN matrix
+
+        if rotation_matrix is not None:
+            self._unrotated_feature_matrix = copy.deepcopy(
+                feature_matrix.to(torch.float32)
+            )
+            if zero_matrix is not None:
+                feature_matrix = torch.vstack((feature_matrix, zero_matrix)).to(
+                    torch.float32
+                )
+            self._feature_matrix = feature_matrix.T.mm(rotation_matrix)
+        else:
+            self._unrotated_feature_matrix = None
+            self._feature_matrix = feature_matrix  # DxN matrix
 
         self._surrogate_feature_matrices = []
 
@@ -70,6 +85,10 @@ class HiddenManifold(base_data_module.BaseData):
     @property
     def feature_matrix(self):
         return self._feature_matrix
+
+    @property
+    def unrotated_feature_matrix(self):
+        return self._unrotated_feature_matrix
 
     @property
     def surrogate_feature_matrices(self):
@@ -154,8 +173,7 @@ class HiddenManifold(base_data_module.BaseData):
         ).to(self._device)
         mixed_feature_matrix = (
             gamma**2 * self._feature_matrix
-            + np.sqrt(1 - gamma**2)
-            * self._surrogate_feature_matrices[surrogate_index]
+            + np.sqrt(1 - gamma**2) * self._surrogate_feature_matrices[surrogate_index]
         )
         batch = self._activation(
             torch.matmul(latent, mixed_feature_matrix.T)
