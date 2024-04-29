@@ -434,13 +434,13 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 0
             ],
             f"Sigma2{step}.csv": self._network_configuration.rotated_student_weighted_feature_matrix_self_overlaps[
-                0
+                1
             ],
             f"r_density{step}.csv": self._network_configuration.student_teacher_overlap_densities[
                 0
             ],
             f"u_density{step}.csv": self._network_configuration.student_teacher_overlap_densities[
-                0
+                1
             ],
             f"sigma_1_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
                 0
