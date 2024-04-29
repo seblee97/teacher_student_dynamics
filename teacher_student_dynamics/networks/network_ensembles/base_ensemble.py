@@ -95,9 +95,13 @@ class BaseEnsemble(abc.ABC):
                 # DxD
                 projection = projections[i]
 
-                self._networks[i].layers[0].weight.data = unprojected_weights.mm(
-                    projection
-                ).mm(projection.T)
+                # first find contribution coefficients: each row in original teacher weights
+                # corresponds to a feature, and columns of projections give eigenvectors.
+                # MxD * DxD = MxD
+                coefficients = unprojected_weights.mm(projection)
+
+                # finally, get linear combos of eigenvectors according to above coefficients.
+                self._networks[i].layers[0].weight.data = coefficients.mm(projection.T)
 
     def save_all_network_weights(self, save_path: str) -> None:
         """Save weights associated with each network.
