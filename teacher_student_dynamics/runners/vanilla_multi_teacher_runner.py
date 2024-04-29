@@ -6,6 +6,7 @@ import torch
 
 from teacher_student_dynamics import constants, experiments
 from teacher_student_dynamics.data_modules import base_data_module, iid_gaussian
+from teacher_student_dynamics.experiments.config import Config
 from teacher_student_dynamics.runners import base_network_runner
 from teacher_student_dynamics.utils import network_configurations
 
@@ -80,10 +81,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         self._network_configuration.student_head_weights = student_head_weights
         self._network_configuration.student_self_overlap = student_self_overlap
         self._network_configuration.student_teacher_overlaps = student_teacher_overlaps
-        
 
     def save_network_configuration(self, step: int):
-        
+
         if step is not None:
             step = f"_{step}"
         else:
@@ -97,7 +97,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         }
         if len(self._network_configuration.student_head_weights) > 1:
             # multi-head
-            order_params[f"h2{step}.csv"] = self._network_configuration.student_head_weights[1]
+            order_params[f"h2{step}.csv"] = (
+                self._network_configuration.student_head_weights[1]
+            )
 
         if step == "":
             order_params = {
@@ -166,10 +168,6 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 f"Data module (specified by input source) {config.input_source} not recognised"
             )
 
-        # test data: get fixed sample from data module and generate labels from teachers.
-        test_data_inputs = data_module.get_test_data()[constants.X]
-        test_teacher_outputs = self._teachers.forward_all(test_data_inputs)
-
         # noise for outputs on teachers, noise for inputs to students.
         label_noise_modules = []
         input_noise_modules = []
@@ -206,11 +204,18 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         return (
             data_module,
-            test_data_inputs,
-            test_teacher_outputs,
             label_noise_modules,
             input_noise_modules,
         )
+
+    def _setup_test_data(self):
+        # test data: get fixed sample from data module and generate labels from teachers.
+        test_data_inputs = self._data_module.get_test_data()[constants.X]
+        test_teacher_outputs = self._teachers.forward_all(test_data_inputs)
+        return test_data_inputs, test_teacher_outputs
+
+    def _project_networks(self):
+        pass
 
     def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
         """Perform single training step."""
@@ -291,9 +296,9 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 self._data_columns[f"{constants.LOG_GENERALISATION_ERROR}_{i}"][
                     self._data_index
                 ] = np.log10(loss.item())
-                generalisation_errors[
-                    f"{constants.GENERALISATION_ERROR}_{i}"
-                ] = loss.item()
+                generalisation_errors[f"{constants.GENERALISATION_ERROR}_{i}"] = (
+                    loss.item()
+                )
 
         self._student.train()
 
