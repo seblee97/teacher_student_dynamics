@@ -96,6 +96,11 @@ public:
             b = pow(2. / M_PI, 0.5); 
             c = 1.;                
         }
+        else if (f_activation == "linear")
+        {
+            b = 1.;
+            c = 1.;
+        }
         for (int bin = 0; bin < latent_dimension; bin++)
         {
             double rho_b_1 = this->state.state["rho_1"](bin);
