@@ -36,7 +36,7 @@ data:
         mean: 0
         variance: 1
         latent_dimension: 200
-        activation: sign # scaled_erf or sign
+        activation: sign # linear, scaled_erf or sign
 
         construction: domine_ssm # goldt or domine_ssm
 
