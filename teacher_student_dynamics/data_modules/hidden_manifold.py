@@ -76,6 +76,10 @@ class HiddenManifold(base_data_module.BaseData):
             a = 0
             b = np.sqrt(2 / np.pi)
             c = 1.0
+        elif self._activation_name == constants.LINEAR:
+            a = 0.0
+            b = 1.0
+            c = 1.0
         else:
             raise ValueError(
                 f"Folding function coefficients for {self._activation_name} unknown."
