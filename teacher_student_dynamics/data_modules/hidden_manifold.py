@@ -76,10 +76,6 @@ class HiddenManifold(base_data_module.BaseData):
             a = 0
             b = np.sqrt(2 / np.pi)
             c = 1.0
-        elif self._activation_name == constants.LINEAR:
-            a = 0.0
-            b = 1.0
-            c = 1.0
         else:
             raise ValueError(
                 f"Folding function coefficients for {self._activation_name} unknown."
@@ -175,12 +171,8 @@ class HiddenManifold(base_data_module.BaseData):
         latent = self._latent_distribution.sample(
             (self._train_batch_size, self._latent_dimension)
         ).to(self._device)
-        mixed_feature_matrix = (
-            gamma**2 * self._feature_matrix
-            + np.sqrt(1 - gamma**2) * self._surrogate_feature_matrices[surrogate_index]
-        )
         batch = self._activation(
-            torch.matmul(latent, mixed_feature_matrix.T)
-            / np.sqrt(self._latent_dimension)
+            torch.matmul(latent, self._surrogate_feature_matrices[surrogate_index])
+            / (np.sqrt(self._latent_dimension))
         ).to(self._device)
         return {constants.X: batch, constants.LATENT: latent}
