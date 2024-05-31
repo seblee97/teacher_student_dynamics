@@ -33,7 +33,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
-            self._strategy_num = config.strategy_num
 
         super().__init__(config, unique_id)
         self._logger.info("Setting up hidden manifold network runner...")
@@ -447,7 +446,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 0
             ],
             f"sigma_2_density{step}.csv": self._network_configuration.student_latent_self_overlap_densities[
-                0
+                1
             ],
             f"Q{step}.csv": self._network_configuration.rotated_student_local_field_covariances[
                 0
@@ -456,7 +455,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 0
             ],
             f"U{step}.csv": self._network_configuration.rotated_student_teacher_overlaps[
-                0
+                1
             ],
             f"h1{step}.csv": self._network_configuration.student_head_weights[0],
         }
@@ -535,7 +534,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             base_feature_matrix = torch.normal(
                 mean=0.0,
                 std=1.0,
-                size=(self._latent_dimension, self._input_dimension),
+                size=(self._latent_dimension, self._latent_dimension),
                 device=self._device,
             )
             data_modules = [
@@ -589,22 +588,16 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             # First determine the task-specific latent dimension (d) based on the required overall latent (D - like in original HMM).
             # This is to try and keep consistent with the original HMM paper where you specify D, not d which we use in
             # our setup. So D = d(T - sum_i gamma_i) where T is num of tasks and gamma_i is the games for all tasks after the first.
-
-            num_tasks = len(config.feature_matrix_correlations)+1 # Number of gammas given plus 1 for the first task
-            #max_overlap = np.max(config.feature_matrix_correlations)
-            max_overlap = np.max([0.0, *config.feature_matrix_correlations])
-            d = int( self._latent_dimension/(1+len(config.feature_matrix_correlations)) )
-            #d = int(self._latent_dimension/(num_tasks - np.sum(config.feature_matrix_correlations)))
+            num_tasks = (
+                len(config.feature_matrix_correlations) + 1
+            )  # Number of gammas given plus 1 for the first task
+            max_overlap = np.max(config.feature_matrix_correlations)
+            d = int(self._latent_dimension / num_tasks)
             # Set up the size of the three large partitions of the eigenspace
-            
-            num_common_dims = int(d*max_overlap) # maximum number of overlap dims
-            num_partition_dims = int(num_tasks*d*(1-max_overlap)) 
-            num_excess_dims = int(np.sum(max_overlap - np.array(config.feature_matrix_correlations))*d)# A set of dims independent on the others - one for each task as if they all have the max gamma
-            # num_excess_dims = int(np.sum(max_overlap - config.feature_matrix_correlations)*d) # Spare dims to make up for where a task doesn't have max gamma
-            print("Task Latent: ")
-            print(d)
-            print("Total Latent: ")
-            print(self._latent_dimension)
+            num_common_dims = int(d * max_overlap)  # maximum number of overlap dims
+
+            print(f"Task Latent: {d}")
+            print(f"Total Latent: {self._latent_dimension}")
 
             # SO(N) rotation matrix
             rotation_matrix = torch.from_numpy(
@@ -636,12 +629,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             eig_vals = eig_vals[shuffle_indices]
             eig_vecs = eig_vecs[:, shuffle_indices]
 
-            print('###############')
-            print('Starting Task 1')
-            print('Task Gamma: ', max_overlap)
-            print('Quantity from Each Partition Are:')
-            print('From Shared Partition: ', int(num_common_dims))
-            print('From Split Partition:  ', int(d*(1 - max_overlap)))
+            print("###############")
+            print("Starting Task 1")
+            print("Task Gamma: ", max_overlap)
+            print("Quantity from Each Partition Are:")
+            print("From Shared Partition: ", int(num_common_dims))
+            print("From Split Partition:  ", int(d * (1 - max_overlap)))
 
             # First task has maximum sharing (by assumption) and then appended with it's own independent partition
             task_sample = np.zeros(self._latent_dimension)
@@ -699,45 +692,105 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 )
             ]
 
-            unshared_task_dims = d*(1 - np.array(config.feature_matrix_correlations))
-            unshared_task_boundaries = np.cumsum(np.concatenate([np.array([d]), unshared_task_dims])).astype(int)
-            for i in range(1, num_tasks): #feature_correlation in config.feature_matrix_correlations:
-                print('###############')
-                print('Starting Task '+str(i+1))
-                print('Task Gamma: ', config.feature_matrix_correlations[i-1])
-                feature_correlation = config.feature_matrix_correlations[i-1]
-                print('Quantity from Each Partition Are:')
+            unshared_task_dims = d * (1 - np.array(config.feature_matrix_correlations))
+            unshared_task_boundaries = np.cumsum(
+                np.concatenate([np.array([d]), unshared_task_dims])
+            ).astype(int)
+            for i in range(
+                1, num_tasks
+            ):  # feature_correlation in config.feature_matrix_correlations:
+                print("###############")
+                print("Starting Task " + str(i + 1))
+                print("Task Gamma: ", config.feature_matrix_correlations[i - 1])
+                feature_correlation = config.feature_matrix_correlations[i - 1]
+                print("Quantity from Each Partition Are:")
                 if max_overlap > 0:
-                    num_interm_zeros = int( d*(max_overlap - feature_correlation) + i*d*(1 - max_overlap) )
-                    print('From Shared Partition: ', int(num_common_dims*(feature_correlation/max_overlap)))
-                    print('Intermediate Zeros: ', num_interm_zeros)
-                    print('From Split Partition:  ', unshared_task_boundaries[i] - unshared_task_boundaries[i-1])
-
+                    num_interm_zeros = int(
+                        d * (max_overlap - feature_correlation)
+                        + i * d * (1 - max_overlap)
+                    )
+                    print(
+                        "From Shared Partition: ",
+                        int(num_common_dims * (feature_correlation / max_overlap)),
+                    )
+                    print("Intermediate Zeros: ", num_interm_zeros)
+                    print(
+                        "From Split Partition:  ",
+                        unshared_task_boundaries[i] - unshared_task_boundaries[i - 1],
+                    )
                     # i-th task takes as many shared dims as necessary in order and then appended with it's own independent partition plus enough spare
                     # to make sure it has the correct dimension = d
-                    #task_sample = np.zeros(self._latent_dimension)
-                    #task_sample[:int(num_common_dims*(feature_correlation/max_overlap))] = 1
-                    #print('Bounds on split part: ', unshared_task_boundaries[i-1], ' ', unshared_task_boundaries[i])
-                    #task_sample[unshared_task_boundaries[i-1]:unshared_task_boundaries[i]] = 1
-                    #plt.imshow(task_sample[:,np.newaxis], cmap='gray')
-                    #plt.savefig('task'+str(i)+'_sample.png', dpi=400)
-                    #plt.close()
+                    task_sample = np.zeros(self._latent_dimension)
+                    task_sample[
+                        : int(num_common_dims * (feature_correlation / max_overlap))
+                    ] = 1
+                    print(
+                        "Bounds on split part: ",
+                        unshared_task_boundaries[i - 1],
+                        " ",
+                        unshared_task_boundaries[i],
+                    )
+                    task_sample[
+                        unshared_task_boundaries[i - 1] : unshared_task_boundaries[i]
+                    ] = 1
+                    plt.imshow(task_sample[:, np.newaxis], cmap="gray")
+                    plt.savefig("task" + str(i) + "_sample.png", dpi=400)
+                    plt.close()
 
-                    Fi_tilde_part = (torch.from_numpy(np.concatenate([
-                                 eig_vals[:int(num_common_dims*(feature_correlation/max_overlap))],\
-                                 np.zeros(num_interm_zeros),\
-                                 eig_vals[unshared_task_boundaries[i-1]:unshared_task_boundaries[i]],\
-                                 np.zeros(self._latent_dimension - unshared_task_boundaries[i])
-                                 ])),
-                                 torch.from_numpy(np.hstack([
-                                 eig_vecs[:,:int(num_common_dims*(feature_correlation/max_overlap))],\
-                                 np.zeros((self._latent_dimension,num_interm_zeros)),\
-                                 eig_vecs[:,unshared_task_boundaries[i-1]:unshared_task_boundaries[i]],\
-                                 np.zeros((self._latent_dimension, self._latent_dimension - unshared_task_boundaries[i]))
-                                 ]))
-                                 )
-
-
+                    Fi_tilde_part = (
+                        torch.from_numpy(
+                            np.concatenate(
+                                [
+                                    eig_vals[
+                                        : int(
+                                            num_common_dims
+                                            * (feature_correlation / max_overlap)
+                                        )
+                                    ],
+                                    np.zeros(num_interm_zeros),
+                                    eig_vals[
+                                        unshared_task_boundaries[
+                                            i - 1
+                                        ] : unshared_task_boundaries[i]
+                                    ],
+                                    np.zeros(
+                                        self._latent_dimension
+                                        - unshared_task_boundaries[i]
+                                    ),
+                                ]
+                            )
+                        ),
+                        torch.from_numpy(
+                            np.hstack(
+                                [
+                                    eig_vecs[
+                                        :,
+                                        : int(
+                                            num_common_dims
+                                            * (feature_correlation / max_overlap)
+                                        ),
+                                    ],
+                                    np.zeros(
+                                        (self._latent_dimension, num_interm_zeros)
+                                    ),
+                                    eig_vecs[
+                                        :,
+                                        unshared_task_boundaries[
+                                            i - 1
+                                        ] : unshared_task_boundaries[i],
+                                    ],
+                                    np.zeros(
+                                        (
+                                            self._latent_dimension,
+                                            self._latent_dimension
+                                            - unshared_task_boundaries[i],
+                                        )
+                                    ),
+                                ]
+                            )
+                        ),
+                    )
+                    # hjkhjk
                 else:
                     task_sample = np.zeros(self._latent_dimension)
                     print(
@@ -752,16 +805,30 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     plt.imshow(task_sample[:, np.newaxis], cmap="gray")
                     plt.savefig("task" + str(i) + "_sample.png", dpi=400)
                     plt.close()
-
-                    print('From Split Partition:  ', unshared_task_boundaries[i] - unshared_task_boundaries[i-1])
-                    Fi_tilde_part = (torch.from_numpy(eig_vals[unshared_task_boundaries[i-1]:unshared_task_boundaries[i]]),
-                                     torch.from_numpy(eig_vecs[:,unshared_task_boundaries[i-1]:unshared_task_boundaries[i]]))
-
-                print('Eigen Decomp Steps')
-                print('Vecs: ', Fi_tilde_part[1].shape)
-                print('Vals: ', Fi_tilde_part[0].shape)
-
-                    
+                    print(
+                        "From Split Partition:  ",
+                        unshared_task_boundaries[i] - unshared_task_boundaries[i - 1],
+                    )
+                    Fi_tilde_part = (
+                        torch.from_numpy(
+                            eig_vals[
+                                unshared_task_boundaries[
+                                    i - 1
+                                ] : unshared_task_boundaries[i]
+                            ]
+                        ),
+                        torch.from_numpy(
+                            eig_vecs[
+                                :,
+                                unshared_task_boundaries[
+                                    i - 1
+                                ] : unshared_task_boundaries[i],
+                            ]
+                        ),
+                    )
+                print("Eigen Decomp Steps")
+                print("Vecs: ", Fi_tilde_part[1].shape)
+                print("Vals: ", Fi_tilde_part[0].shape)
                 # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
                 Fi_tilde = (
                     Fi_tilde_part[1]
@@ -787,122 +854,6 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         precompute_data=config.precompute_data,
                     )
                 )
-                if (
-                        self._replay_schedule is not None
-                        and self._replay_strategy == constants.GAMMA
-                ):
-                    unshared_task_dims_g = d * (1 - (np.array(config.feature_matrix_correlations)*self._replay_gamma))
-                    unshared_task_boundaries_g = np.cumsum(np.concatenate([np.array([d]), unshared_task_dims_g])).astype(int)
-                    for i in range(1, num_tasks):  # feature_correlation in config.feature_matrix_correlations:
-                        print('###############')
-                        print('Starting Task ' + str(i + 1))
-                        print('Task Gamma: ', config.feature_matrix_correlations[i - 1]*self._replay_gamma)
-                        feature_correlation_g = config.feature_matrix_correlations[i - 1]*self._replay_gamma
-                        print('Quantity from Each Partition Are:')
-                        if max_overlap > 0:
-                            num_interm_zeros_g = int(d * (max_overlap - feature_correlation_g) + i * d * (1 - max_overlap))
-                            print('From Shared Partition gamma: ', int(num_common_dims * (feature_correlation_g / max_overlap)))
-                            print('Intermediate Zeros gamma: ', num_interm_zeros_g)
-                            print('From Split Partition gamma:  ',unshared_task_boundaries_g[i] - unshared_task_boundaries_g[i - 1])
-                            print('From Shared Partition: ',
-                                  int(num_common_dims * (feature_correlation / max_overlap)))
-                            print('Intermediate Zeros: ', num_interm_zeros)
-                            print('From Split Partition:  ',
-                                  unshared_task_boundaries[i] - unshared_task_boundaries[i - 1])
-
-
-                            if self._strategy_num == 1:
-                                # Gamma * Shared representations
-                                Fi_tilde_part = (torch.from_numpy(np.concatenate([
-                                    eig_vals[:int(num_common_dims * (feature_correlation_g / max_overlap))], \
-                                    np.zeros(
-                                        self._latent_dimension - int(num_common_dims * (feature_correlation_g / max_overlap)))
-                                ])),
-                                                 torch.from_numpy(np.hstack([
-                                                     eig_vecs[:,
-                                                     :int(num_common_dims * (feature_correlation_g / max_overlap))], \
-                                                     np.zeros((self._latent_dimension,
-                                                               int(self._latent_dimension - num_common_dims * (
-                                                                           feature_correlation_g / max_overlap)))), \
-                                                     ])))
-
-
-
-                            if self._strategy_num == 2:
-                                # Gamma * unShared representations
-                                j = int(num_common_dims * (feature_correlation / max_overlap)) + int(
-                                    self._replay_gamma * unshared_task_dims)
-                                Fi_tilde_part = (torch.from_numpy(np.concatenate([
-                                    np.zeros(j),
-                                    eig_vals[j:d],
-                                    np.zeros(d)])),
-                                                 torch.from_numpy(np.hstack([
-                                                     np.zeros((self._latent_dimension, j)),
-                                                     eig_vecs[:,j:d],
-                                                     np.zeros((self._latent_dimension,d))
-                                                 ])
-                                                 ))
-
-
-                            if self._strategy_num == 3:
-                                # shared +  Gamma * unShared representations
-                                j = int(num_common_dims * (feature_correlation / max_overlap)) + int(
-                                    self._replay_gamma * unshared_task_dims)
-                                Fi_tilde_part = (torch.from_numpy(np.concatenate([eig_vals[:j],
-                                    np.zeros((d - j) + d)])),
-                                                 torch.from_numpy(np.hstack([
-                                                     eig_vecs[:, :eig_vals[:j ]],
-                                                     np.zeros((self._latent_dimension, (d - j) + d))
-                                                 ])
-                                                 ))
-
-                            if self._strategy_num == 4:
-                                # exact same as before
-                                Fi_tilde_part = F1_tilde_part # This should be eqivalent to what we had before with gamma is zero
-
-                            if self._strategy_num== 5:
-                                # Create a all new task
-                                Fi_tilde_part = (torch.from_numpy(np.concatenate([
-                                    eig_vals[:int(num_common_dims * (feature_correlation_g / max_overlap))], \
-                                    np.zeros(num_interm_zeros_g), \
-                                    eig_vals[unshared_task_boundaries_g[i - 1]:unshared_task_boundaries_g[i]], \
-                                    np.zeros(self._latent_dimension - unshared_task_boundaries_g[i])
-                                ])),
-                                                 torch.from_numpy(np.hstack([
-                                                     eig_vecs[:,
-                                                     :int(num_common_dims * (feature_correlation_g / max_overlap))], \
-                                                     np.zeros((self._latent_dimension, num_interm_zeros_g)), \
-                                                     eig_vecs[:,
-                                                     unshared_task_boundaries_g[i - 1]:unshared_task_boundaries_g[i]], \
-                                                     np.zeros((self._latent_dimension,
-                                                               self._latent_dimension - unshared_task_boundaries_g[i]))
-                                                 ]))
-                                )
-
-                        else:
-                            task_sample = np.zeros(self._latent_dimension)
-                            print('Bounds on split part: ', unshared_task_boundaries[i - 1], ' ',
-                                  unshared_task_boundaries[i])
-                            task_sample[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]] = 1
-                            plt.imshow(task_sample[:, np.newaxis], cmap='gray')
-                            plt.savefig('task' + str(i) + '_sample.png', dpi=400)
-                            plt.close()
-                            print('From Split Partition:  ',
-                                  unshared_task_boundaries[i] - unshared_task_boundaries[i - 1])
-                            Fi_tilde_part = (
-                            torch.from_numpy(eig_vals[unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]]),
-                            torch.from_numpy(eig_vecs[:, unshared_task_boundaries[i - 1]:unshared_task_boundaries[i]]))
-                        print('Eigen Decomp Steps')
-                        print('Vecs: ', Fi_tilde_part[1].shape)
-                        print('Vals: ', Fi_tilde_part[0].shape)
-                        # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-                        Fi = Fi_tilde_part[1].mm(torch.diag(torch.sqrt(Fi_tilde_part[0]))).mm(Fi_tilde_part[1].T)
-                        print('After Low Rank Approx', Fi.shape)
-                        Fi = torch.vstack((Fi, zero_matrix))
-                        print('Append 0s', Fi.shape)
-                        Fi = Fi.to(torch.float32).T.mm(rotation_matrix)
-                        print('Transpose and Rotate', Fi.shape)
-                        data_modules[0].surrogate_feature_matrices = [Fi]
         else:
             raise ValueError(
                 f"Data module (specified by input source) {config.input_source} not recognised"
@@ -976,8 +927,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         if replaying:
             if self._replay_strategy == constants.GAMMA:
-                batch = self._data_module[teacher_index].get_mixed_batch(self._replay_gamma,
-                     surrogate_index=0
+                batch = self._data_module[teacher_index].get_mixed_batch(
+                    gamma=self._replay_gamma, surrogate_index=0
                 )
             else:
                 batch = self._data_module[teacher_index].get_batch()
