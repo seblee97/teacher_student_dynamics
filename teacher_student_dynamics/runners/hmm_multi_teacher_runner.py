@@ -668,12 +668,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             print("Vecs: ", F1_tilde_part[1].shape)
             print("Vals: ", F1_tilde_part[0].shape)
             # Reconstruct the task 1 covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-            F1_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
+            F1 = np.sqrt(self._input_dimension / self._latent_dimension) * (
                 F1_tilde_part[1]
                 .mm(torch.diag(torch.sqrt(F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
             )
-            print("After Low Rank Approx", F1_tilde.shape)
+            print("After Low Rank Approx", F1.shape)
             # F1_tilde = torch.vstack((F1_tilde, zero_matrix)).to(torch.float32)
             # print("Append 0s", F1_tilde.shape)
             data_modules = [
@@ -688,7 +688,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     activation=config.activation,
                     zero_matrix=zero_matrix,
                     rotation_matrix=rotation_matrix,
-                    feature_matrix=F1_tilde,
+                    feature_matrix=F1,
                     precompute_data=config.precompute_data,
                 )
             ]
@@ -835,12 +835,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 print("Vecs: ", Fi_tilde_part[1].shape)
                 print("Vals: ", Fi_tilde_part[0].shape)
                 # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-                Fi_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
+                Fi = np.sqrt(self._input_dimension / self._latent_dimension) * (
                     Fi_tilde_part[1]
                     .mm(torch.diag(torch.sqrt(Fi_tilde_part[0])))
                     .mm(Fi_tilde_part[1].T)
                 )
-                print("After Low Rank Approx", Fi_tilde.shape)
+                print("After Low Rank Approx", Fi.shape)
                 # Fi_tilde = torch.vstack((Fi_tilde, zero_matrix)).to(torch.float32)
                 # print("Append 0s", Fi_tilde.shape)
                 data_modules.append(
@@ -855,7 +855,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         activation=config.activation,
                         zero_matrix=zero_matrix,
                         rotation_matrix=rotation_matrix,
-                        feature_matrix=Fi_tilde,
+                        feature_matrix=Fi,
                         precompute_data=config.precompute_data,
                     )
                 )
