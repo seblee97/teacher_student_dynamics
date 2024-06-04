@@ -647,7 +647,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 torch.from_numpy(
                     np.concatenate(
                         [
-                            eig_vals[:d],
+                            np.sqrt(self._latent_dimension * eig_vals[:d]),
                             np.zeros(self._latent_dimension - d, dtype=float),
                         ]
                     )
@@ -742,18 +742,22 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         torch.from_numpy(
                             np.concatenate(
                                 [
-                                    eig_vals[
-                                        : int(
-                                            num_common_dims
-                                            * (feature_correlation / max_overlap)
-                                        )
-                                    ],
+                                    np.sqrt(
+                                        eig_vals[
+                                            : int(
+                                                num_common_dims
+                                                * (feature_correlation / max_overlap)
+                                            )
+                                        ]
+                                    ),
                                     np.zeros(num_interm_zeros),
-                                    eig_vals[
-                                        unshared_task_boundaries[
-                                            i - 1
-                                        ] : unshared_task_boundaries[i]
-                                    ],
+                                    np.sqrt(
+                                        eig_vals[
+                                            unshared_task_boundaries[
+                                                i - 1
+                                            ] : unshared_task_boundaries[i]
+                                        ]
+                                    ),
                                     np.zeros(
                                         self._latent_dimension
                                         - unshared_task_boundaries[i]
