@@ -616,7 +616,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             base_feature_matrix = torch.normal(
                 mean=0.0,
                 std=1.0,
-                size=(self._latent_dimension, self._input_dimension),
+                size=(self._latent_dimension, self._latent_dimension),
                 device=self._device,
             )
             # Covariance matrix of base features
