@@ -668,7 +668,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             print("Vecs: ", F1_tilde_part[1].shape)
             print("Vals: ", F1_tilde_part[0].shape)
             # Reconstruct the task 1 covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-            F1_tilde = (
+            F1_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
                 F1_tilde_part[1]
                 .mm(torch.diag(torch.sqrt(F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
@@ -835,7 +835,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 print("Vecs: ", Fi_tilde_part[1].shape)
                 print("Vals: ", Fi_tilde_part[0].shape)
                 # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-                Fi_tilde = (
+                Fi_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
                     Fi_tilde_part[1]
                     .mm(torch.diag(torch.sqrt(Fi_tilde_part[0])))
                     .mm(Fi_tilde_part[1].T)
