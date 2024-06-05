@@ -592,7 +592,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 len(config.feature_matrix_correlations) + 1
             )  # Number of gammas given plus 1 for the first task
             max_overlap = np.max(config.feature_matrix_correlations)
-            # true latent dimension, d
+            # individual task latent dimension, d
             d = int(self._latent_dimension / num_tasks)
             # Set up the size of the three large partitions of the eigenspace
             num_common_dims = int(d * max_overlap)  # maximum number of overlap dims
