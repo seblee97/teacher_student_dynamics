@@ -534,7 +534,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             base_feature_matrix = torch.normal(
                 mean=0.0,
                 std=1.0,
-                size=(self._latent_dimension, self._latent_dimension),
+                size=(self._latent_dimension, self._input_dimension),
                 device=self._device,
             )
             data_modules = [
@@ -592,6 +592,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 len(config.feature_matrix_correlations) + 1
             )  # Number of gammas given plus 1 for the first task
             max_overlap = np.max(config.feature_matrix_correlations)
+            # individual task latent dimension, d
             d = int(self._latent_dimension / num_tasks)
             # Set up the size of the three large partitions of the eigenspace
             num_common_dims = int(d * max_overlap)  # maximum number of overlap dims
@@ -667,12 +668,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             print("Vecs: ", F1_tilde_part[1].shape)
             print("Vals: ", F1_tilde_part[0].shape)
             # Reconstruct the task 1 covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-            F1_tilde = (
+            F1_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
                 F1_tilde_part[1]
-                .mm(torch.diag(torch.sqrt(F1_tilde_part[0])))
+                .mm(torch.diag(torch.sqrt(self._latent_dimension * F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
             )
-            print("After Low Rank Approx", F1_tilde.shape)
+            print("After Low Rank Approx", F1.shape)
             # F1_tilde = torch.vstack((F1_tilde, zero_matrix)).to(torch.float32)
             # print("Append 0s", F1_tilde.shape)
             data_modules = [
@@ -830,9 +831,13 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 print("Vecs: ", Fi_tilde_part[1].shape)
                 print("Vals: ", Fi_tilde_part[0].shape)
                 # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-                Fi_tilde = (
+                Fi_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
                     Fi_tilde_part[1]
-                    .mm(torch.diag(torch.sqrt(Fi_tilde_part[0])))
+                    .mm(
+                        torch.diag(
+                            torch.sqrt(self._latent_dimension * Fi_tilde_part[0])
+                        )
+                    )
                     .mm(Fi_tilde_part[1].T)
                 )
                 print("After Low Rank Approx", Fi_tilde.shape)
