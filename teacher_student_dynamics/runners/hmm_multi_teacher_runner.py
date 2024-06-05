@@ -743,7 +743,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                             np.concatenate(
                                 [
                                     np.sqrt(
-                                        eig_vals[
+                                        self._latent_dimension
+                                        * eig_vals[
                                             : int(
                                                 num_common_dims
                                                 * (feature_correlation / max_overlap)
@@ -752,7 +753,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                                     ),
                                     np.zeros(num_interm_zeros),
                                     np.sqrt(
-                                        eig_vals[
+                                        self._latent_dimension
+                                        * eig_vals[
                                             unshared_task_boundaries[
                                                 i - 1
                                             ] : unshared_task_boundaries[i]
@@ -816,11 +818,14 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     )
                     Fi_tilde_part = (
                         torch.from_numpy(
-                            eig_vals[
-                                unshared_task_boundaries[
-                                    i - 1
-                                ] : unshared_task_boundaries[i]
-                            ]
+                            np.sqrt(
+                                self._latent_dimension
+                                * eig_vals[
+                                    unshared_task_boundaries[
+                                        i - 1
+                                    ] : unshared_task_boundaries[i]
+                                ]
+                            )
                         ),
                         torch.from_numpy(
                             eig_vecs[
