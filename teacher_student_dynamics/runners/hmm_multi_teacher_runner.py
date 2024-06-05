@@ -647,7 +647,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 torch.from_numpy(
                     np.concatenate(
                         [
-                            np.sqrt(self._latent_dimension * eig_vals[:d]),
+                            eig_vals[:d],
                             np.zeros(self._latent_dimension - d, dtype=float),
                         ]
                     )
@@ -668,9 +668,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             print("Vecs: ", F1_tilde_part[1].shape)
             print("Vals: ", F1_tilde_part[0].shape)
             # Reconstruct the task 1 covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-            F1 = np.sqrt(self._input_dimension / self._latent_dimension) * (
+            F1_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
                 F1_tilde_part[1]
-                .mm(torch.diag(torch.sqrt(F1_tilde_part[0])))
+                .mm(torch.diag(torch.sqrt(self._latent_dimension * F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
             )
             print("After Low Rank Approx", F1.shape)
@@ -688,7 +688,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     activation=config.activation,
                     zero_matrix=zero_matrix,
                     rotation_matrix=rotation_matrix,
-                    feature_matrix=F1,
+                    feature_matrix=F1_tilde,
                     precompute_data=config.precompute_data,
                 )
             ]
@@ -742,24 +742,18 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         torch.from_numpy(
                             np.concatenate(
                                 [
-                                    np.sqrt(
-                                        self._latent_dimension
-                                        * eig_vals[
-                                            : int(
-                                                num_common_dims
-                                                * (feature_correlation / max_overlap)
-                                            )
-                                        ]
-                                    ),
+                                    eig_vals[
+                                        : int(
+                                            num_common_dims
+                                            * (feature_correlation / max_overlap)
+                                        )
+                                    ],
                                     np.zeros(num_interm_zeros),
-                                    np.sqrt(
-                                        self._latent_dimension
-                                        * eig_vals[
-                                            unshared_task_boundaries[
-                                                i - 1
-                                            ] : unshared_task_boundaries[i]
-                                        ]
-                                    ),
+                                    eig_vals[
+                                        unshared_task_boundaries[
+                                            i - 1
+                                        ] : unshared_task_boundaries[i]
+                                    ],
                                     np.zeros(
                                         self._latent_dimension
                                         - unshared_task_boundaries[i]
@@ -818,14 +812,11 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                     )
                     Fi_tilde_part = (
                         torch.from_numpy(
-                            np.sqrt(
-                                self._latent_dimension
-                                * eig_vals[
-                                    unshared_task_boundaries[
-                                        i - 1
-                                    ] : unshared_task_boundaries[i]
-                                ]
-                            )
+                            eig_vals[
+                                unshared_task_boundaries[
+                                    i - 1
+                                ] : unshared_task_boundaries[i]
+                            ]
                         ),
                         torch.from_numpy(
                             eig_vecs[
@@ -840,12 +831,16 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 print("Vecs: ", Fi_tilde_part[1].shape)
                 print("Vals: ", Fi_tilde_part[0].shape)
                 # Reconstruct the task i covar from the sample eigemdecomp subset and then rotate into the larger ambient space
-                Fi = np.sqrt(self._input_dimension / self._latent_dimension) * (
+                Fi_tilde = np.sqrt(self._input_dimension / self._latent_dimension) * (
                     Fi_tilde_part[1]
-                    .mm(torch.diag(torch.sqrt(Fi_tilde_part[0])))
+                    .mm(
+                        torch.diag(
+                            torch.sqrt(self._latent_dimension * Fi_tilde_part[0])
+                        )
+                    )
                     .mm(Fi_tilde_part[1].T)
                 )
-                print("After Low Rank Approx", Fi.shape)
+                print("After Low Rank Approx", Fi_tilde.shape)
                 # Fi_tilde = torch.vstack((Fi_tilde, zero_matrix)).to(torch.float32)
                 # print("Append 0s", Fi_tilde.shape)
                 data_modules.append(
@@ -860,7 +855,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                         activation=config.activation,
                         zero_matrix=zero_matrix,
                         rotation_matrix=rotation_matrix,
-                        feature_matrix=Fi,
+                        feature_matrix=Fi_tilde,
                         precompute_data=config.precompute_data,
                     )
                 )
