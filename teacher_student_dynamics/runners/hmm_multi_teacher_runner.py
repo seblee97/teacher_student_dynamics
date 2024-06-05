@@ -673,7 +673,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 .mm(torch.diag(torch.sqrt(self._latent_dimension * F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
             )
-            print("After Low Rank Approx", F1.shape)
+            print("After Low Rank Approx", F1_tilde.shape)
             # F1_tilde = torch.vstack((F1_tilde, zero_matrix)).to(torch.float32)
             # print("Append 0s", F1_tilde.shape)
             data_modules = [
