@@ -30,6 +30,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         self._student_hidden_dim = config.student_hidden
         self._teacher_hidden_dim = config.teacher_hidden
+        self._l2_lambda = config.l2_lambda
+        self._l1_lambda = config.l1_lambda
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
@@ -971,7 +973,9 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         # training iteration
         self._optimiser.zero_grad()
         loss = self._compute_loss(student_output, teacher_output)
-
+        l1_norm = sum(param.abs().sum() for param in self.model.parameters())
+        l2_norm = sum(param.pow(2.0).sum() for param in self.model.parameters())
+        loss = loss + self._l2_lambda * l2_norm + self._l1_lambda * l1_norm
         self._data_columns[constants.LOSS][self._data_index] = loss.item()
 
         loss.backward()
