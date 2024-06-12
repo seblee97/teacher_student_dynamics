@@ -973,8 +973,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         # training iteration
         self._optimiser.zero_grad()
         loss = self._compute_loss(student_output, teacher_output)
-        l1_norm = sum(param.abs().sum() for param in self.model.parameters())
-        l2_norm = sum(param.pow(2.0).sum() for param in self.model.parameters())
+        l1_norm = sum(param.abs().sum() for param in self._student.parameters())
+        l2_norm = sum(param.pow(2.0).sum() for param in self._student.parameters())
         loss = loss + self._l2_lambda * l2_norm + self._l1_lambda * l1_norm
         self._data_columns[constants.LOSS][self._data_index] = loss.item()
 
