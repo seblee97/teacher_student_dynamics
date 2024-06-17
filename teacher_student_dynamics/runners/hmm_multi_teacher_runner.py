@@ -976,7 +976,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         if self._l1_lambda > 0:
             l1_norm = torch.sum(self._student._layers[0].weight.abs())
             loss += self._l1_lambda * l1_norm
-        elif self._l2_lambda > 0:
+        if self._l2_lambda > 0:
             l2_norm = torch.sum(self._student._layers[0].weight.pow(2.0))
             loss += self._l2_lambda * l2_norm
 
