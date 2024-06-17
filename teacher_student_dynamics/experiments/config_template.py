@@ -216,6 +216,16 @@ class ConfigTemplate:
                 requirements=[lambda x: x in [constants.SGD]],
             ),
             config_field.Field(
+                name=constants.L1_LAMBDA,
+                types=[float],
+                requirements=[lambda x: x >= 0],
+            ),
+            config_field.Field(
+                name=constants.L2_LAMBDA,
+                types=[float],
+                requirements=[lambda x: x >=0],
+            ),
+            config_field.Field(
                 name=constants.LEARNING_RATE,
                 types=[float],
                 requirements=[lambda x: x > 0.0],

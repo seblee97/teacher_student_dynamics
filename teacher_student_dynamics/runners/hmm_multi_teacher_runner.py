@@ -30,6 +30,8 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
 
         self._student_hidden_dim = config.student_hidden
         self._teacher_hidden_dim = config.teacher_hidden
+        self._l2_lambda = config.l2_lambda
+        self._l1_lambda = config.l1_lambda
 
         if config.strategy == constants.GAMMA:
             self._replay_gamma = config.gamma
@@ -673,7 +675,7 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 .mm(torch.diag(torch.sqrt(self._latent_dimension * F1_tilde_part[0])))
                 .mm(F1_tilde_part[1].T)
             )
-            print("After Low Rank Approx", F1.shape)
+            print("After Low Rank Approx", F1_tilde.shape)
             # F1_tilde = torch.vstack((F1_tilde, zero_matrix)).to(torch.float32)
             # print("Append 0s", F1_tilde.shape)
             data_modules = [
@@ -971,11 +973,15 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         # training iteration
         self._optimiser.zero_grad()
         loss = self._compute_loss(student_output, teacher_output)
+        if self._l1_lambda > 0:
+            l1_norm = torch.sum(self._student._layers[0].weight.abs())
+            loss += self._l1_lambda * l1_norm
+        if self._l2_lambda > 0:
+            l2_norm = torch.sum(self._student._layers[0].weight.pow(2.0))
+            loss += self._l2_lambda * l2_norm
 
         self._data_columns[constants.LOSS][self._data_index] = loss.item()
-
         loss.backward()
-
         self._optimiser.step()
 
     def _compute_generalisation_errors(self) -> List[float]:
