@@ -37,6 +37,7 @@ class TestRunner(unittest.TestCase):
     def test_base(self):
         _test_runner(changes=[])
 
+    # vanilla teacher-student
     def test_vanilla_ode_only(self):
         changes = [{"runner": {"run_network": False}}]
         _test_runner(changes=changes)
@@ -45,6 +46,7 @@ class TestRunner(unittest.TestCase):
         changes = [{"runner": {"run_ode": False}}]
         _test_runner(changes=changes)
 
+    # hmm (Goldt)
     def test_hmm_base(self):
         changes = [{"data": {"input_source": "hidden_manifold"}}]
         _test_runner(changes=changes)
@@ -58,8 +60,21 @@ class TestRunner(unittest.TestCase):
         ]
         _test_runner(changes=changes)
 
-    def test_network_only(self):
+    def test_hmm_network_only(self):
         changes = [
             {"runner": {"run_ode": False}, "data": {"input_source": "hidden_manifold"}}
+        ]
+        _test_runner(changes=changes)
+
+    # hmm (domine_ssm)
+    def test_hmm_dssm_network_only(self):
+        changes = [
+            {
+                "runner": {"run_ode": False},
+                "data": {
+                    "input_source": "hidden_manifold",
+                    "hidden_manifold": {"construction": "domine_ssm"},
+                },
+            }
         ]
         _test_runner(changes=changes)
