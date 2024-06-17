@@ -88,32 +88,34 @@ class BaseEnsemble(abc.ABC):
     def project_networks(self, projections: List[List[torch.Tensor]]) -> None:
         with torch.no_grad():
 
-            for i in range(self._ensemble_size):
+            for i in range(len(projections)):
 
-                # MxD
-                unprojected_weights = self._networks[i].layers[0].weight.data
-                unprojected_weights_norms = [
-                    torch.norm(node).item() for node in unprojected_weights
-                ]
                 # DxD
                 projection = projections[i]
+                if projection is not None:
 
-                # first find contribution coefficients: each row in original teacher weights
-                # corresponds to a feature, and columns of projections give eigenvectors.
-                # MxD * DxD = MxD
-                coefficients = unprojected_weights.mm(projection)
+                    # MxD
+                    unprojected_weights = self._networks[i].layers[0].weight.data
+                    unprojected_weights_norms = [
+                        torch.norm(node).item() for node in unprojected_weights
+                    ]
 
-                # finally, get linear combos of eigenvectors according to above coefficients.
-                linear_combination = coefficients.mm(projection.T)
-                # re-normalise
-                for node_index in range(len(linear_combination)):
-                    linear_combination[node_index] = unprojected_weights_norms[
-                        node_index
-                    ] * (
-                        linear_combination[node_index]
-                        / torch.norm(linear_combination[node_index])
-                    )
-                self._networks[i].layers[0].weight.data = linear_combination
+                    # first find contribution coefficients: each row in original teacher weights
+                    # corresponds to a feature, and columns of projections give eigenvectors.
+                    # MxD * DxD = MxD
+                    coefficients = unprojected_weights.mm(projection)
+
+                    # finally, get linear combos of eigenvectors according to above coefficients.
+                    linear_combination = coefficients.mm(projection.T)
+                    # re-normalise
+                    for node_index in range(len(linear_combination)):
+                        linear_combination[node_index] = unprojected_weights_norms[
+                            node_index
+                        ] * (
+                            linear_combination[node_index]
+                            / torch.norm(linear_combination[node_index])
+                        )
+                    self._networks[i].layers[0].weight.data = linear_combination
 
     def save_all_network_weights(self, save_path: str) -> None:
         """Save weights associated with each network.
