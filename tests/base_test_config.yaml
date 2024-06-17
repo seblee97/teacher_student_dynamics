@@ -69,6 +69,8 @@ training:
     train_hidden_layer: True
     train_head_layer: True
     copy_head_at_switch: False
+    l1_lambda: 0.0
+    l2_lambda: 0.0
     
     # list of dim num_teachers. 
     # Each item is number of units to freeze for each teacher.
