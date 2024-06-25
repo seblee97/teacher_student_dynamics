@@ -21,6 +21,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         bias: bool,
         nonlinearity: str,
         initialisation_std: Optional[float],
+        head_initialisation_std: Optional[float],
         normalise_weights: Optional[bool] = False,
         heads_one: Optional[bool] = False,
         unit_norm_head: Optional[bool] = False,
@@ -38,6 +39,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._bias = bias
         self._nonlinearity = nonlinearity
         self._initialisation_std = initialisation_std
+        self._head_initialisation_std = head_initialisation_std
         self._normalise_weights = normalise_weights
         self._heads_one = heads_one
         self._unit_norm_head = unit_norm_head
@@ -130,6 +132,20 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
                 if self._bias:
                     nn.init.normal_(layer.bias, std=self._initialisation_std)
 
+    def _initialise_head(self, layer: nn.Module, value=None) -> None:
+        """In-place weight initialisation for a given layer in accordance with configuration.
+
+        Args:
+            layer: the layer to be initialised.
+        """
+        if value is not None:
+            layer.weight.data.fill_(value)
+        else:
+            if self._initialisation_std is not None:
+                nn.init.normal_(layer.weight, std=self._head_initialisation_std)
+                if self._bias:
+                    nn.init.normal_(layer.bias, std=self._head_initialisation_std)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """This method performs the forward pass. This implements the
         abstract method from the nn.Module base class.
@@ -161,7 +177,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
                 normalised_head = output_layer.weight / head_norm
                 output_layer.weight.data = normalised_head
             else:
-                self._initialise_weights(output_layer)
+                self._initialise_head(output_layer)
             # freeze heads by default
             for param in output_layer.parameters():
                 param.requires_grad = False

@@ -21,6 +21,7 @@ class NodeSharingEnsemble(base_ensemble.BaseEnsemble):
         bias: bool,
         nonlinearity: str,
         initialisation_std: float,
+        head_initialisation_std: float,
         normalise_weights: bool,
         heads_one: bool,
         unit_norm_head: bool,
