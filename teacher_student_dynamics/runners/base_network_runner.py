@@ -192,6 +192,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             constants.BIAS: config.teacher_bias,
             constants.NONLINEARITY: config.nonlinearity,
             constants.INITIALISATION_STD: config.teacher_initialisation_std,
+            constants.HEAD_INITIALISATION_STD: config.teacher_head_initialisation_std,
             constants.NORMALISE_WEIGHTS: config.normalise_teachers,
             constants.HEADS_ONE: config.teacher_heads_one,
             constants.UNIT_NORM_HEAD: config.unit_norm_teacher_head,
@@ -240,6 +241,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             num_heads=num_heads,
             nonlinearity=config.nonlinearity,
             initialisation_std=config.student_initialisation_std,
+            head_initialisation_std=config.student_head_initialisation_std,
             train_hidden_layer=config.train_hidden_layer,
             train_head_layer=config.train_head_layer,
         )

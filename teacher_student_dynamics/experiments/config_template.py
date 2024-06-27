@@ -335,6 +335,11 @@ class ConfigTemplate:
             ),
             config_field.Field(name=constants.STUDENT_BIAS, types=[bool]),
             config_field.Field(
+                name=constants.STUDENT_HEAD_INITIALISATION_STD,
+                types=[float],
+                requirements=[lambda x: x >= 0],
+            ),
+            config_field.Field(
                 name=constants.STUDENT_INITIALISATION_STD,
                 types=[float],
                 requirements=[lambda x: x >= 0],
@@ -354,6 +359,11 @@ class ConfigTemplate:
             config_field.Field(name=constants.NORMALISE_TEACHERS, types=[bool]),
             config_field.Field(
                 name=constants.TEACHER_INITIALISATION_STD,
+                types=[float],
+                requirements=[lambda x: x >= 0],
+            ),
+            config_field.Field(
+                name=constants.TEACHER_HEAD_INITIALISATION_STD,
                 types=[float],
                 requirements=[lambda x: x >= 0],
             ),
