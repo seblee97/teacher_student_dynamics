@@ -219,11 +219,11 @@ int main(int argc, char **argv)
         // std::cerr << "Step: " << i << debug_step << std::endl;
         if (i % debug_step == 0)
         {
-            std::cout << "READING STATE FROM FILE" << std::endl;
-            std::cerr << "READING STATE FROM FILE" << std::endl;
+            // std::cout << "READING STATE FROM FILE" << std::endl;
+            // std::cerr << "READING STATE FROM FILE" << std::endl;
             step_order_parameter_paths = base_order_parameter_paths + "_" + std::to_string(static_cast<int>(step_scaling * i)) + ".txt";
-            std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
-            std::cerr << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
+            // std::cout << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
+            // std::cerr << "STATE_OP_PATH" << step_order_parameter_paths << std::endl;
             step_errors = ODE.step(step_order_parameter_paths);
         }
         else

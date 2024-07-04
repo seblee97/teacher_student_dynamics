@@ -154,8 +154,8 @@ public:
         state_read = std::find(states_read.begin(), states_read.end(), "h1");
         if (state_read == states_read.end())
         {
-            std::cout << "h1_stepped" << std::endl;
-            std::cerr << "h1_stepped" << std::endl;
+            // std::cout << "h1_stepped" << std::endl;
+            // std::cerr << "h1_stepped" << std::endl;
             this->state.step_order_parameter("h1", h1_delta);
         }
         else
@@ -169,8 +169,8 @@ public:
             state_read = std::find(states_read.begin(), states_read.end(), "h2");
             if (state_read == states_read.end())
             {
-                std::cout << "h2_stepped" << std::endl;
-                std::cerr << "h2_stepped" << std::endl;
+                // std::cout << "h2_stepped" << std::endl;
+                // std::cerr << "h2_stepped" << std::endl;
                 this->state.step_order_parameter("h2", h2_delta);
             }
         }
