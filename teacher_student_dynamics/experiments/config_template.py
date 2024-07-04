@@ -223,7 +223,7 @@ class ConfigTemplate:
             config_field.Field(
                 name=constants.L2_LAMBDA,
                 types=[float],
-                requirements=[lambda x: x >=0],
+                requirements=[lambda x: x >= 0],
             ),
             config_field.Field(
                 name=constants.LEARNING_RATE,
@@ -308,6 +308,22 @@ class ConfigTemplate:
         dependent_variables_required_values=[[constants.NODE_SHARING]],
     )
 
+    _teacher_head_initialisation_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.TEACHER_HEAD_INITIALISATION_STD_VALUE,
+                types=[list],
+                requirements=[
+                    lambda x: all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
+            config_field.Field(name=constants.UNIT_NORM_TEACHER_HEAD, types=[bool]),
+        ],
+        level=[constants.NETWORKS, constants.TEACHER_HEAD_INITIALISATION_STD],
+        dependent_variables=[constants.TEACHER_HEAD_INITIALISATION_TYPE],
+        dependent_variables_required_values=[[constants.STD]],
+    )
+
     _network_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -339,6 +355,13 @@ class ConfigTemplate:
                 types=[float],
                 requirements=[lambda x: x >= 0],
             ),
+            config_field.Field(
+                name=constants.STUDENT_HEAD_INITIALISATION_STD,
+                types=[list],
+                requirements=[
+                    lambda x: all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
             config_field.Field(name=constants.MULTI_HEAD, types=[bool]),
             config_field.Field(
                 name=constants.NUM_TEACHERS, types=[int], requirements=[lambda x: x > 0]
@@ -349,13 +372,16 @@ class ConfigTemplate:
                 requirements=[lambda x: x > 0],
             ),
             config_field.Field(name=constants.TEACHER_BIAS, types=[bool]),
-            config_field.Field(name=constants.TEACHER_HEADS_ONE, types=[bool]),
-            config_field.Field(name=constants.UNIT_NORM_TEACHER_HEAD, types=[bool]),
             config_field.Field(name=constants.NORMALISE_TEACHERS, types=[bool]),
             config_field.Field(
                 name=constants.TEACHER_INITIALISATION_STD,
                 types=[float],
                 requirements=[lambda x: x >= 0],
+            ),
+            config_field.Field(
+                name=constants.TEACHER_HEAD_INITIALISATION_TYPE,
+                types=[str],
+                requirements=[lambda x: x in [constants.STD, constants.HEADS_ONE]],
             ),
             config_field.Field(
                 name=constants.TEACHER_CONFIGURATION,
@@ -371,7 +397,11 @@ class ConfigTemplate:
             ),
         ],
         level=[constants.NETWORKS],
-        nested_templates=[_rotation_teachers_template, _node_sharing_teachers_template],
+        nested_templates=[
+            _teacher_head_initialisation_template,
+            _rotation_teachers_template,
+            _node_sharing_teachers_template,
+        ],
     )
 
     _curriculum_template = config_template.Template(
