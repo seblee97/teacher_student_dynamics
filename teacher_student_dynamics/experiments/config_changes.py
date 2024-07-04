@@ -9,13 +9,11 @@ oparam_config_changes = {
     f"oparam_{h}": [{"networks": {"student_hidden": 2 * h, "teacher_hidden": h}}]
     for h in [1, 2, 4]
 }
-#CONFIG_CHANGES = {**param_config_changes, **oparam_config_changes}
+# CONFIG_CHANGES = {**param_config_changes, **oparam_config_changes}
 
 CONFIG_CHANGES = {
-    f"mixing_alpha_{a}": [
-        {
-            "data": {"hidden_manifold": {"feature_matrix_correlations": [float(a)]}},
-        }
+    f"init_{a}_{b}": [
+        {"networks": {"student_head_initialisation_std": [float(a), float(b)]}}
     ]
-    for a in np.linspace(0, 1, 21)
+    for a, b in itertools.product(np.linspace(0, 1, 11), np.linspace(0, 1, 11))
 }
