@@ -1,6 +1,6 @@
 import abc
 import copy
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 import torch
@@ -21,6 +21,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         bias: bool,
         nonlinearity: str,
         initialisation_std: Optional[float],
+        head_initialisation_std: Optional[Union[float, List[float]]],
         normalise_weights: Optional[bool] = False,
         heads_one: Optional[bool] = False,
         unit_norm_head: Optional[bool] = False,
@@ -38,6 +39,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._bias = bias
         self._nonlinearity = nonlinearity
         self._initialisation_std = initialisation_std
+        self._head_initialisation_std = head_initialisation_std
         self._normalise_weights = normalise_weights
         self._heads_one = heads_one
         self._unit_norm_head = unit_norm_head
@@ -150,18 +152,18 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
     def _construct_output_layers(self):
         """Instantiate the output layers."""
         self._heads = nn.ModuleList([])
-        for _ in range(self._num_heads):
+        for i in range(self._num_heads):
             output_layer = nn.Linear(
                 self._layer_dimensions[-1], self._output_dimension, bias=self._bias
             )
             if self._heads_one:
                 output_layer.weight.data = torch.ones_like(output_layer.weight)
-            elif self._unit_norm_head:
-                head_norm = torch.norm(output_layer.weight)
-                normalised_head = output_layer.weight / head_norm
-                output_layer.weight.data = normalised_head
             else:
-                self._initialise_weights(output_layer)
+                self._initialise_weights(output_layer, self._head_initialisation_std[i])
+                if self._unit_norm_head:
+                    head_norm = torch.norm(output_layer.weight)
+                    normalised_head = output_layer.weight / head_norm
+                    output_layer.weight.data = normalised_head
             # freeze heads by default
             for param in output_layer.parameters():
                 param.requires_grad = False
