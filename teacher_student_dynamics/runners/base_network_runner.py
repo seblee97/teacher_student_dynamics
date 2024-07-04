@@ -184,6 +184,16 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     @decorators.timer
     def _setup_teachers(self, config: experiments.config.Config):
         """Initialise teacher object containing teacher networks."""
+        if config.teacher_head_initialisation_type == constants.STD:
+            teacher_head_initialisation_std = (
+                config.teacher_head_initialisation_std_value
+            )
+            unit_norm_head = config.unit_norm_teacher_head
+            heads_one = False
+        elif config.teacher_head_initialisation_type == constants.ONES:
+            teacher_head_initialisation_std = None
+            unit_norm_head = None
+            heads_one = True
         base_arguments = {
             constants.INPUT_DIMENSION: self._teacher_input_dimension,
             constants.HIDDEN_DIMENSION: config.teacher_hidden,
@@ -192,9 +202,10 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             constants.BIAS: config.teacher_bias,
             constants.NONLINEARITY: config.nonlinearity,
             constants.INITIALISATION_STD: config.teacher_initialisation_std,
+            constants.HEAD_INITIALISATION_STD: teacher_head_initialisation_std,
             constants.NORMALISE_WEIGHTS: config.normalise_teachers,
-            constants.HEADS_ONE: config.teacher_heads_one,
-            constants.UNIT_NORM_HEAD: config.unit_norm_teacher_head,
+            constants.HEADS_ONE: heads_one,
+            constants.UNIT_NORM_HEAD: unit_norm_head,
         }
         if config.teacher_configuration == constants.ROTATION:
             teachers_class = rotation_ensemble.RotationEnsemble
@@ -240,6 +251,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             num_heads=num_heads,
             nonlinearity=config.nonlinearity,
             initialisation_std=config.student_initialisation_std,
+            head_initialisation_std=config.student_head_initialisation_std,
             train_hidden_layer=config.train_hidden_layer,
             train_head_layer=config.train_head_layer,
         )
