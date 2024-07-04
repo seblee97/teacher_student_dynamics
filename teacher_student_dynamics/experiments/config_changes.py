@@ -13,7 +13,12 @@ oparam_config_changes = {
 
 CONFIG_CHANGES = {
     f"init_{a}_{b}": [
-        {"networks": {"student_head_initialisation_std": [float(a), float(b)]}}
+        {
+            "networks": {
+                "student_initialisation_std": float(a),
+                "student_head_initialisation_std": [float(b), float(b)],
+            }
+        }
     ]
     for a, b in itertools.product(np.linspace(0, 1, 11), np.linspace(0, 1, 11))
 }
