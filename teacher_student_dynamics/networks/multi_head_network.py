@@ -118,7 +118,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
 
         self._construct_output_layers()
 
-    def _initialise_weights(self, layer: nn.Module, value=None) -> None:
+    def _initialise_weights(self, layer: nn.Module, value=None, std=None) -> None:
         """In-place weight initialisation for a given layer in accordance with configuration.
 
         Args:
@@ -127,10 +127,11 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         if value is not None:
             layer.weight.data.fill_(value)
         else:
-            if self._initialisation_std is not None:
-                nn.init.normal_(layer.weight, std=self._initialisation_std)
+            std = std or self._initialisation_std
+            if std is not None:
+                nn.init.normal_(layer.weight, std=std)
                 if self._bias:
-                    nn.init.normal_(layer.bias, std=self._initialisation_std)
+                    nn.init.normal_(layer.bias, std=std)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """This method performs the forward pass. This implements the
@@ -159,7 +160,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             if self._heads_one:
                 output_layer.weight.data = torch.ones_like(output_layer.weight)
             else:
-                self._initialise_weights(output_layer, self._head_initialisation_std[i])
+                self._initialise_weights(
+                    output_layer, std=self._head_initialisation_std[i]
+                )
                 if self._unit_norm_head:
                     head_norm = torch.norm(output_layer.weight)
                     normalised_head = output_layer.weight / head_norm
