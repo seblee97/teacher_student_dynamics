@@ -30,6 +30,9 @@ parser.add_argument("--config_changes", metavar="-CC", default="config_changes.p
 parser.add_argument(
     "--results_folder", default=constants.RESULTS, type=str, help="path to all results."
 )
+parser.add_argument(
+    "--experiment_name", default="", type=str, help="name of experiment."
+)
 parser.add_argument("--cluster_debug", action="store_true")
 parser.add_argument("--cluster_debug_run", action="store_true")
 
@@ -64,6 +67,7 @@ if __name__ == "__main__":
             mode=constants.SINGLE,
             results_folder=results_folder,
             config_path=args.config_path,
+            experiment_name=args.experiment_name,
         )
 
         single_run.single_run(
@@ -104,6 +108,7 @@ if __name__ == "__main__":
             config_path=args.config_path,
             config_changes_path=config_changes_path,
             seeds=seeds,
+            experiment_name=args.experiment_name,
         )
 
         if args.mode == constants.PARALLEL:
