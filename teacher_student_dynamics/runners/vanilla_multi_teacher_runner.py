@@ -90,7 +90,7 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
             step = ""
 
         order_params = {
-            f"Q{step}.csv": self._network_configuration.student_self_overlap[0],
+            f"Q{step}.csv": self._network_configuration.student_self_overlap,
             f"R{step}.csv": self._network_configuration.student_teacher_overlaps[0],
             f"U{step}.csv": self._network_configuration.student_teacher_overlaps[1],
             f"h1{step}.csv": self._network_configuration.student_head_weights[0],
