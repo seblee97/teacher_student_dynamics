@@ -22,8 +22,8 @@ class BaseEnsemble(abc.ABC):
         nonlinearity: List[str],
         initialisation_std: float,
         head_initialisation_std: Union[List[float], float],
+        head_norms: Union[List[float], float],
         heads_one: bool,
-        unit_norm_head: bool,
         normalise_weights: bool,
     ) -> None:
         self._input_dimension = input_dimension
@@ -34,9 +34,9 @@ class BaseEnsemble(abc.ABC):
         self._nonlinearity = nonlinearity
         self._initialisation_std = initialisation_std
         self._head_initialisation_std = head_initialisation_std
+        self._head_norms = head_norms
         self._normalise_weights = normalise_weights
         self._heads_one = heads_one
-        self._unit_norm_head = unit_norm_head
 
         self._networks = self._setup_networks()
 
@@ -82,9 +82,9 @@ class BaseEnsemble(abc.ABC):
             nonlinearity=self._nonlinearity,
             initialisation_std=self._initialisation_std,
             head_initialisation_std=self._head_initialisation_std,
+            head_norms=self._head_norms,
             normalise_weights=self._normalise_weights,
             heads_one=self._heads_one,
-            unit_norm_head=self._unit_norm_head,
             freeze=True,
         )
 

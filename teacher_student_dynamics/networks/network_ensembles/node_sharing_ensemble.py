@@ -24,7 +24,6 @@ class NodeSharingEnsemble(base_ensemble.BaseEnsemble):
         head_initialisation_std: Union[List[float], float],
         normalise_weights: bool,
         heads_one: bool,
-        unit_norm_head: bool,
         num_shared_nodes: int,
         feature_rotation_alpha: float,
     ):
@@ -38,9 +37,9 @@ class NodeSharingEnsemble(base_ensemble.BaseEnsemble):
             bias=bias,
             nonlinearity=nonlinearity,
             initialisation_std=initialisation_std,
+            head_initialisation_std=head_initialisation_std,
             normalise_weights=normalise_weights,
             heads_one=heads_one,
-            unit_norm_head=unit_norm_head,
         )
 
     def _setup_networks(self) -> None:

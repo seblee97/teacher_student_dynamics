@@ -20,8 +20,8 @@ class IdenticalEnsemble(base_ensemble.BaseEnsemble):
         nonlinearity: str,
         initialisation_std: float,
         head_initialisation_std: Union[List[float], float],
+        head_norms: Union[List[float], float],
         heads_one: bool,
-        unit_norm_head: bool,
         normalise_weights: bool,
     ):
         super().__init__(
@@ -33,8 +33,8 @@ class IdenticalEnsemble(base_ensemble.BaseEnsemble):
             nonlinearity=nonlinearity,
             initialisation_std=initialisation_std,
             head_initialisation_std=head_initialisation_std,
+            head_norms=head_norms,
             heads_one=heads_one,
-            unit_norm_head=unit_norm_head,
             normalise_weights=normalise_weights,
         )
 
