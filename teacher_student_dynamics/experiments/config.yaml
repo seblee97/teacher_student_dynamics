@@ -79,13 +79,14 @@ training:
 networks:
     input_dimension: 10000
     output_dimension: 1
-    nonlinearity: scaled_erf
+    nonlinearity: relu
     # student
     student_hidden: 2
     student_bias: False
-    student_initialisation_std: 0.1
-    student_head_initialisation_std: [0.2, 0.2]
-    multi_head: True #False
+    student_initialisation_std: 0.001
+    student_head_initialisation_std: [0.1, 1.]
+    student_head_norms: [0.1, 1.] # empty/None for no normalisation
+    multi_head: True # False for single head
     # teacher(s)
     num_teachers: 2
     teacher_hidden: 1
@@ -96,7 +97,7 @@ networks:
     
     teacher_head_initialisation_std:
         teacher_head_initialisation_std_value: [1., 1.] 
-        unit_norm_teacher_head: True
+        teacher_head_norms: [1., 1.] # empty/None for no normalisation
 
     teacher_configuration: identical # rotation, identical, node_sharing
 
