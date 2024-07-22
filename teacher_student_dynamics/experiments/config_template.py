@@ -317,7 +317,14 @@ class ConfigTemplate:
                     lambda x: all((isinstance(y, float) and y >= 0 for y in x))
                 ],
             ),
-            config_field.Field(name=constants.UNIT_NORM_TEACHER_HEAD, types=[bool]),
+            config_field.Field(
+                name=constants.TEACHER_HEAD_NORMS,
+                types=[list],
+                requirements=[
+                    lambda x: isinstance(x, type(None))
+                    or all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
         ],
         level=[constants.NETWORKS, constants.TEACHER_HEAD_INITIALISATION_STD],
         dependent_variables=[constants.TEACHER_HEAD_INITIALISATION_TYPE],
@@ -360,6 +367,14 @@ class ConfigTemplate:
                 types=[list],
                 requirements=[
                     lambda x: all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
+            config_field.Field(
+                name=constants.STUDENT_HEAD_NORMS,
+                types=[list],
+                requirements=[
+                    lambda x: isinstance(x, type(None))
+                    or all((isinstance(y, float) and y >= 0 for y in x))
                 ],
             ),
             config_field.Field(name=constants.MULTI_HEAD, types=[bool]),
