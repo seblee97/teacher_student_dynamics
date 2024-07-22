@@ -22,9 +22,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         nonlinearity: str,
         initialisation_std: Optional[float],
         head_initialisation_std: Optional[Union[float, List[float]]],
+        head_norms: Optional[Union[float, List[float]]],
         normalise_weights: Optional[bool] = False,
         heads_one: Optional[bool] = False,
-        unit_norm_head: Optional[bool] = False,
         train_hidden_layer: Optional[bool] = False,
         train_head_layer: Optional[bool] = False,
         freeze: Optional[bool] = False,
@@ -40,9 +40,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._nonlinearity = nonlinearity
         self._initialisation_std = initialisation_std
         self._head_initialisation_std = head_initialisation_std
+        self._head_norms = head_norms
         self._normalise_weights = normalise_weights
         self._heads_one = heads_one
-        self._unit_norm_head = unit_norm_head
         self._train_hidden_layer = train_hidden_layer
         self._train_head_layer = train_head_layer
 
@@ -163,9 +163,11 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
                 self._initialise_weights(
                     output_layer, std=self._head_initialisation_std[i]
                 )
-                if self._unit_norm_head:
+                if self._head_norms is not None:
                     head_norm = torch.norm(output_layer.weight)
-                    normalised_head = output_layer.weight / head_norm
+                    normalised_head = (
+                        self._head_norms[i] * output_layer.weight / head_norm
+                    )
                     output_layer.weight.data = normalised_head
             # freeze heads by default
             for param in output_layer.parameters():
