@@ -188,11 +188,11 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             teacher_head_initialisation_std = (
                 config.teacher_head_initialisation_std_value
             )
-            unit_norm_head = config.unit_norm_teacher_head
+            teacher_head_norms = config.teacher_head_norms
             heads_one = False
         elif config.teacher_head_initialisation_type == constants.ONES:
             teacher_head_initialisation_std = None
-            unit_norm_head = None
+            teacher_head_norms = None
             heads_one = True
         base_arguments = {
             constants.INPUT_DIMENSION: self._teacher_input_dimension,
@@ -203,9 +203,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             constants.NONLINEARITY: config.nonlinearity,
             constants.INITIALISATION_STD: config.teacher_initialisation_std,
             constants.HEAD_INITIALISATION_STD: teacher_head_initialisation_std,
+            constants.HEAD_NORMS: teacher_head_norms,
             constants.NORMALISE_WEIGHTS: config.normalise_teachers,
             constants.HEADS_ONE: heads_one,
-            constants.UNIT_NORM_HEAD: unit_norm_head,
         }
         if config.teacher_configuration == constants.ROTATION:
             teachers_class = rotation_ensemble.RotationEnsemble
@@ -252,6 +252,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             nonlinearity=config.nonlinearity,
             initialisation_std=config.student_initialisation_std,
             head_initialisation_std=config.student_head_initialisation_std,
+            head_norms=config.student_head_norms,
             train_hidden_layer=config.train_hidden_layer,
             train_head_layer=config.train_head_layer,
         )
