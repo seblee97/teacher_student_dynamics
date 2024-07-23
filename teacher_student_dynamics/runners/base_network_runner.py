@@ -243,6 +243,12 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             num_heads = self._num_teachers
         else:
             num_heads = 1
+        if config.student_head_initialisation_type == constants.STD:
+            head_initialisation_std = config.student_head_initialisation_std_value
+            head_angles = None
+        elif config.student_head_initialisation_type == constants.POLAR:
+            head_initialisation_std = None
+            head_angles = config.student_head_angles
         return multi_head_network.MultiHeadNetwork(
             input_dimension=config.input_dimension,
             hidden_dimension=config.student_hidden,
@@ -251,8 +257,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             num_heads=num_heads,
             nonlinearity=config.nonlinearity,
             initialisation_std=config.student_initialisation_std,
-            head_initialisation_std=config.student_head_initialisation_std,
+            head_initialisation_std=head_initialisation_std,
             head_norms=config.student_head_norms,
+            head_angles=head_angles,
             train_hidden_layer=config.train_hidden_layer,
             train_head_layer=config.train_head_layer,
         )
