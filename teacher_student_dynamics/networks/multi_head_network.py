@@ -23,6 +23,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         initialisation_std: Optional[float],
         head_initialisation_std: Optional[Union[float, List[float]]],
         head_norms: Optional[Union[float, List[float]]],
+        head_angles: Optional[Union[float, List[float]]] = None,
         normalise_weights: Optional[bool] = False,
         heads_one: Optional[bool] = False,
         train_hidden_layer: Optional[bool] = False,
@@ -41,6 +42,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._initialisation_std = initialisation_std
         self._head_initialisation_std = head_initialisation_std
         self._head_norms = head_norms
+        self._head_angles = head_angles
         self._normalise_weights = normalise_weights
         self._heads_one = heads_one
         self._train_hidden_layer = train_hidden_layer
@@ -160,15 +162,24 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             if self._heads_one:
                 output_layer.weight.data = torch.ones_like(output_layer.weight)
             else:
-                self._initialise_weights(
-                    output_layer, std=self._head_initialisation_std[i]
-                )
-                if self._head_norms is not None:
-                    head_norm = torch.norm(output_layer.weight)
-                    normalised_head = (
-                        self._head_norms[i] * output_layer.weight / head_norm
+                if self._head_initialisation_std is not None:
+                    self._initialise_weights(
+                        output_layer, std=self._head_initialisation_std[i]
                     )
-                    output_layer.weight.data = normalised_head
+                    if self._head_norms is not None:
+                        head_norm = torch.norm(output_layer.weight)
+                        normalised_head = (
+                            self._head_norms[i] * output_layer.weight / head_norm
+                        )
+                        output_layer.weight.data = normalised_head
+                elif self._head_angles is not None:
+                    angle = self._head_angles[i]
+                    norm = self._head_norms[i]
+                    output_layer.weight.data = torch.Tensor(
+                        [
+                            [norm * np.cos(angle), norm * np.sin(angle)],
+                        ]
+                    )
             # freeze heads by default
             for param in output_layer.parameters():
                 param.requires_grad = False
