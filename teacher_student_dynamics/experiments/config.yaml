@@ -84,8 +84,17 @@ networks:
     student_hidden: 2
     student_bias: False
     student_initialisation_std: 0.001
-    student_head_initialisation_std: [0.1, 1.]
-    student_head_norms: [0.1, 1.] # empty/None for no normalisation
+
+    student_head_initialisation_type: polar # std, polar 
+
+    student_head_initialisation_std:
+        student_head_initialisation_std_value: [0.1, 1.]
+        student_head_norms: [0.1, 1.] # empty/None for no normalisation
+
+    student_head_polar_initialisation:
+        student_head_norms: [0.1, 1.]
+        student_head_angles: [4.6, 0.] # this works for K=2, beyond this need to specify angles for each dimension  
+
     multi_head: True # False for single head
     # teacher(s)
     num_teachers: 2
