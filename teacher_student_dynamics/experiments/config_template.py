@@ -308,6 +308,51 @@ class ConfigTemplate:
         dependent_variables_required_values=[[constants.NODE_SHARING]],
     )
 
+    _student_head_std_initialisation_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.STUDENT_HEAD_INITIALISATION_STD_VALUE,
+                types=[list],
+                requirements=[
+                    lambda x: all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
+            config_field.Field(
+                name=constants.STUDENT_HEAD_NORMS,
+                types=[list],
+                requirements=[
+                    lambda x: isinstance(x, type(None))
+                    or all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
+        ],
+        level=[constants.NETWORKS, constants.STUDENT_HEAD_INITIALISATION_STD],
+        dependent_variables=[constants.STUDENT_HEAD_INITIALISATION_TYPE],
+        dependent_variables_required_values=[[constants.STD]],
+    )
+
+    _student_head_polar_initialisation_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.STUDENT_HEAD_NORMS,
+                types=[list],
+                requirements=[
+                    lambda x: all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
+            config_field.Field(
+                name=constants.STUDENT_HEAD_ANGLES,
+                types=[list],
+                requirements=[
+                    lambda x: all((isinstance(y, float) and y >= 0 for y in x))
+                ],
+            ),
+        ],
+        level=[constants.NETWORKS, constants.STUDENT_HEAD_POLAR_INITIALISATION],
+        dependent_variables=[constants.STUDENT_HEAD_INITIALISATION_TYPE],
+        dependent_variables_required_values=[[constants.POLAR]],
+    )
+
     _teacher_head_initialisation_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -363,19 +408,9 @@ class ConfigTemplate:
                 requirements=[lambda x: x >= 0],
             ),
             config_field.Field(
-                name=constants.STUDENT_HEAD_INITIALISATION_STD,
-                types=[list],
-                requirements=[
-                    lambda x: all((isinstance(y, float) and y >= 0 for y in x))
-                ],
-            ),
-            config_field.Field(
-                name=constants.STUDENT_HEAD_NORMS,
-                types=[list],
-                requirements=[
-                    lambda x: isinstance(x, type(None))
-                    or all((isinstance(y, float) and y >= 0 for y in x))
-                ],
+                name=constants.STUDENT_HEAD_INITIALISATION_TYPE,
+                types=[str],
+                requirements=[lambda x: x in [constants.STD, constants.POLAR]],
             ),
             config_field.Field(name=constants.MULTI_HEAD, types=[bool]),
             config_field.Field(
@@ -413,6 +448,8 @@ class ConfigTemplate:
         ],
         level=[constants.NETWORKS],
         nested_templates=[
+            _student_head_std_initialisation_template,
+            _student_head_polar_initialisation_template,
             _teacher_head_initialisation_template,
             _rotation_teachers_template,
             _node_sharing_teachers_template,
