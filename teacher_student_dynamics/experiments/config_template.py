@@ -311,6 +311,11 @@ class ConfigTemplate:
     _student_head_std_initialisation_template = config_template.Template(
         fields=[
             config_field.Field(
+                name=constants.STUDENT_HEAD_INITIALISATION_MEAN_VALUE,
+                types=[list],
+                requirements=[lambda x: all((isinstance(y, float) for y in x))],
+            ),
+            config_field.Field(
                 name=constants.STUDENT_HEAD_INITIALISATION_STD_VALUE,
                 types=[list],
                 requirements=[
@@ -355,6 +360,11 @@ class ConfigTemplate:
 
     _teacher_head_initialisation_template = config_template.Template(
         fields=[
+            config_field.Field(
+                name=constants.TEACHER_HEAD_INITIALISATION_MEAN_VALUE,
+                types=[list],
+                requirements=[lambda x: all((isinstance(y, float) for y in x))],
+            ),
             config_field.Field(
                 name=constants.TEACHER_HEAD_INITIALISATION_STD_VALUE,
                 types=[list],
@@ -403,6 +413,10 @@ class ConfigTemplate:
             ),
             config_field.Field(name=constants.STUDENT_BIAS, types=[bool]),
             config_field.Field(
+                name=constants.STUDENT_INITIALISATION_MEAN,
+                types=[float],
+            ),
+            config_field.Field(
                 name=constants.STUDENT_INITIALISATION_STD,
                 types=[float],
                 requirements=[lambda x: x >= 0],
@@ -423,6 +437,10 @@ class ConfigTemplate:
             ),
             config_field.Field(name=constants.TEACHER_BIAS, types=[bool]),
             config_field.Field(name=constants.NORMALISE_TEACHERS, types=[bool]),
+            config_field.Field(
+                name=constants.TEACHER_INITIALISATION_MEAN,
+                types=[float],
+            ),
             config_field.Field(
                 name=constants.TEACHER_INITIALISATION_STD,
                 types=[float],
