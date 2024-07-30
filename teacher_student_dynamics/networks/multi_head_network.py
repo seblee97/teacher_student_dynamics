@@ -20,7 +20,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         num_heads: int,
         bias: bool,
         nonlinearity: str,
+        initialisation_mean: Optional[float],
         initialisation_std: Optional[float],
+        head_initialisation_mean: Optional[Union[float, List[float]]],
         head_initialisation_std: Optional[Union[float, List[float]]],
         head_norms: Optional[Union[float, List[float]]],
         head_angles: Optional[Union[float, List[float]]] = None,
@@ -29,6 +31,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         train_hidden_layer: Optional[bool] = False,
         train_head_layer: Optional[bool] = False,
         freeze: Optional[bool] = False,
+        copy_features: Optional[torch.Tensor] = None,
     ) -> None:
         super().__init__()
 
@@ -39,7 +42,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._layer_dimensions = [self._input_dimension] + [self._hidden_dimension]
         self._bias = bias
         self._nonlinearity = nonlinearity
+        self._initialisation_mean = initialisation_mean
         self._initialisation_std = initialisation_std
+        self._head_initialisation_mean = head_initialisation_mean
         self._head_initialisation_std = head_initialisation_std
         self._head_norms = head_norms
         self._head_angles = head_angles
@@ -57,6 +62,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
 
         if freeze:
             self._freeze()
+
+        if copy_features is not None:
+            self._manually_initialise(copy_features)
 
     @property
     def layers(self) -> nn.ModuleList:
@@ -120,7 +128,9 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
 
         self._construct_output_layers()
 
-    def _initialise_weights(self, layer: nn.Module, value=None, std=None) -> None:
+    def _initialise_weights(
+        self, layer: nn.Module, value=None, mean=None, std=None
+    ) -> None:
         """In-place weight initialisation for a given layer in accordance with configuration.
 
         Args:
@@ -129,11 +139,23 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         if value is not None:
             layer.weight.data.fill_(value)
         else:
+            mean = mean or self._initialisation_mean
             std = std or self._initialisation_std
             if std is not None:
-                nn.init.normal_(layer.weight, std=std)
+                nn.init.normal_(layer.weight, mean=mean, std=std)
                 if self._bias:
-                    nn.init.normal_(layer.bias, std=std)
+                    nn.init.normal_(layer.bias, mean=mean, std=std)
+
+    def _manually_initialise(self, weights: nn.ModuleList):
+        network_dim = len(self._layers[0].weight)
+        weights_dim = len(weights[0].weight)
+
+        overparameterisation_factor = network_dim / weights_dim
+
+        for i in range(int(overparameterisation_factor)):
+            self._layers[0].weight.data[i * weights_dim : (i + 1) * weights_dim] = (
+                weights[0].weight.data
+            )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """This method performs the forward pass. This implements the
@@ -162,9 +184,14 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
             if self._heads_one:
                 output_layer.weight.data = torch.ones_like(output_layer.weight)
             else:
-                if self._head_initialisation_std is not None:
+                if (
+                    self._head_initialisation_std is not None
+                    and self._head_initialisation_mean is not None
+                ):
                     self._initialise_weights(
-                        output_layer, std=self._head_initialisation_std[i]
+                        output_layer,
+                        mean=self._head_initialisation_mean[i],
+                        std=self._head_initialisation_std[i],
                     )
                     if self._head_norms is not None:
                         head_norm = torch.norm(output_layer.weight)
