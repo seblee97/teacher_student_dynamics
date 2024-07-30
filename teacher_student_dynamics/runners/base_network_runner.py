@@ -185,6 +185,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     def _setup_teachers(self, config: experiments.config.Config):
         """Initialise teacher object containing teacher networks."""
         if config.teacher_head_initialisation_type == constants.STD:
+            teacher_head_initialisation_mean = (
+                config.teacher_head_initialisation_mean_value
+            )
             teacher_head_initialisation_std = (
                 config.teacher_head_initialisation_std_value
             )
@@ -201,7 +204,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             constants.ENSEMBLE_SIZE: config.num_teachers,
             constants.BIAS: config.teacher_bias,
             constants.NONLINEARITY: config.nonlinearity,
+            constants.INITIALISATION_MEAN: config.teacher_initialisation_mean,
             constants.INITIALISATION_STD: config.teacher_initialisation_std,
+            constants.HEAD_INITIALISATION_MEAN: teacher_head_initialisation_mean,
             constants.HEAD_INITIALISATION_STD: teacher_head_initialisation_std,
             constants.HEAD_NORMS: teacher_head_norms,
             constants.NORMALISE_WEIGHTS: config.normalise_teachers,
@@ -244,9 +249,11 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         else:
             num_heads = 1
         if config.student_head_initialisation_type == constants.STD:
+            head_initialisation_mean = config.student_head_initialisation_mean_value
             head_initialisation_std = config.student_head_initialisation_std_value
             head_angles = None
         elif config.student_head_initialisation_type == constants.POLAR:
+            head_initialisation_mean = None
             head_initialisation_std = None
             head_angles = config.student_head_angles
         return multi_head_network.MultiHeadNetwork(
@@ -256,7 +263,9 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             bias=config.student_bias,
             num_heads=num_heads,
             nonlinearity=config.nonlinearity,
+            initialisation_mean=config.student_initialisation_mean,
             initialisation_std=config.student_initialisation_std,
+            head_initialisation_mean=head_initialisation_mean,
             head_initialisation_std=head_initialisation_std,
             head_norms=config.student_head_norms,
             head_angles=head_angles,
