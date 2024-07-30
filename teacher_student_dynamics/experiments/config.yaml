@@ -83,11 +83,13 @@ networks:
     # student
     student_hidden: 2
     student_bias: False
+    student_initialisation_mean: 0.
     student_initialisation_std: 0.001
 
     student_head_initialisation_type: polar # std, polar 
 
     student_head_initialisation_std:
+        student_head_initialisation_mean_value: [0., 0.]
         student_head_initialisation_std_value: [0.1, 1.]
         student_head_norms: [0.1, 1.] # empty/None for no normalisation
 
@@ -101,10 +103,12 @@ networks:
     teacher_hidden: 1
     teacher_bias: False
     normalise_teachers: True
+    teacher_initialisation_mean: 0.
     teacher_initialisation_std: 1.
     teacher_head_initialisation_type: std # std, heads_one (make all teacher head weights 1 - like fig. 3 of HMM paper)
-    
+
     teacher_head_initialisation_std:
+        teacher_head_initialisation_mean_value: [0., 0.] 
         teacher_head_initialisation_std_value: [1., 1.] 
         teacher_head_norms: [1., 1.] # empty/None for no normalisation
 
