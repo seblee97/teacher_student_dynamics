@@ -20,7 +20,9 @@ class BaseEnsemble(abc.ABC):
         ensemble_size: int,
         bias: bool,
         nonlinearity: List[str],
+        initialisation_mean: float,
         initialisation_std: float,
+        head_initialisation_mean: Union[List[float], float],
         head_initialisation_std: Union[List[float], float],
         head_norms: Union[List[float], float],
         heads_one: bool,
@@ -32,7 +34,9 @@ class BaseEnsemble(abc.ABC):
         self._ensemble_size = ensemble_size
         self._bias = bias
         self._nonlinearity = nonlinearity
+        self._initialisation_mean = initialisation_mean
         self._initialisation_std = initialisation_std
+        self._head_initialisation_mean = head_initialisation_mean
         self._head_initialisation_std = head_initialisation_std
         self._head_norms = head_norms
         self._normalise_weights = normalise_weights
@@ -80,7 +84,9 @@ class BaseEnsemble(abc.ABC):
             num_heads=num_heads,
             bias=self._bias,
             nonlinearity=self._nonlinearity,
+            initialisation_mean=self._initialisation_mean,
             initialisation_std=self._initialisation_std,
+            head_initialisation_mean=self._head_initialisation_mean,
             head_initialisation_std=self._head_initialisation_std,
             head_norms=self._head_norms,
             normalise_weights=self._normalise_weights,
