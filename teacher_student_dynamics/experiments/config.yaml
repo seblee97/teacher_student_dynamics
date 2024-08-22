@@ -97,6 +97,8 @@ networks:
         student_head_norms: [0.1, 1.]
         student_head_angles: [4.6, 0.] # this works for K=2, beyond this need to specify angles for each dimension  
 
+    copy_teacher_features: [[1, 0]] # copies first teacher nodes with some correlation to student nodes
+
     multi_head: True # False for single head
     # teacher(s)
     num_teachers: 2
