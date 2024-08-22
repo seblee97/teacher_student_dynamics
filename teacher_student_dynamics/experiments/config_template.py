@@ -426,6 +426,11 @@ class ConfigTemplate:
                 types=[str],
                 requirements=[lambda x: x in [constants.STD, constants.POLAR]],
             ),
+            config_field.Field(
+                name=constants.COPY_TEACHER_FEATURES,
+                types=[list],
+                requirements=[lambda x: all(isinstance(y, list) for y in x)],
+            ),
             config_field.Field(name=constants.MULTI_HEAD, types=[bool]),
             config_field.Field(
                 name=constants.NUM_TEACHERS, types=[int], requirements=[lambda x: x > 0]
