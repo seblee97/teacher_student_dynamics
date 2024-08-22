@@ -1,5 +1,6 @@
 import abc
 import os
+import copy
 import time
 from typing import Any, Callable, Dict, List, Optional
 
@@ -256,6 +257,16 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             head_initialisation_mean = None
             head_initialisation_std = None
             head_angles = config.student_head_angles
+        copy_features = []
+        for i, teacher_node_copy in enumerate(config.copy_teacher_features):
+            node_copy = []
+            for _, teacher_node_student_node_copy in enumerate(teacher_node_copy):
+                if teacher_node_student_node_copy != 0:
+                    node_to_copy = self._teachers.networks[0].layers[i].weight[0].data
+                    node_copy.append(node_to_copy)
+                else:
+                    node_copy.append(None)
+            copy_features.append(node_copy)
         return multi_head_network.MultiHeadNetwork(
             input_dimension=config.input_dimension,
             hidden_dimension=config.student_hidden,
@@ -267,6 +278,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             initialisation_std=config.student_initialisation_std,
             head_initialisation_mean=head_initialisation_mean,
             head_initialisation_std=head_initialisation_std,
+            copy_features=copy_features,
             head_norms=config.student_head_norms,
             head_angles=head_angles,
             train_hidden_layer=config.train_hidden_layer,
