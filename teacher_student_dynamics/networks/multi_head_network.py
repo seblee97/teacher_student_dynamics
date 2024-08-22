@@ -31,7 +31,7 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         train_hidden_layer: Optional[bool] = False,
         train_head_layer: Optional[bool] = False,
         freeze: Optional[bool] = False,
-        copy_features: Optional[torch.Tensor] = None,
+        copy_features: Optional[List] = None,
     ) -> None:
         super().__init__()
 
@@ -60,11 +60,15 @@ class MultiHeadNetwork(nn.Module, abc.ABC):
         self._nonlinear_function = self._get_nonlinear_function()
         self._construct_layers()
 
+        if copy_features is not None:
+            with torch.no_grad():
+                for copy_feature in copy_features:
+                    for node in range(self._hidden_dimension):
+                        if copy_feature[node] is not None:
+                            self._layers[0].weight.data[node, :] = copy_feature[node]
+
         if freeze:
             self._freeze()
-
-        if copy_features is not None:
-            self._manually_initialise(copy_features)
 
     @property
     def layers(self) -> nn.ModuleList:
