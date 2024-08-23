@@ -24,6 +24,7 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
         head_initialisation_mean: Union[List[float], float],
         head_initialisation_std: Union[List[float], float],
         normalise_weights: bool,
+        head_norms: Union[List[float], float],
         heads_one: bool,
         feature_rotation_alpha: float,
         readout_rotation_alpha: float,
@@ -41,6 +42,7 @@ class RotationEnsemble(base_ensemble.BaseEnsemble):
             initialisation_std=initialisation_std,
             head_initialisation_mean=head_initialisation_mean,
             head_initialisation_std=head_initialisation_std,
+            head_norms=head_norms,
             normalise_weights=normalise_weights,
             heads_one=heads_one,
         )
