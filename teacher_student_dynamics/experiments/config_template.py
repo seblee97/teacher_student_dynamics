@@ -198,6 +198,34 @@ class ConfigTemplate:
         level=[constants.DATA],
     )
 
+    _ewc_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.LEVEL,
+                types=[str],
+                requirements=[lambda x: x in [constants.NODE, constants.WEIGHT]],
+            ),
+            config_field.Field(
+                name=constants.IMPORTANCE, types=[float], requirements=[lambda x: x > 0]
+            ),
+        ],
+        dependent_variables=[constants.CONSOLIDATION_TYPE],
+        dependent_variables_required_values=[[constants.EWC]],
+        level=[constants.TRAINING, constants.CONSOLIDATION, constants.EWC],
+    )
+
+    _consolidation_template = config_template.Template(
+        fields=[
+            config_field.Field(
+                name=constants.CONSOLIDATION_TYPE,
+                types=[str, type(None)],
+                requirements=[lambda x: x is None or x in [constants.EWC]],
+            )
+        ],
+        nested_templates=[_ewc_template],
+        level=[constants.TRAINING, constants.CONSOLIDATION],
+    )
+
     _training_template = config_template.Template(
         fields=[
             config_field.Field(
@@ -253,6 +281,7 @@ class ConfigTemplate:
                 requirements=[lambda x: all(isinstance(y, int) for y in x)],
             ),
         ],
+        nested_templates=[_consolidation_template],
         level=[constants.TRAINING],
     )
 
@@ -324,9 +353,9 @@ class ConfigTemplate:
             ),
             config_field.Field(
                 name=constants.STUDENT_HEAD_NORMS,
-                types=[list],
+                types=[list, type(None)],
                 requirements=[
-                    lambda x: isinstance(x, type(None))
+                    lambda x: x is None
                     or all((isinstance(y, float) and y >= 0 for y in x))
                 ],
             ),
