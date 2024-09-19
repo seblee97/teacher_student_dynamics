@@ -217,7 +217,12 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
     def _project_networks(self):
         pass
 
-    def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
+    def _training_step(
+        self,
+        teacher_index: int,
+        replaying: Optional[bool] = None,
+        consolidation_module=None,
+    ):
         """Perform single training step."""
 
         precompute_labels_on = self._data_module.precompute_labels_on
@@ -257,6 +262,16 @@ class VanillaMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
         # training iteration
         self._optimiser.zero_grad()
         loss = self._compute_loss(student_output, teacher_output)
+
+        if consolidation_module is not None:
+            regularisation_term = consolidation_module.penalty(self._student)
+            self._data_columns[constants.CONSOLIDATION_PENALTY] = (
+                regularisation_term.item()
+            )
+            loss += regularisation_term
+        else:
+            if self._consolidation_module is not None:
+                self._data_columns[constants.CONSOLIDATION_PENALTY] = 0
 
         self._data_columns[constants.LOSS][self._data_index] = loss.item()
 
