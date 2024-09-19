@@ -25,6 +25,12 @@ from teacher_student_dynamics.networks.network_ensembles import (
 )
 from teacher_student_dynamics.utils import network_configurations, decorators
 
+from teacher_student_dynamics.regularisers import (
+    ewc,
+    node_consolidation,
+    quadratic_penalty,
+)
+
 
 class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
     """Runner for network simulations.
@@ -86,6 +92,7 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         self._freeze_units = config.freeze_units
         self._unit_masks = self._setup_unit_masks(config=config)
+        self._consolidation_module = self._setup_consolidation(config=config)
 
         self._data_columns = self._setup_data_columns()
         self._log_columns = self._get_data_columns()
@@ -164,6 +171,8 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             columns.append(f"{constants.LOG_GENERALISATION_ERROR}_{i}")
         if self._overlap_frequency < np.inf:
             columns.extend(list(self._network_configuration.sub_dictionary.keys()))
+        if self._consolidation_module:
+            columns.append(constants.CONSOLIDATION_PENALTY)
         return columns
 
     def _setup_data_columns(self):
@@ -306,13 +315,38 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
         return optimiser
 
     @decorators.timer
-    def _setup_unit_masks(self, config: experiments.config.Config) -> None:
+    def _setup_unit_masks(
+        self, config: experiments.config.Config
+    ) -> List[torch.Tensor]:
         """setup masks for specific hidden units."""
         unit_masks = []
         for num_units in config.freeze_units:
             mask = torch.zeros(num_units, config.input_dimension)
             unit_masks.append(mask)
         return unit_masks
+
+    @decorators.timer
+    def _setup_consolidation(self, config: experiments.config.Config):
+        if config.consolidation_type is None:
+            consolidation_module = None
+        elif config.consolidation_type == constants.EWC:
+            if config.level == constants.WEIGHT:
+                consolidation_module = ewc.EWC(
+                    importance=config.importance, device=self._device
+                )
+            elif config.level == constants.NODE:
+                consolidation_module = node_consolidation.NodeConsolidation(
+                    importance=config.importance, device=self._device, hessian=True
+                )
+        elif config.consolidation_type == constants.QUADRATIC:
+            consolidation_module = quadratic_penalty.QuadraticPenalty(
+                importance=config.importance, device=self._device
+            )
+        else:
+            raise ValueError(
+                f"Consolidation type {config.consolidation_type} not recognised."
+            )
+        return consolidation_module
 
     @decorators.timer
     def _setup_loss(self, config: experiments.config.Config) -> Callable:
@@ -397,10 +431,32 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
 
         timer = time.time()
 
+        if self._consolidation_module is not None and len(self._curriculum.history) > 1:
+            previous_teacher_index = self._curriculum.history[-2]
+            previous_teacher = self._teachers.networks[previous_teacher_index]
+            self._consolidation_module.compute_first_task_importance(
+                student=self._student,
+                previous_teacher_index=previous_teacher_index,
+                new_teacher_index=teacher_index,
+                previous_teacher=previous_teacher,
+                loss_function=self._compute_loss,
+                data_module=self._data_module,
+            )
+            consolidation_module = self._consolidation_module
+            for params, matrix in consolidation_module.precision_matrices.items():
+                torch.save(
+                    matrix,
+                    os.path.join(self._checkpoint_path, f"precision_matrix_{params}"),
+                )
+        else:
+            consolidation_module = None
+
         while self._total_step_count <= self._total_training_steps:
 
             generalisation_errors = self._train_test_step(
-                teacher_index=teacher_index, replaying=replaying
+                teacher_index=teacher_index,
+                replaying=replaying,
+                consolidation_module=consolidation_module,
             )
 
             latest_generalisation_errors = [
@@ -440,7 +496,10 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
                 break
 
     def _train_test_step(
-        self, teacher_index: int, replaying: Optional[bool] = None
+        self,
+        teacher_index: int,
+        replaying: Optional[bool] = None,
+        consolidation_module=None,
     ) -> Dict[str, Any]:
 
         if self._total_step_count % self._save_overlap_frequency == 0:
@@ -456,7 +515,11 @@ class BaseNetworkRunner(base_runner.BaseRunner, abc.ABC):
             for key, value in self._network_configuration.sub_dictionary.items():
                 self._data_columns[key][self._data_index] = value
 
-        self._training_step(teacher_index=teacher_index, replaying=replaying)
+        self._training_step(
+            teacher_index=teacher_index,
+            replaying=replaying,
+            consolidation_module=consolidation_module,
+        )
 
         if self._total_step_count % self._test_frequency == 0:
             generalisation_errors = self._compute_generalisation_errors()
