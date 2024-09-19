@@ -76,6 +76,13 @@ training:
     # Each item is number of units to freeze for each teacher.
     freeze_units: [0, 0]
 
+    consolidation:
+        consolidation_type: ewc #ewc, None
+        
+        ewc:
+            level: node #node, weight
+            importance: 1.
+
 networks:
     input_dimension: 10000
     output_dimension: 1
