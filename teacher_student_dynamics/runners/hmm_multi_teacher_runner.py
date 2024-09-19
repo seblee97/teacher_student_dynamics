@@ -923,7 +923,12 @@ class HMMMultiTeacherRunner(base_network_runner.BaseNetworkRunner):
                 [d.unrotated_feature_matrix for d in self._data_module]
             )
 
-    def _training_step(self, teacher_index: int, replaying: Optional[bool] = None):
+    def _training_step(
+        self,
+        teacher_index: int,
+        replaying: Optional[bool] = None,
+        consolidation_module=None,
+    ):
         """Perform single training step."""
 
         precompute_labels_on = self._data_module[teacher_index].precompute_labels_on
